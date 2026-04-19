@@ -79,9 +79,9 @@ const Auth = () => {
         <img src={hero} alt="Delicious pasta" className="absolute inset-0 w-full h-full object-cover" width={1024} height={1280} />
         <div className="absolute inset-0 gradient-hero" />
         <div className="relative h-full flex flex-col items-center justify-center px-6 text-center text-primary-foreground">
-          <img src={logo} alt="Forkly logo" className="h-16 w-16 mb-4 drop-shadow-lg" width={64} height={64} />
-          <h1 className="text-4xl font-display font-extrabold tracking-tight">Forkly</h1>
-          <p className="mt-2 text-base font-medium opacity-95 max-w-xs">Swipe. Plan. Cook together.</p>
+          <img src={logo} alt="Dinder logo" className="h-16 w-16 mb-4 drop-shadow-lg" width={64} height={64} />
+          <h1 className="text-4xl font-display font-extrabold tracking-tight">Dinder</h1>
+          <p className="mt-2 text-base font-medium opacity-95 max-w-xs">Tinder for Dinner. Swipe. Match. Cook.</p>
         </div>
       </div>
 
@@ -126,7 +126,7 @@ const Auth = () => {
           </Button>
 
           <p className="mt-5 text-xs text-center text-muted-foreground">
-            By continuing you agree to Forkly's terms & privacy policy.
+            By continuing you agree to Dinder's terms & privacy policy.
           </p>
         </div>
       </div>

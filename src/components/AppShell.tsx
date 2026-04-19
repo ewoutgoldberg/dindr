@@ -2,14 +2,17 @@ import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { CalendarDays, Flame, Heart, ShoppingCart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+
+const today = () => format(new Date(), "yyyy-MM-dd");
 
 const tabs = [
   { to: "/plan", label: "Plan", icon: CalendarDays },
-  { to: "/swipe", label: "Swipe", icon: Flame },
+  { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/shopping", label: "List", icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
-];
+] as const;
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
@@ -20,25 +23,32 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
           <div className="max-w-md mx-auto grid grid-cols-5 px-2 pt-2">
-            {tabs.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  cn(
-                    "flex flex-col items-center gap-1 py-2 rounded-xl transition-colors",
-                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className={cn("h-6 w-6 transition-transform", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
-                    <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
+            {tabs.map(({ to, label, icon: Icon, ...rest }) => {
+              const matchPath = "match" in rest ? rest.match : (to as string);
+              const target = typeof to === "function" ? to() : to;
+              return (
+                <NavLink
+                  key={matchPath}
+                  to={target}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex flex-col items-center gap-1 py-2 rounded-xl transition-colors",
+                      (isActive || pathname.startsWith(matchPath)) ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    )
+                  }
+                >
+                  {({ isActive }) => {
+                    const active = isActive || pathname.startsWith(matchPath);
+                    return (
+                      <>
+                        <Icon className={cn("h-6 w-6 transition-transform", active && "scale-110")} strokeWidth={active ? 2.5 : 2} />
+                        <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+              );
+            })}
           </div>
         </nav>
       )}
