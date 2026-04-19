@@ -2,14 +2,17 @@ import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { CalendarDays, Flame, Heart, ShoppingCart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+
+const today = () => format(new Date(), "yyyy-MM-dd");
 
 const tabs = [
   { to: "/plan", label: "Plan", icon: CalendarDays },
-  { to: "/swipe", label: "Swipe", icon: Flame },
+  { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/shopping", label: "List", icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
-];
+] as const;
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
