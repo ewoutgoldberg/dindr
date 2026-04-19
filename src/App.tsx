@@ -1,24 +1,42 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/RequireAuth";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import Plan from "./pages/Plan";
+import Swipe from "./pages/Swipe";
+import Matches from "./pages/Matches";
+import RecipeDetail from "./pages/RecipeDetail";
+import Shopping from "./pages/Shopping";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
+      <Sonner position="top-center" />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/plan" element={<RequireAuth><Plan /></RequireAuth>} />
+              <Route path="/swipe/:date" element={<RequireAuth><Swipe /></RequireAuth>} />
+              <Route path="/matches" element={<RequireAuth><Matches /></RequireAuth>} />
+              <Route path="/recipe/:id" element={<RequireAuth><RecipeDetail /></RequireAuth>} />
+              <Route path="/shopping" element={<RequireAuth><Shopping /></RequireAuth>} />
+              <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppShell>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
