@@ -248,11 +248,13 @@ const EmptyState = ({ date, onBack, onMatches }: { date: string; onBack: () => v
       <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
         <Sparkles className="h-10 w-10 text-primary-foreground" />
       </div>
-      <h2 className="text-2xl font-display font-extrabold">All swiped!</h2>
-      <p className="text-muted-foreground mt-2">You've seen every matching recipe for this day.</p>
+      <h2 className="text-2xl font-display font-extrabold">No recipes match</h2>
+      <p className="text-muted-foreground mt-2">
+        Your filters are too strict for our current recipe library — try fewer categories or a higher difficulty/time.
+      </p>
       <div className="flex flex-col gap-2 mt-6">
-        <Button variant="hero" size="lg" onClick={onMatches}>See my likes</Button>
-        <Button variant="outline" onClick={onBack}>Adjust filters</Button>
+        <Button variant="hero" size="lg" onClick={onBack}>Adjust filters</Button>
+        <Button variant="outline" onClick={onMatches}>See my likes</Button>
       </div>
     </div>
   </div>
