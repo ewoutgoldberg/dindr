@@ -126,7 +126,7 @@ const Auth = () => {
           </Button>
 
           <p className="mt-5 text-xs text-center text-muted-foreground">
-            By continuing you agree to Forkly's terms & privacy policy.
+            By continuing you agree to Dinder's terms & privacy policy.
           </p>
         </div>
       </div>
