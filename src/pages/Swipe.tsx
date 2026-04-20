@@ -96,7 +96,7 @@ const Swipe = () => {
   const dateLabel = date ? format(parseISO(date), "EEEE, MMM d") : "";
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex-1 flex flex-col bg-background">
       <header className="px-5 pt-4 pb-3 flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
