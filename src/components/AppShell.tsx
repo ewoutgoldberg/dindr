@@ -16,7 +16,7 @@ const tabs = [
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
-  const hideNav = pathname.startsWith("/recipe/") || pathname === "/auth" || pathname.startsWith("/swipe/");
+  const hideNav = pathname.startsWith("/recipe/") || pathname === "/auth";
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <main className={cn("flex-1 flex flex-col", !hideNav && "pb-24")}>{children}</main>
