@@ -143,7 +143,7 @@ const RecipeDetail = () => {
         </div>
       </div>
 
-      <div className="max-w-md mx-auto px-5 -mt-6">
+      <div className="max-w-md mx-auto px-5 -mt-6 relative z-10">
         <div className="bg-card rounded-3xl shadow-card p-5 grid grid-cols-3 text-center">
           <div>
             <Clock className="h-5 w-5 mx-auto text-primary" />
