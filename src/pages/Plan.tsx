@@ -35,6 +35,31 @@ const Plan = () => {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const [creators, setCreators] = useState<Creator[]>([]);
+  const [pantry, setPantryState] = useState<string[]>([]);
+  const [pantryInput, setPantryInput] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      setPantryState([]);
+      return;
+    }
+    setPantryState(getPantry(user.id, fmtDateKey(selected)));
+  }, [user, selected]);
+
+  const addPantryItem = (raw: string) => {
+    if (!user) return;
+    const value = normalizeIngredient(raw);
+    if (!value) return;
+    const next = setPantry(user.id, fmtDateKey(selected), [...pantry, value]);
+    setPantryState(next);
+    setPantryInput("");
+  };
+
+  const removePantryItem = (item: string) => {
+    if (!user) return;
+    const next = setPantry(user.id, fmtDateKey(selected), pantry.filter((p) => p !== item));
+    setPantryState(next);
+  };
 
   const load = async () => {
     if (!user) return;
