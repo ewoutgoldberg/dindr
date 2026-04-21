@@ -150,6 +150,12 @@ const RecipeDetail = () => {
           </div>
         </div>
 
+        {recipe.food_creators && (
+          <section className="mt-6">
+            <CreatorCard creator={recipe.food_creators} />
+          </section>
+        )}
+
         <section className="mt-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display font-bold text-xl">Ingredients</h2>
