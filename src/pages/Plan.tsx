@@ -6,10 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart, ChefHat, X } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Tables } from "@/integrations/supabase/types";
 
 type MealPlan = {
   id: string;
@@ -18,7 +19,10 @@ type MealPlan = {
   categories: string[] | null;
   difficulty: string | null;
   final_recipe_id: string | null;
+  creator_id: string | null;
 };
+
+type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
 
 const Plan = () => {
   const { user } = useAuth();
