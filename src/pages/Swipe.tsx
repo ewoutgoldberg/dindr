@@ -40,6 +40,7 @@ const Swipe = () => {
       if (plan?.max_time_minutes) q = q.lte("cooking_time_minutes", plan.max_time_minutes);
       if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
       if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
+      if (plan?.creator_id) q = q.eq("creator_id", plan.creator_id);
 
       const { data, error } = await q.limit(50);
       if (error) toast.error(error.message);
