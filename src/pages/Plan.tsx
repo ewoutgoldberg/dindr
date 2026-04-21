@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -97,8 +97,17 @@ const Plan = () => {
       <header className="mb-6">
         <p className="text-sm font-semibold text-primary uppercase tracking-wider">This week</p>
         <h1 className="text-3xl font-display font-extrabold mt-1">What's cooking?</h1>
-        <p className="text-muted-foreground mt-1">Pick a day, set your vibe, then start swiping.</p>
+        <p className="text-muted-foreground mt-1">Swipe through dishes or set filters to narrow down.</p>
       </header>
+
+      <Button
+        variant="hero"
+        size="lg"
+        className="w-full mb-6 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+        onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}
+      >
+        <Sparkles className="h-5 w-5 mr-2" /> Surprise me — start swiping!
+      </Button>
 
       <div className="flex items-center justify-between mb-3">
         <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, -7))}>
@@ -205,9 +214,12 @@ const Plan = () => {
         </div>
       </section>
 
-      <Button variant="hero" size="lg" className="w-full" onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}>
-        <Users className="h-5 w-5 mr-2" /> Start swiping
-      </Button>
+      <div className="pt-4 pb-6 text-center">
+        <p className="text-xs text-muted-foreground mb-2">Want more control?</p>
+        <Button variant="outline" className="w-full" onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}>
+          <SlidersHorizontal className="h-4 w-4 mr-2" /> Swipe with filters
+        </Button>
+      </div>
     </div>
   );
 };
