@@ -1,0 +1,1 @@
+ALTER TABLE public.meal_plans ADD COLUMN IF NOT EXISTS creator_id uuid REFERENCES public.food_creators(id) ON DELETE SET NULL;
