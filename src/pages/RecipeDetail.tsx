@@ -6,8 +6,9 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart } from "lucide-react";
 import { CreatorCard } from "@/components/CreatorCard";
+import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
@@ -35,6 +36,7 @@ const RecipeDetail = () => {
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const { isFavorite, toggle: toggleFavorite } = useFavorite(id);
 
   useEffect(() => {
     const load = async () => {
@@ -121,6 +123,16 @@ const RecipeDetail = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute top-4 left-4 bg-background/30 backdrop-blur text-primary-foreground hover:bg-background/40">
           <ArrowLeft className="h-5 w-5" />
         </Button>
+        <button
+          onClick={toggleFavorite}
+          className={cn(
+            "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur transition-all active:scale-90",
+            isFavorite ? "bg-accent text-accent-foreground" : "bg-background/30 text-primary-foreground hover:bg-background/40"
+          )}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+        </button>
         <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
           <div className="flex gap-2 mb-2">
             <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0">{recipe.category}</Badge>
