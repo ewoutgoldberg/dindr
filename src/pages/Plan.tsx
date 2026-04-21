@@ -32,6 +32,8 @@ const Plan = () => {
   const [plans, setPlans] = useState<Record<string, MealPlan>>({});
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
+  const [creators, setCreators] = useState<Creator[]>([]);
+
   const load = async () => {
     if (!user) return;
     const start = fmtDateKey(weekStart);
@@ -52,7 +54,16 @@ const Plan = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, weekStart]);
 
+  useEffect(() => {
+    supabase
+      .from("food_creators")
+      .select("id, name, avatar_url, specialty, handle")
+      .order("name")
+      .then(({ data }) => setCreators((data as Creator[]) ?? []));
+  }, []);
+
   const currentPlan = plans[fmtDateKey(selected)];
+  const selectedCreator = creators.find((c) => c.id === currentPlan?.creator_id) ?? null;
 
   const upsert = async (patch: Partial<MealPlan>) => {
     if (!user) return;
