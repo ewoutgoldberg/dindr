@@ -9,8 +9,9 @@ import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles } from "lucide-r
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
+import { Link } from "react-router-dom";
 
-type Recipe = Tables<"recipes">;
+type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
 
 const Swipe = () => {
   const { date } = useParams<{ date: string }>();
@@ -33,7 +34,7 @@ const Swipe = () => {
       const { data: swiped } = await supabase.from("swipes").select("recipe_id").eq("user_id", user.id).eq("plan_date", date);
       const excluded = new Set(swiped?.map((s) => s.recipe_id) ?? []);
 
-      let q = supabase.from("recipes").select("*");
+      let q = supabase.from("recipes").select("*, food_creators(id, name, avatar_url, handle)");
       if (plan?.max_time_minutes) q = q.lte("cooking_time_minutes", plan.max_time_minutes);
       if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
       if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
