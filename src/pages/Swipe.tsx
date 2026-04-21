@@ -9,8 +9,9 @@ import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles } from "lucide-r
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
+import { Link } from "react-router-dom";
 
-type Recipe = Tables<"recipes">;
+type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
 
 const Swipe = () => {
   const { date } = useParams<{ date: string }>();
@@ -33,7 +34,7 @@ const Swipe = () => {
       const { data: swiped } = await supabase.from("swipes").select("recipe_id").eq("user_id", user.id).eq("plan_date", date);
       const excluded = new Set(swiped?.map((s) => s.recipe_id) ?? []);
 
-      let q = supabase.from("recipes").select("*");
+      let q = supabase.from("recipes").select("*, food_creators(id, name, avatar_url, handle)");
       if (plan?.max_time_minutes) q = q.lte("cooking_time_minutes", plan.max_time_minutes);
       if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
       if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
@@ -41,7 +42,7 @@ const Swipe = () => {
       const { data, error } = await q.limit(50);
       if (error) toast.error(error.message);
 
-      const filtered = (data ?? []).filter((r) => !excluded.has(r.id));
+      const filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
       // shuffle
       filtered.sort(() => Math.random() - 0.5);
       setRecipes(filtered);
@@ -227,6 +228,21 @@ const SwipeCard = ({
         </>
       )}
       <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
+        {recipe.food_creators && (
+          <Link
+            to={`/creator/${recipe.food_creators.id}`}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-2 bg-background/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-background/40 transition-colors"
+          >
+            <img
+              src={recipe.food_creators.avatar_url ?? ""}
+              alt={recipe.food_creators.name}
+              className="h-7 w-7 rounded-full object-cover"
+            />
+            <span className="text-xs font-semibold">by {recipe.food_creators.name}</span>
+          </Link>
+        )}
         <div className="flex gap-2 mb-2">
           <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0">{recipe.category}</Badge>
           <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
@@ -235,7 +251,7 @@ const SwipeCard = ({
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
         <div className="flex items-center gap-4 mt-3 text-sm font-semibold">
           <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {recipe.cooking_time_minutes} min</span>
-          <span className="flex items-center gap-1.5"><ChefHat className="h-4 w-4" /> {recipe.creator}</span>
+          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.category}</span>
         </div>
       </div>
     </motion.div>

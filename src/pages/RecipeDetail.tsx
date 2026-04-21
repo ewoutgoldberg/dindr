@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus } from "lucide-react";
+import { CreatorCard } from "@/components/CreatorCard";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 
-type Recipe = Tables<"recipes">;
+type Creator = Tables<"food_creators">;
+type Recipe = Tables<"recipes"> & { food_creators?: Creator | null };
 type Review = Tables<"reviews"> & { profiles?: { display_name: string | null; avatar_url: string | null } | null };
 
 const reviewSchema = z.object({
@@ -39,12 +41,12 @@ const RecipeDetail = () => {
       if (!id || !user) return;
       setLoading(true);
       const [{ data: r }, { data: rev }, { data: liked }] = await Promise.all([
-        supabase.from("recipes").select("*").eq("id", id).maybeSingle(),
+        supabase.from("recipes").select("*, food_creators(*)").eq("id", id).maybeSingle(),
         supabase.from("reviews").select("*").eq("recipe_id", id).order("created_at", { ascending: false }),
         supabase.from("swipes").select("id").eq("user_id", user.id).eq("recipe_id", id).eq("liked", true).limit(1),
       ]);
       if (r) {
-        setRecipe(r);
+        setRecipe(r as Recipe);
         setServings(r.servings);
       }
       setReviews((rev as Review[]) ?? []);
@@ -147,6 +149,12 @@ const RecipeDetail = () => {
             <p className="font-display font-bold">{avgRating > 0 ? avgRating.toFixed(1) : "—"}</p>
           </div>
         </div>
+
+        {recipe.food_creators && (
+          <section className="mt-6">
+            <CreatorCard creator={recipe.food_creators} />
+          </section>
+        )}
 
         <section className="mt-6">
           <div className="flex items-center justify-between mb-3">

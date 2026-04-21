@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      food_creators: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string
+          handle: string
+          id: string
+          instagram_url: string | null
+          location: string | null
+          name: string
+          specialty: string | null
+          story: string | null
+          tiktok_url: string | null
+          updated_at: string
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          handle: string
+          id?: string
+          instagram_url?: string | null
+          location?: string | null
+          name: string
+          specialty?: string | null
+          story?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          handle?: string
+          id?: string
+          instagram_url?: string | null
+          location?: string | null
+          name?: string
+          specialty?: string | null
+          story?: string | null
+          tiktok_url?: string | null
+          updated_at?: string
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       meal_plans: {
         Row: {
           categories: string[] | null
@@ -112,6 +166,7 @@ export type Database = {
           cooking_time_minutes: number
           created_at: string
           creator: string | null
+          creator_id: string | null
           cuisine: string | null
           description: string | null
           difficulty: string
@@ -127,6 +182,7 @@ export type Database = {
           cooking_time_minutes: number
           created_at?: string
           creator?: string | null
+          creator_id?: string | null
           cuisine?: string | null
           description?: string | null
           difficulty: string
@@ -142,6 +198,7 @@ export type Database = {
           cooking_time_minutes?: number
           created_at?: string
           creator?: string | null
+          creator_id?: string | null
           cuisine?: string | null
           description?: string | null
           difficulty?: string
@@ -152,7 +209,15 @@ export type Database = {
           servings?: number
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "recipes_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "food_creators"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
