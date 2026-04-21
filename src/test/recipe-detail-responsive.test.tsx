@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, cleanup } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/dom";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 // --- Mocks ---
@@ -34,7 +35,7 @@ vi.mock("@/integrations/supabase/client", () => {
       finally: promise.finally.bind(promise),
       maybeSingle: () => Promise.resolve(result),
     };
-    ["select", "eq", "order", "limit"].forEach((m) => {
+    ["select", "eq", "order", "limit", "upsert", "insert"].forEach((m) => {
       chain[m] = () => chain;
     });
     return chain;
@@ -64,44 +65,38 @@ const renderAt = (width: number) => {
 };
 
 describe("RecipeDetail responsive layout", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  const assertLayout = async (width: number) => {
+    const { container } = renderAt(width);
+    await waitFor(
+      () => {
+        if (!container.querySelector("h1")) throw new Error("still loading");
+      },
+      { timeout: 4000 }
+    );
+
+    const hero = container.querySelector("img")?.parentElement as HTMLElement;
+    expect(hero).toBeTruthy();
+    expect(hero.className).toMatch(/max-w-md/);
+    expect(hero.className).toMatch(/mx-auto/);
+    expect(hero.className).toMatch(/max-h-\[520px\]/);
+
+    // Stats card grid is the parent of the "Cook" label cell
+    const cookLabel = screen.getByText("Cook");
+    const statsCard = cookLabel.closest(".grid-cols-3") as HTMLElement;
+    expect(statsCard).toBeTruthy();
+    const statsColumn = statsCard.parentElement as HTMLElement;
+    expect(statsColumn.className).toMatch(/max-w-md/);
+    expect(statsColumn.className).toMatch(/mx-auto/);
+    expect(statsColumn.className).toMatch(/-mt-6/);
+
+    cleanup();
+  };
+
+  it("aligns hero and stats card at mobile width (375px)", async () => {
+    await assertLayout(375);
   });
 
-  it("renders content at mobile width (375px) with shared max-w container", async () => {
-    const { container, unmount } = renderAt(375);
-    try {
-      await waitFor(() => expect(screen.getByText("Test Pasta")).toBeInTheDocument(), { timeout: 3000 });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log("BODY:", document.body.innerHTML.slice(0, 3000));
-      throw e;
-    }
-
-    const hero = container.querySelector("img")?.parentElement;
-    const stats = screen.getByText("Cook").closest("div.bg-card");
-
-    expect(hero?.className).toMatch(/max-w-md/);
-    expect(hero?.className).toMatch(/mx-auto/);
-    expect(stats?.parentElement?.className).toMatch(/max-w-md/);
-    expect(stats?.parentElement?.className).toMatch(/mx-auto/);
-    unmount();
-  });
-
-  it("renders content at desktop width (1280px) without hero overflowing the stats column", async () => {
-    const { container, unmount } = renderAt(1280);
-    await waitFor(() => expect(screen.getByText("Test Pasta")).toBeInTheDocument());
-
-    const hero = container.querySelector("img")?.parentElement;
-    const stats = screen.getByText("Cook").closest("div.bg-card");
-
-    // Hero image container must be height-bounded so it cannot extend past the stats card on desktop
-    expect(hero?.className).toMatch(/max-h-\[520px\]/);
-    expect(hero?.className).toMatch(/max-w-md/);
-
-    // Stats card must use the negative top margin to overlap the hero in the same column
-    expect(stats?.parentElement?.className).toMatch(/-mt-6/);
-    expect(stats?.parentElement?.className).toMatch(/max-w-md/);
-    unmount();
+  it("aligns hero and stats card at desktop width (1280px)", async () => {
+    await assertLayout(1280);
   });
 });
