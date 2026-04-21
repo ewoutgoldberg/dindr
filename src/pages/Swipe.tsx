@@ -46,9 +46,30 @@ const Swipe = () => {
       const { data, error } = await q.limit(50);
       if (error) toast.error(error.message);
 
-      const filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
-      // shuffle
-      filtered.sort(() => Math.random() - 0.5);
+      let filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
+
+      // Pantry-aware ranking: prioritize recipes that use ingredients the user already has
+      const pantry = getPantry(user.id, date);
+      if (pantry.length > 0) {
+        const scored = filtered.map((r) => ({
+          r,
+          score: countMatches(pantry, extractIngredientNames(r.ingredients)),
+        }));
+        const anyMatch = scored.some((s) => s.score > 0);
+        if (anyMatch) {
+          // Keep only recipes with at least one pantry hit, sorted by best match
+          filtered = scored
+            .filter((s) => s.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .map((s) => s.r);
+        } else {
+          // No matches at all — fall back to a normal shuffle so the user isn't stuck
+          filtered.sort(() => Math.random() - 0.5);
+        }
+      } else {
+        filtered.sort(() => Math.random() - 0.5);
+      }
+
       setRecipes(filtered);
       setIndex(0);
       setLoading(false);
