@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
