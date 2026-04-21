@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -103,10 +103,19 @@ const Plan = () => {
       <Button
         variant="hero"
         size="lg"
-        className="w-full mb-6 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+        className="w-full mb-3 bg-gradient-to-r from-primary to-accent hover:opacity-90"
         onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}
       >
         <Sparkles className="h-5 w-5 mr-2" /> Surprise me — start swiping!
+      </Button>
+
+      <Button
+        variant="outline"
+        size="lg"
+        className="w-full mb-6 border-2"
+        onClick={() => navigate("/favorites")}
+      >
+        <Heart className="h-5 w-5 mr-2 text-accent fill-accent" /> Browse my favorites
       </Button>
 
       <div className="flex items-center justify-between mb-3">

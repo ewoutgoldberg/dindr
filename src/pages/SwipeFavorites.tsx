@@ -1,90 +1,50 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark } from "lucide-react";
-import { useFavorite } from "@/hooks/useFavorite";
-import { cn } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
+import { ArrowLeft, Clock, ChefHat, X, Check, Loader2, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
-import { Link } from "react-router-dom";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
 
-const Swipe = () => {
-  const { date } = useParams<{ date: string }>();
+const SwipeFavorites = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-  const [matchInfo, setMatchInfo] = useState<Recipe | null>(null);
+  const [winner, setWinner] = useState<Recipe | null>(null);
 
   useEffect(() => {
     const load = async () => {
-      if (!user || !date) return;
+      if (!user) return;
       setLoading(true);
-
-      // load plan filters
-      const { data: plan } = await supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("plan_date", date).maybeSingle();
-
-      // load already swiped to exclude
-      const { data: swiped } = await supabase.from("swipes").select("recipe_id").eq("user_id", user.id).eq("plan_date", date);
-      const excluded = new Set(swiped?.map((s) => s.recipe_id) ?? []);
-
-      let q = supabase.from("recipes").select("*, food_creators(id, name, avatar_url, handle)");
-      if (plan?.max_time_minutes) q = q.lte("cooking_time_minutes", plan.max_time_minutes);
-      if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
-      if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
-
-      const { data, error } = await q.limit(50);
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("recipes(*, food_creators(id, name, avatar_url, handle))")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
       if (error) toast.error(error.message);
-
-      const filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
-      // shuffle
-      filtered.sort(() => Math.random() - 0.5);
-      setRecipes(filtered);
+      const list = (data ?? [])
+        .map((row) => row.recipes as Recipe | null)
+        .filter((r): r is Recipe => r !== null);
+      list.sort(() => Math.random() - 0.5);
+      setRecipes(list);
       setIndex(0);
       setLoading(false);
     };
     load();
-  }, [user, date]);
+  }, [user]);
 
-  const handleSwipe = async (liked: boolean) => {
+  const handleSwipe = (liked: boolean) => {
     const recipe = recipes[index];
-    if (!recipe || !user || !date) return;
+    if (!recipe) return;
+    if (liked) setWinner(recipe);
     setIndex((i) => i + 1);
-
-    await supabase.from("swipes").upsert(
-      { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
-      { onConflict: "user_id,recipe_id,plan_date" }
-    );
-
-    if (liked) {
-      // check if partner also liked → match
-      const { data: partnership } = await supabase
-        .from("partnerships")
-        .select("user_a, user_b")
-        .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
-        .maybeSingle();
-      if (partnership) {
-        const partnerId = partnership.user_a === user.id ? partnership.user_b : partnership.user_a;
-        const { data: partnerSwipe } = await supabase
-          .from("swipes")
-          .select("liked")
-          .eq("user_id", partnerId)
-          .eq("recipe_id", recipe.id)
-          .eq("plan_date", date)
-          .maybeSingle();
-        if (partnerSwipe?.liked) {
-          setMatchInfo(recipe);
-        }
-      }
-    }
   };
 
   if (loading) {
@@ -96,25 +56,26 @@ const Swipe = () => {
   }
 
   const remaining = recipes.length - index;
-  const dateLabel = date ? format(parseISO(date), "EEEE, MMM d") : "";
 
   return (
     <div className="flex-1 flex flex-col bg-background">
       <header className="px-5 pt-4 pb-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/favorites")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <p className="text-xs font-semibold text-primary uppercase tracking-wider">Swiping for</p>
-          <h1 className="font-display font-bold text-lg leading-tight">{dateLabel}</h1>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wider">From your favorites</p>
+          <h1 className="font-display font-bold text-lg leading-tight">Pick tonight's dish</h1>
         </div>
         <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
 
       <div className="flex-1 px-5 relative">
         <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
-          {remaining === 0 ? (
-            <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
+          {recipes.length === 0 ? (
+            <EmptyState onBack={() => navigate("/favorites")} />
+          ) : remaining === 0 ? (
+            <DoneState winner={winner} onRestart={() => { setIndex(0); setWinner(null); setRecipes((r) => [...r].sort(() => Math.random() - 0.5)); }} onView={() => winner && navigate(`/recipe/${winner.id}`)} />
           ) : (
             <AnimatePresence>
               {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
@@ -147,18 +108,12 @@ const Swipe = () => {
           <button
             onClick={() => handleSwipe(true)}
             className="h-20 w-20 rounded-full gradient-primary shadow-glow grid place-items-center text-primary-foreground active:scale-90 transition-transform"
-            aria-label="Like"
+            aria-label="Pick"
           >
-            <Heart className="h-9 w-9 fill-current" />
+            <Check className="h-9 w-9" strokeWidth={3} />
           </button>
         </div>
       )}
-
-      <AnimatePresence>
-        {matchInfo && (
-          <MatchModal recipe={matchInfo} onClose={() => setMatchInfo(null)} onView={() => navigate(`/recipe/${matchInfo.id}`)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -178,15 +133,12 @@ const SwipeCard = ({
 }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
-  const likeOpacity = useTransform(x, [0, 120], [0, 1]);
+  const yesOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
   const startX = useRef<number>(0);
 
   const handleEnd = (_: unknown, info: PanInfo) => {
-    const threshold = 100;
-    if (Math.abs(info.offset.x) > threshold) {
-      onSwipe?.(info.offset.x > 0);
-    }
+    if (Math.abs(info.offset.x) > 100) onSwipe?.(info.offset.x > 0);
   };
 
   return (
@@ -215,18 +167,17 @@ const SwipeCard = ({
       <div className="absolute inset-0 gradient-card-overlay" />
       {isTop && (
         <>
-          <FavoriteToggle recipeId={recipe.id} />
           <motion.div
-            style={{ opacity: likeOpacity }}
+            style={{ opacity: yesOpacity }}
             className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/30 backdrop-blur-sm"
           >
-            YUM
+            PICK
           </motion.div>
           <motion.div
             style={{ opacity: nopeOpacity }}
             className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/30 backdrop-blur-sm"
           >
-            NOPE
+            SKIP
           </motion.div>
         </>
       )}
@@ -238,11 +189,7 @@ const SwipeCard = ({
             onPointerDown={(e) => e.stopPropagation()}
             className="inline-flex items-center gap-2 bg-background/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-background/40 transition-colors"
           >
-            <img
-              src={recipe.food_creators.avatar_url ?? ""}
-              alt={recipe.food_creators.name}
-              className="h-7 w-7 rounded-full object-cover"
-            />
+            <img src={recipe.food_creators.avatar_url ?? ""} alt={recipe.food_creators.name} className="h-7 w-7 rounded-full object-cover" />
             <span className="text-xs font-semibold">by {recipe.food_creators.name}</span>
           </Link>
         )}
@@ -261,67 +208,42 @@ const SwipeCard = ({
   );
 };
 
-const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
-  const { isFavorite, toggle } = useFavorite(recipeId);
-  return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        toggle();
-      }}
-      onPointerDown={(e) => e.stopPropagation()}
-      className={cn(
-        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur-md transition-all active:scale-90 z-10",
-        isFavorite ? "bg-accent text-accent-foreground" : "bg-background/40 text-primary-foreground hover:bg-background/60"
-      )}
-      aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
-    >
-      <Bookmark className={cn("h-5 w-5", isFavorite && "fill-current")} />
-    </button>
-  );
-};
-
-const EmptyState = ({ date, onBack, onMatches }: { date: string; onBack: () => void; onMatches: () => void }) => (
+const EmptyState = ({ onBack }: { onBack: () => void }) => (
   <div className="absolute inset-0 grid place-items-center text-center px-6">
     <div>
       <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
-        <Sparkles className="h-10 w-10 text-primary-foreground" />
+        <Heart className="h-10 w-10 text-primary-foreground fill-current" />
       </div>
-      <h2 className="text-2xl font-display font-extrabold">No recipes match</h2>
-      <p className="text-muted-foreground mt-2">
-        Your filters are too strict for our current recipe library — try fewer categories or a higher difficulty/time.
-      </p>
-      <div className="flex flex-col gap-2 mt-6">
-        <Button variant="hero" size="lg" onClick={onBack}>Adjust filters</Button>
-        <Button variant="outline" onClick={onMatches}>See my likes</Button>
-      </div>
+      <h2 className="text-2xl font-display font-extrabold">No favorites yet</h2>
+      <p className="text-muted-foreground mt-2">Save some recipes first by tapping the heart icon.</p>
+      <Button variant="hero" size="lg" className="mt-6" onClick={onBack}>Back to favorites</Button>
     </div>
   </div>
 );
 
-const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () => void; onView: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 z-50 bg-secondary/95 backdrop-blur-md grid place-items-center px-6"
-  >
-    <motion.div
-      initial={{ scale: 0.7, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", damping: 14 }}
-      className="text-center text-secondary-foreground"
-    >
-      <p className="text-accent text-2xl font-display font-extrabold mb-2 animate-pop">It's a match! 🎉</p>
-      <h3 className="text-4xl font-display font-extrabold">{recipe.title}</h3>
-      <img src={recipe.image_url ?? ""} alt={recipe.title} className="w-64 h-64 object-cover rounded-3xl mx-auto my-6 shadow-glow" />
-      <p className="opacity-80 mb-6">You and your partner both liked this recipe.</p>
-      <div className="flex flex-col gap-3">
-        <Button variant="hero" size="lg" onClick={onView}>See recipe</Button>
-        <Button variant="ghost" onClick={onClose} className="text-secondary-foreground hover:bg-secondary-foreground/10">Keep swiping</Button>
-      </div>
-    </motion.div>
-  </motion.div>
+const DoneState = ({ winner, onRestart, onView }: { winner: Recipe | null; onRestart: () => void; onView: () => void }) => (
+  <div className="absolute inset-0 grid place-items-center text-center px-6">
+    <div>
+      {winner ? (
+        <>
+          <img src={winner.image_url ?? ""} alt={winner.title} className="w-40 h-40 object-cover rounded-3xl mx-auto mb-4 shadow-glow" />
+          <p className="text-accent font-bold uppercase tracking-wider text-sm">Top pick</p>
+          <h2 className="text-2xl font-display font-extrabold mt-1">{winner.title}</h2>
+          <p className="text-muted-foreground mt-2 text-sm">Last recipe you said yes to.</p>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button variant="hero" size="lg" onClick={onView}>See recipe</Button>
+            <Button variant="outline" onClick={onRestart}>Swipe again</Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl font-display font-extrabold">All done</h2>
+          <p className="text-muted-foreground mt-2">You skipped them all — try again?</p>
+          <Button variant="hero" size="lg" className="mt-6" onClick={onRestart}>Restart</Button>
+        </>
+      )}
+    </div>
+  </div>
 );
 
-export default Swipe;
+export default SwipeFavorites;
