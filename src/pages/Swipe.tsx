@@ -228,6 +228,21 @@ const SwipeCard = ({
         </>
       )}
       <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
+        {recipe.food_creators && (
+          <Link
+            to={`/creator/${recipe.food_creators.id}`}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-2 bg-background/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-background/40 transition-colors"
+          >
+            <img
+              src={recipe.food_creators.avatar_url ?? ""}
+              alt={recipe.food_creators.name}
+              className="h-7 w-7 rounded-full object-cover"
+            />
+            <span className="text-xs font-semibold">by {recipe.food_creators.name}</span>
+          </Link>
+        )}
         <div className="flex gap-2 mb-2">
           <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0">{recipe.category}</Badge>
           <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
@@ -236,7 +251,7 @@ const SwipeCard = ({
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
         <div className="flex items-center gap-4 mt-3 text-sm font-semibold">
           <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {recipe.cooking_time_minutes} min</span>
-          <span className="flex items-center gap-1.5"><ChefHat className="h-4 w-4" /> {recipe.creator}</span>
+          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.category}</span>
         </div>
       </div>
     </motion.div>
