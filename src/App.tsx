@@ -14,6 +14,8 @@ import RecipeDetail from "./pages/RecipeDetail";
 import Shopping from "./pages/Shopping";
 import Profile from "./pages/Profile";
 import Creator from "./pages/Creator";
+import Favorites from "./pages/Favorites";
+import SwipeFavorites from "./pages/SwipeFavorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
               <Route path="/shopping" element={<RequireAuth><Shopping /></RequireAuth>} />
               <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/creator/:id" element={<RequireAuth><Creator /></RequireAuth>} />
+              <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
+              <Route path="/swipe-favorites" element={<RequireAuth><SwipeFavorites /></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppShell>
