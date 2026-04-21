@@ -320,6 +320,11 @@ const Plan = () => {
           )}
         </div>
 
+        <div className="mt-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold flex items-center gap-2">
+              <ChefHat className="h-4 w-4" /> Food creator
+            </p>
             {selectedCreator && (
               <button
                 onClick={() => upsert({ creator_id: null })}
