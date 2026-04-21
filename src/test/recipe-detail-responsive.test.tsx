@@ -26,22 +26,24 @@ const mockRecipe = {
 };
 
 vi.mock("@/integrations/supabase/client", () => {
-  const builder = (data: unknown) => {
-    const chain: Record<string, (...args: unknown[]) => unknown> = {};
-    const methods = ["select", "eq", "order", "limit"];
-    methods.forEach((m) => {
+  const builder = (result: { data: unknown; error: null }) => {
+    const promise = Promise.resolve(result);
+    const chain: Record<string, unknown> = {
+      then: promise.then.bind(promise),
+      catch: promise.catch.bind(promise),
+      finally: promise.finally.bind(promise),
+      maybeSingle: () => Promise.resolve(result),
+    };
+    ["select", "eq", "order", "limit"].forEach((m) => {
       chain[m] = () => chain;
     });
-    chain.maybeSingle = () => Promise.resolve({ data, error: null });
-    chain.then = (resolve: (v: unknown) => unknown) =>
-      resolve({ data: data ?? [], error: null });
     return chain;
   };
   return {
     supabase: {
       from: (table: string) => {
-        if (table === "recipes") return builder(mockRecipe);
-        return builder([]);
+        if (table === "recipes") return builder({ data: mockRecipe, error: null });
+        return builder({ data: [], error: null });
       },
     },
   };
