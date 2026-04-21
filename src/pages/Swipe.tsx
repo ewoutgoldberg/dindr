@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark } from "lucide-react";
+import { useFavorite } from "@/hooks/useFavorite";
+import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
@@ -213,6 +215,7 @@ const SwipeCard = ({
       <div className="absolute inset-0 gradient-card-overlay" />
       {isTop && (
         <>
+          <FavoriteToggle recipeId={recipe.id} />
           <motion.div
             style={{ opacity: likeOpacity }}
             className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/30 backdrop-blur-sm"
@@ -255,6 +258,26 @@ const SwipeCard = ({
         </div>
       </div>
     </motion.div>
+  );
+};
+
+const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
+  const { isFavorite, toggle } = useFavorite(recipeId);
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        toggle();
+      }}
+      onPointerDown={(e) => e.stopPropagation()}
+      className={cn(
+        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur-md transition-all active:scale-90 z-10",
+        isFavorite ? "bg-accent text-accent-foreground" : "bg-background/40 text-primary-foreground hover:bg-background/60"
+      )}
+      aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
+    >
+      <Bookmark className={cn("h-5 w-5", isFavorite && "fill-current")} />
+    </button>
   );
 };
 
