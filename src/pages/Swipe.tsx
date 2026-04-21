@@ -42,7 +42,7 @@ const Swipe = () => {
       const { data, error } = await q.limit(50);
       if (error) toast.error(error.message);
 
-      const filtered = (data ?? []).filter((r) => !excluded.has(r.id));
+      const filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
       // shuffle
       filtered.sort(() => Math.random() - 0.5);
       setRecipes(filtered);
