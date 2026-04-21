@@ -97,8 +97,17 @@ const Plan = () => {
       <header className="mb-6">
         <p className="text-sm font-semibold text-primary uppercase tracking-wider">This week</p>
         <h1 className="text-3xl font-display font-extrabold mt-1">What's cooking?</h1>
-        <p className="text-muted-foreground mt-1">Pick a day, set your vibe, then start swiping.</p>
+        <p className="text-muted-foreground mt-1">Swipe through dishes or set filters to narrow down.</p>
       </header>
+
+      <Button
+        variant="hero"
+        size="lg"
+        className="w-full mb-6 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+        onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}
+      >
+        <Sparkles className="h-5 w-5 mr-2" /> Surprise me — start swiping!
+      </Button>
 
       <div className="flex items-center justify-between mb-3">
         <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, -7))}>
