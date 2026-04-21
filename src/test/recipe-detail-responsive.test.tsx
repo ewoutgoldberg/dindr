@@ -74,6 +74,8 @@ describe("RecipeDetail responsive layout", () => {
       { timeout: 4000 }
     );
 
+    // eslint-disable-next-line no-console
+    console.log("HTML:", container.innerHTML.slice(0, 2000));
     const hero = container.querySelector("img")?.parentElement as HTMLElement;
     expect(hero).toBeTruthy();
     expect(hero.className).toMatch(/max-w-md/);
