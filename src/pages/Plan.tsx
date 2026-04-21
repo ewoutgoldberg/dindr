@@ -268,8 +268,58 @@ const Plan = () => {
         <div className="mt-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold flex items-center gap-2">
-              <ChefHat className="h-4 w-4" /> Food creator
+              <Carrot className="h-4 w-4" /> Already in your kitchen
             </p>
+            {pantry.length > 0 && (
+              <button
+                onClick={() => {
+                  if (!user) return;
+                  setPantryState(setPantry(user.id, fmtDateKey(selected), []));
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Add ingredients you already have. We'll prioritize recipes that use them.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addPantryItem(pantryInput);
+            }}
+            className="flex gap-2"
+          >
+            <Input
+              value={pantryInput}
+              onChange={(e) => setPantryInput(e.target.value)}
+              placeholder="e.g. tomato, garlic, pasta"
+              maxLength={40}
+              className="h-10"
+            />
+            <Button type="submit" size="icon" variant="outline" aria-label="Add ingredient" disabled={!pantryInput.trim()}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </form>
+          {pantry.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {pantry.map((item) => (
+                <Badge
+                  key={item}
+                  variant="secondary"
+                  className="cursor-pointer text-sm py-1.5 pl-3 pr-2 rounded-full flex items-center gap-1"
+                  onClick={() => removePantryItem(item)}
+                >
+                  {item}
+                  <X className="h-3 w-3 opacity-70" />
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+
             {selectedCreator && (
               <button
                 onClick={() => upsert({ creator_id: null })}
