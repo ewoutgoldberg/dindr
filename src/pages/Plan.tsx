@@ -214,9 +214,12 @@ const Plan = () => {
         </div>
       </section>
 
-      <Button variant="hero" size="lg" className="w-full" onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}>
-        <Users className="h-5 w-5 mr-2" /> Start swiping
-      </Button>
+      <div className="pt-4 pb-6 text-center">
+        <p className="text-xs text-muted-foreground mb-2">Want more control?</p>
+        <Button variant="outline" className="w-full" onClick={() => navigate(`/swipe/${fmtDateKey(selected)}`)}>
+          <FilterIcon className="h-4 w-4 mr-2" /> Swipe with filters
+        </Button>
+      </div>
     </div>
   );
 };
