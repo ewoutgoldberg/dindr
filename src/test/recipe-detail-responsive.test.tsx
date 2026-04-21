@@ -70,7 +70,13 @@ describe("RecipeDetail responsive layout", () => {
 
   it("renders content at mobile width (375px) with shared max-w container", async () => {
     const { container, unmount } = renderAt(375);
-    await waitFor(() => expect(screen.getByText("Test Pasta")).toBeInTheDocument());
+    try {
+      await waitFor(() => expect(screen.getByText("Test Pasta")).toBeInTheDocument(), { timeout: 3000 });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log("BODY:", document.body.innerHTML.slice(0, 3000));
+      throw e;
+    }
 
     const hero = container.querySelector("img")?.parentElement;
     const stats = screen.getByText("Cook").closest("div.bg-card");
