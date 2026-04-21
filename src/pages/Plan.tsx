@@ -6,10 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart, ChefHat, X } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Tables } from "@/integrations/supabase/types";
 
 type MealPlan = {
   id: string;
@@ -18,7 +19,10 @@ type MealPlan = {
   categories: string[] | null;
   difficulty: string | null;
   final_recipe_id: string | null;
+  creator_id: string | null;
 };
+
+type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
 
 const Plan = () => {
   const { user } = useAuth();
@@ -27,6 +31,8 @@ const Plan = () => {
   const [selected, setSelected] = useState<Date>(new Date());
   const [plans, setPlans] = useState<Record<string, MealPlan>>({});
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const [creators, setCreators] = useState<Creator[]>([]);
 
   const load = async () => {
     if (!user) return;
@@ -48,7 +54,16 @@ const Plan = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, weekStart]);
 
+  useEffect(() => {
+    supabase
+      .from("food_creators")
+      .select("id, name, avatar_url, specialty, handle")
+      .order("name")
+      .then(({ data }) => setCreators((data as Creator[]) ?? []));
+  }, []);
+
   const currentPlan = plans[fmtDateKey(selected)];
+  const selectedCreator = creators.find((c) => c.id === currentPlan?.creator_id) ?? null;
 
   const upsert = async (patch: Partial<MealPlan>) => {
     if (!user) return;
@@ -60,6 +75,7 @@ const Plan = () => {
       max_time_minutes: existing?.max_time_minutes ?? null,
       categories: existing?.categories ?? [],
       difficulty: existing?.difficulty ?? null,
+      creator_id: existing?.creator_id ?? null,
       ...patch,
     };
     const { data, error } = await supabase
@@ -220,6 +236,67 @@ const Plan = () => {
               );
             })}
           </div>
+        </div>
+
+        <div className="mt-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold flex items-center gap-2">
+              <ChefHat className="h-4 w-4" /> Food creator
+            </p>
+            {selectedCreator && (
+              <button
+                onClick={() => upsert({ creator_id: null })}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          {creators.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No creators available yet.</p>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
+              {creators.map((c) => {
+                const active = currentPlan?.creator_id === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => upsert({ creator_id: active ? null : c.id })}
+                    className={cn(
+                      "shrink-0 w-20 flex flex-col items-center gap-1.5 snap-start group",
+                    )}
+                    aria-pressed={active}
+                  >
+                    <div
+                      className={cn(
+                        "h-16 w-16 rounded-full overflow-hidden ring-2 transition-all",
+                        active ? "ring-primary ring-offset-2 ring-offset-card scale-105" : "ring-transparent group-hover:ring-border"
+                      )}
+                    >
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt={c.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full grid place-items-center bg-muted text-muted-foreground">
+                          <ChefHat className="h-6 w-6" />
+                        </div>
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        "text-[11px] font-semibold leading-tight text-center line-clamp-2",
+                        active ? "text-primary" : "text-muted-foreground"
+                      )}
+                    >
+                      {c.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {selectedCreator?.specialty && (
+            <p className="text-xs text-muted-foreground mt-2 italic">"{selectedCreator.specialty}"</p>
+          )}
         </div>
       </section>
 

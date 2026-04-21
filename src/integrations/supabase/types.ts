@@ -104,6 +104,7 @@ export type Database = {
         Row: {
           categories: string[] | null
           created_at: string
+          creator_id: string | null
           difficulty: string | null
           final_recipe_id: string | null
           id: string
@@ -115,6 +116,7 @@ export type Database = {
         Insert: {
           categories?: string[] | null
           created_at?: string
+          creator_id?: string | null
           difficulty?: string | null
           final_recipe_id?: string | null
           id?: string
@@ -126,6 +128,7 @@ export type Database = {
         Update: {
           categories?: string[] | null
           created_at?: string
+          creator_id?: string | null
           difficulty?: string | null
           final_recipe_id?: string | null
           id?: string
@@ -135,6 +138,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "meal_plans_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "food_creators"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "meal_plans_final_recipe_id_fkey"
             columns: ["final_recipe_id"]
