@@ -1,0 +1,157 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Tables } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+type FavoriteRow = Tables<"favorites"> & {
+  recipes: (Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "name" | "avatar_url"> | null }) | null;
+};
+
+const Favorites = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [favorites, setFavorites] = useState<FavoriteRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "manual" | "match">("all");
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("*, recipes(*, food_creators(name, avatar_url))")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setFavorites((data as FavoriteRow[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("favorites").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    setFavorites((f) => f.filter((x) => x.id !== id));
+    toast("Removed");
+  };
+
+  const filtered = favorites.filter((f) => filter === "all" || f.source === filter);
+  const hasFavorites = favorites.length > 0;
+
+  return (
+    <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
+      <header className="mb-5 flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-primary uppercase tracking-wider">Saved</p>
+          <h1 className="text-3xl font-display font-extrabold leading-tight">Favorites</h1>
+        </div>
+      </header>
+
+      {hasFavorites && (
+        <Button
+          variant="hero"
+          size="lg"
+          className="w-full mb-5 bg-gradient-to-r from-primary to-accent"
+          onClick={() => navigate("/swipe-favorites")}
+        >
+          <Sparkles className="h-5 w-5 mr-2" /> Swipe through favorites
+        </Button>
+      )}
+
+      {hasFavorites && (
+        <div className="flex gap-2 mb-4">
+          {[
+            { v: "all", label: `All (${favorites.length})` },
+            { v: "manual", label: `Saved (${favorites.filter((f) => f.source === "manual").length})` },
+            { v: "match", label: `Matches (${favorites.filter((f) => f.source === "match").length})` },
+          ].map((t) => (
+            <button
+              key={t.v}
+              onClick={() => setFilter(t.v as typeof filter)}
+              className={cn(
+                "flex-1 py-2 rounded-full text-xs font-bold border-2 transition-all",
+                filter === t.v ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-muted-foreground"
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="grid place-items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : !hasFavorites ? (
+        <div className="text-center py-16">
+          <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
+            <Heart className="h-10 w-10 text-primary-foreground fill-current" />
+          </div>
+          <h2 className="text-2xl font-display font-extrabold">No favorites yet</h2>
+          <p className="text-muted-foreground mt-2 px-6">
+            Tap the heart on any recipe to save it here. Matches with your partner are added automatically.
+          </p>
+          <Button variant="hero" size="lg" className="mt-6" onClick={() => navigate("/plan")}>
+            Start swiping
+          </Button>
+        </div>
+      ) : filtered.length === 0 ? (
+        <p className="text-center text-muted-foreground py-12">No favorites in this filter.</p>
+      ) : (
+        <ul className="space-y-3 pb-6">
+          {filtered.map((f) =>
+            f.recipes ? (
+              <li key={f.id} className="bg-card rounded-2xl shadow-soft overflow-hidden flex">
+                <Link to={`/recipe/${f.recipes.id}`} className="flex flex-1 min-w-0">
+                  <img
+                    src={f.recipes.image_url ?? ""}
+                    alt={f.recipes.title}
+                    className="w-24 h-24 object-cover shrink-0"
+                  />
+                  <div className="p-3 flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      {f.source === "match" && (
+                        <Badge className="bg-accent/15 text-accent border-0 text-[10px] py-0 px-1.5 h-4">MATCH</Badge>
+                      )}
+                      <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{f.recipes.category}</Badge>
+                    </div>
+                    <h3 className="font-display font-bold leading-tight truncate">{f.recipes.title}</h3>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{f.recipes.cooking_time_minutes} min</span>
+                      {f.recipes.food_creators && (
+                        <span className="truncate">by {f.recipes.food_creators.name}</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+                <button
+                  onClick={() => remove(f.id)}
+                  className="px-3 text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label="Remove favorite"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </li>
+            ) : null
+          )}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default Favorites;
