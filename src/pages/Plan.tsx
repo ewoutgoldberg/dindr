@@ -75,6 +75,7 @@ const Plan = () => {
       max_time_minutes: existing?.max_time_minutes ?? null,
       categories: existing?.categories ?? [],
       difficulty: existing?.difficulty ?? null,
+      creator_id: existing?.creator_id ?? null,
       ...patch,
     };
     const { data, error } = await supabase
