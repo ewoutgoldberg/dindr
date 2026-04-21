@@ -34,8 +34,8 @@ describe("RecipeDetail responsive layout (static)", () => {
     expect(heroClasses).toMatch(/\bmax-w-md\b/);
     expect(heroClasses).toMatch(/\bmx-auto\b/);
     expect(heroClasses).toMatch(/max-h-\[520px\]/);
-    expect(heroClasses).toMatch(/\bh-\[55vh\]\b/);
-    expect(heroClasses).toMatch(/\boverflow-hidden\b/);
+    expect(heroClasses).toMatch(/h-\[55vh\]/);
+    expect(heroClasses).toMatch(/overflow-hidden/);
   });
 
   it("aligns the stats card column with the hero (max-w-md mx-auto -mt-6)", () => {
