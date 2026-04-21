@@ -6,11 +6,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort, getWeekDays } from "@/lib/dates";
-import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart, ChefHat, X } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, Users, ChevronLeft, SlidersHorizontal, Heart, ChefHat, X, Carrot, Plus } from "lucide-react";
 import { addDays, startOfWeek } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
+import { Input } from "@/components/ui/input";
+import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 
 type MealPlan = {
   id: string;
@@ -33,6 +35,31 @@ const Plan = () => {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const [creators, setCreators] = useState<Creator[]>([]);
+  const [pantry, setPantryState] = useState<string[]>([]);
+  const [pantryInput, setPantryInput] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      setPantryState([]);
+      return;
+    }
+    setPantryState(getPantry(user.id, fmtDateKey(selected)));
+  }, [user, selected]);
+
+  const addPantryItem = (raw: string) => {
+    if (!user) return;
+    const value = normalizeIngredient(raw);
+    if (!value) return;
+    const next = setPantry(user.id, fmtDateKey(selected), [...pantry, value]);
+    setPantryState(next);
+    setPantryInput("");
+  };
+
+  const removePantryItem = (item: string) => {
+    if (!user) return;
+    const next = setPantry(user.id, fmtDateKey(selected), pantry.filter((p) => p !== item));
+    setPantryState(next);
+  };
 
   const load = async () => {
     if (!user) return;
@@ -236,6 +263,61 @@ const Plan = () => {
               );
             })}
           </div>
+        </div>
+
+        <div className="mt-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold flex items-center gap-2">
+              <Carrot className="h-4 w-4" /> Already in your kitchen
+            </p>
+            {pantry.length > 0 && (
+              <button
+                onClick={() => {
+                  if (!user) return;
+                  setPantryState(setPantry(user.id, fmtDateKey(selected), []));
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Add ingredients you already have. We'll prioritize recipes that use them.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addPantryItem(pantryInput);
+            }}
+            className="flex gap-2"
+          >
+            <Input
+              value={pantryInput}
+              onChange={(e) => setPantryInput(e.target.value)}
+              placeholder="e.g. tomato, garlic, pasta"
+              maxLength={40}
+              className="h-10"
+            />
+            <Button type="submit" size="icon" variant="outline" aria-label="Add ingredient" disabled={!pantryInput.trim()}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </form>
+          {pantry.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {pantry.map((item) => (
+                <Badge
+                  key={item}
+                  variant="secondary"
+                  className="cursor-pointer text-sm py-1.5 pl-3 pr-2 rounded-full flex items-center gap-1"
+                  onClick={() => removePantryItem(item)}
+                >
+                  {item}
+                  <X className="h-3 w-3 opacity-70" />
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-5">
