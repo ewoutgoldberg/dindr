@@ -284,7 +284,7 @@ const Plan = () => {
           <EmptyDayCard
             hasFilters={activeFilterCount > 0}
             onSwipe={startSwiping}
-            onOpenFilters={() => setFiltersOpen(true)}
+            onOpenFilters={() => navigate(`/filters?date=${fmtDateKey(selected)}`)}
           />
         )}
       </section>
