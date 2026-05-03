@@ -93,16 +93,7 @@ const Plan = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, weekStart]);
 
-  useEffect(() => {
-    supabase
-      .from("food_creators")
-      .select("id, name, avatar_url, specialty, handle")
-      .order("name")
-      .then(({ data }) => setCreators((data as Creator[]) ?? []));
-  }, []);
-
   const currentPlan = plans[fmtDateKey(selected)];
-  const selectedCreator = creators.find((c) => c.id === currentPlan?.creator_id) ?? null;
   const finalRecipe = currentPlan?.final_recipe_id ? recipesById[currentPlan.final_recipe_id] : null;
 
   const activeFilterCount = useMemo(() => {
@@ -114,49 +105,6 @@ const Plan = () => {
     if (pantry.length > 0) n++;
     return n;
   }, [currentPlan, pantry]);
-
-  const upsert = async (patch: Partial<MealPlan>) => {
-    if (!user) return;
-    const dateKey = fmtDateKey(selected);
-    const existing = plans[dateKey];
-    const payload = {
-      user_id: user.id,
-      plan_date: dateKey,
-      max_time_minutes: existing?.max_time_minutes ?? null,
-      categories: existing?.categories ?? [],
-      difficulty: existing?.difficulty ?? null,
-      creator_id: existing?.creator_id ?? null,
-      ...patch,
-    };
-    const { data, error } = await supabase
-      .from("meal_plans")
-      .upsert(payload, { onConflict: "user_id,plan_date" })
-      .select()
-      .single();
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setPlans((p) => ({ ...p, [dateKey]: data as MealPlan }));
-  };
-
-  const toggleCategory = (cat: string) => {
-    const cur = currentPlan?.categories ?? [];
-    const next = cur.includes(cat) ? cur.filter((c) => c !== cat) : [...cur, cat];
-    upsert({ categories: next });
-  };
-
-  const clearAllFilters = async () => {
-    if (!user) return;
-    setPantryState(setPantry(user.id, fmtDateKey(selected), []));
-    await upsert({
-      max_time_minutes: null,
-      difficulty: null,
-      categories: [],
-      creator_id: null,
-    });
-    toast.success("Filters cleared");
-  };
 
   const planAllWeek = async () => {
     if (!user) return;
