@@ -87,9 +87,23 @@ const Matches = () => {
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
       <header className="mb-6">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Your picks</p>
+        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Suggestions & matches</p>
         <h1 className="text-3xl font-display font-extrabold mt-1">Matches</h1>
-        <p className="text-muted-foreground mt-1">{hasPartner ? "Mutual picks with your partner are highlighted." : "Connect a partner in your profile to share."}</p>
+        <p className="text-muted-foreground mt-1">
+          {hasPartner
+            ? "It's only a real match when you both pick the same recipe."
+            : "Connect a partner in your profile to turn picks into matches."}
+        </p>
+        {hasPartner && (
+          <div className="mt-4 flex flex-wrap gap-3 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/15 text-accent-foreground border border-accent/30">
+              <Sparkles className="h-3 w-3" /> Match — you both liked it
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">
+              Suggestion — only one of you liked it
+            </span>
+          </div>
+        )}
       </header>
 
       {groups.length === 0 ? (
