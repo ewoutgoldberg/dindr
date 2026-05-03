@@ -145,7 +145,10 @@ const Filters = () => {
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </p>
           <h1 className="text-3xl font-display font-extrabold mt-1">Tune your inspiration</h1>
-          <p className="text-sm text-muted-foreground mt-1">Applied to today's swipes.</p>
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
+            <CalendarDays className="h-3.5 w-3.5" />
+            <span>Only for {dayIsToday ? "today" : fmtDayLong(targetDate)}</span>
+          </div>
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground shrink-0">
