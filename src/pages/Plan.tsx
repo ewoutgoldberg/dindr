@@ -5,15 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort } from "@/lib/dates";
+import { fmtDateKey, fmtDayLong, fmtDayNum, fmtDayShort } from "@/lib/dates";
 import {
   Clock,
   ChevronRight,
@@ -21,19 +19,14 @@ import {
   ChevronLeft,
   SlidersHorizontal,
   Heart,
-  ChefHat,
-  X,
-  Carrot,
-  Plus,
   MoreVertical,
-  ChevronDown,
   RefreshCw,
   ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
-import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
+import { getPantry } from "@/lib/pantry";
 
 type MealPlan = {
   id: string;
