@@ -38,7 +38,7 @@ type MealPlan = {
   creator_id: string | null;
 };
 
-type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
+
 type RecipeLite = Pick<Tables<"recipes">, "id" | "title" | "image_url" | "cooking_time_minutes" | "category">;
 
 const Plan = () => {
