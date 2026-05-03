@@ -136,9 +136,18 @@ const Matches = () => {
             )}
 
             {hasPartner && (
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                {g.mutual.length > 0 ? "Matches & suggestions" : "Suggestions"}
-              </p>
+              <div className="flex items-center justify-between mb-2 gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {g.mutual.length > 0 ? "Matches & suggestions" : "Suggestions"}
+                </p>
+                <NotifyPartnerButton
+                  planDate={g.date}
+                  variant="ghost"
+                  size="sm"
+                  label="Ping partner"
+                  className="h-7 px-2 text-xs"
+                />
+              </div>
             )}
 
             <div className="grid grid-cols-2 gap-3">
