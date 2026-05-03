@@ -23,7 +23,7 @@ export const useUnreadNotifications = () => {
     load();
 
     const channel = supabase
-      .channel(`notif-${user.id}`)
+      .channel(`notif-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "partner_notifications", filter: `recipient_id=eq.${user.id}` },
