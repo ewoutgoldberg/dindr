@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, ShoppingCart, User } from "lucide-react";
+import { CalendarDays, Flame, Heart, ShoppingCart, User, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
@@ -9,6 +9,7 @@ const today = () => format(new Date(), "yyyy-MM-dd");
 const tabs = [
   { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
+  { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/shopping", label: "List", icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
@@ -22,7 +23,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <main className={cn("flex-1 flex flex-col", !hideNav && "pb-24")}>{children}</main>
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
-          <div className="max-w-md mx-auto grid grid-cols-5 px-2 pt-2">
+          <div className="max-w-md mx-auto grid grid-cols-6 px-2 pt-2">
             {tabs.map(({ to, label, icon: Icon, ...rest }) => {
               const matchPath = "match" in rest ? rest.match : (to as string);
               const target = typeof to === "function" ? to() : to;

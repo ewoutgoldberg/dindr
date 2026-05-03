@@ -8,6 +8,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Plan from "./pages/Plan";
+import Filters from "./pages/Filters";
 import Swipe from "./pages/Swipe";
 import Matches from "./pages/Matches";
 import RecipeDetail from "./pages/RecipeDetail";
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/plan" element={<RequireAuth><Plan /></RequireAuth>} />
+              <Route path="/filters" element={<RequireAuth><Filters /></RequireAuth>} />
               <Route path="/swipe/:date" element={<RequireAuth><Swipe /></RequireAuth>} />
               <Route path="/matches" element={<RequireAuth><Matches /></RequireAuth>} />
               <Route path="/recipe/:id" element={<RequireAuth><RecipeDetail /></RequireAuth>} />
