@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
+import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
 
@@ -292,13 +293,20 @@ const EmptyState = ({ date, onBack, onMatches }: { date: string; onBack: () => v
       <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
         <Sparkles className="h-10 w-10 text-primary-foreground" />
       </div>
-      <h2 className="text-2xl font-display font-extrabold">No recipes match</h2>
+      <h2 className="text-2xl font-display font-extrabold">You're done swiping!</h2>
       <p className="text-muted-foreground mt-2">
-        Your filters are too strict for our current recipe library — try fewer categories or a higher difficulty/time.
+        Let your partner know your suggestions are ready, or jump to your matches.
       </p>
       <div className="flex flex-col gap-2 mt-6">
-        <Button variant="hero" size="lg" onClick={onBack}>Adjust filters</Button>
+        <NotifyPartnerButton
+          planDate={date}
+          variant="hero"
+          size="lg"
+          label="Notify partner my picks are ready"
+          className="w-full"
+        />
         <Button variant="outline" onClick={onMatches}>See my likes</Button>
+        <Button variant="ghost" onClick={onBack}>Back to plan</Button>
       </div>
     </div>
   </div>

@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
 import { getPantry } from "@/lib/pantry";
+import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type MealPlan = {
   id: string;
@@ -236,6 +237,16 @@ const Plan = () => {
         </div>
         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
       </button>
+
+      {/* Notify partner – per selected day */}
+      <div className="mb-4">
+        <NotifyPartnerButton
+          planDate={fmtDateKey(selected)}
+          variant="outline"
+          className="w-full"
+          label={`Notify partner about ${isToday(selected) ? "today" : fmtDayLong(selected)}`}
+        />
+      </div>
 
       {/* Footer action */}
       <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate("/favorites")}>
