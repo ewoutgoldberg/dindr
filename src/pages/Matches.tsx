@@ -10,6 +10,7 @@ import { Heart, Loader2, Sparkles, Users } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes">;
 type Group = { date: string; mine: { recipe: Recipe; final: boolean }[]; partner: Recipe[]; mutual: Recipe[] };
