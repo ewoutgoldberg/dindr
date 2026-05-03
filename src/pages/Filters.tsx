@@ -37,7 +37,20 @@ type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "spe
 const Filters = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const today = useMemo(() => fmtDateKey(new Date()), []);
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const targetDate = useMemo(() => {
+    if (dateParam) {
+      try {
+        return parseISO(dateParam);
+      } catch {
+        return new Date();
+      }
+    }
+    return new Date();
+  }, [dateParam]);
+  const today = useMemo(() => fmtDateKey(targetDate), [targetDate]);
+  const dayIsToday = isTodayFn(targetDate);
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
