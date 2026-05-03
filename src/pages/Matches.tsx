@@ -62,7 +62,7 @@ const Matches = () => {
         const partnerIds = new Set(g.partner.map((r) => r.id));
         g.mutual = g.mine.map((m) => m.recipe).filter((r) => partnerIds.has(r.id));
       });
-      setGroups(Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date)));
+      setGroups(Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date)));
       setLoading(false);
     };
     load();
