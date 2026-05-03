@@ -48,14 +48,11 @@ const Plan = () => {
   const [selected, setSelected] = useState<Date>(new Date());
   const [plans, setPlans] = useState<Record<string, MealPlan>>({});
   const [recipesById, setRecipesById] = useState<Record<string, RecipeLite>>({});
-  const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
-  const [pantryInput, setPantryInput] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  // Pantry: refresh when day or user changes
+  // Pantry: refresh when day or user changes (used only for active filter count)
   useEffect(() => {
     if (!user) {
       setPantryState([]);
@@ -63,21 +60,6 @@ const Plan = () => {
     }
     setPantryState(getPantry(user.id, fmtDateKey(selected)));
   }, [user, selected]);
-
-  const addPantryItem = (raw: string) => {
-    if (!user) return;
-    const value = normalizeIngredient(raw);
-    if (!value) return;
-    const next = setPantry(user.id, fmtDateKey(selected), [...pantry, value]);
-    setPantryState(next);
-    setPantryInput("");
-  };
-
-  const removePantryItem = (item: string) => {
-    if (!user) return;
-    const next = setPantry(user.id, fmtDateKey(selected), pantry.filter((p) => p !== item));
-    setPantryState(next);
-  };
 
   const loadWeek = async () => {
     if (!user) return;
