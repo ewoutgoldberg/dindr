@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { parseISO, isToday as isTodayFn } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,12 @@ import {
   Carrot,
   Plus,
   Sparkles,
+  CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
-import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
+import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 
 type MealPlan = {
@@ -35,7 +37,20 @@ type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "spe
 const Filters = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const today = useMemo(() => fmtDateKey(new Date()), []);
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get("date");
+  const targetDate = useMemo(() => {
+    if (dateParam) {
+      try {
+        return parseISO(dateParam);
+      } catch {
+        return new Date();
+      }
+    }
+    return new Date();
+  }, [dateParam]);
+  const today = useMemo(() => fmtDateKey(targetDate), [targetDate]);
+  const dayIsToday = isTodayFn(targetDate);
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
@@ -130,7 +145,10 @@ const Filters = () => {
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </p>
           <h1 className="text-3xl font-display font-extrabold mt-1">Tune your inspiration</h1>
-          <p className="text-sm text-muted-foreground mt-1">Applied to today's swipes.</p>
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
+            <CalendarDays className="h-3.5 w-3.5" />
+            <span>Only for {dayIsToday ? "today" : fmtDayLong(targetDate)}</span>
+          </div>
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground shrink-0">
