@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, Sparkles, Users } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type Recipe = Tables<"recipes">;
@@ -87,9 +88,23 @@ const Matches = () => {
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
       <header className="mb-6">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Your picks</p>
+        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Suggestions & matches</p>
         <h1 className="text-3xl font-display font-extrabold mt-1">Matches</h1>
-        <p className="text-muted-foreground mt-1">{hasPartner ? "Mutual picks with your partner are highlighted." : "Connect a partner in your profile to share."}</p>
+        <p className="text-muted-foreground mt-1">
+          {hasPartner
+            ? "It's only a real match when you both pick the same recipe."
+            : "Connect a partner in your profile to turn picks into matches."}
+        </p>
+        {hasPartner && (
+          <div className="mt-4 flex flex-wrap gap-3 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/15 text-accent-foreground border border-accent/30">
+              <Sparkles className="h-3 w-3" /> Match — you both liked it
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">
+              Suggestion — only one of you liked it
+            </span>
+          </div>
+        )}
       </header>
 
       {groups.length === 0 ? (
@@ -106,8 +121,25 @@ const Matches = () => {
           <section key={g.date} className="mb-8">
             <div className="flex items-baseline justify-between mb-3">
               <h2 className="font-display font-bold text-lg">{fmtDayLong(parseISO(g.date))}</h2>
-              {g.mutual.length > 0 && <Badge className="bg-accent text-accent-foreground"><Sparkles className="h-3 w-3 mr-1" />{g.mutual.length} match</Badge>}
+              {g.mutual.length > 0 ? (
+                <Badge className="bg-accent text-accent-foreground"><Sparkles className="h-3 w-3 mr-1" />{g.mutual.length} match{g.mutual.length > 1 ? "es" : ""}</Badge>
+              ) : hasPartner ? (
+                <Badge variant="outline" className="text-muted-foreground">No match yet</Badge>
+              ) : null}
             </div>
+
+            {hasPartner && g.mutual.length === 0 && (
+              <p className="text-xs text-muted-foreground mb-3 italic">
+                Keep swiping — a match happens when you both like the same recipe.
+              </p>
+            )}
+
+            {hasPartner && (
+              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                {g.mutual.length > 0 ? "Matches & suggestions" : "Suggestions"}
+              </p>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               {g.mine.map(({ recipe, final }) => {
                 const isMutual = g.mutual.some((r) => r.id === recipe.id);
@@ -115,11 +147,18 @@ const Matches = () => {
                   <button
                     key={recipe.id}
                     onClick={() => navigate(`/recipe/${recipe.id}?date=${g.date}`)}
-                    className="text-left rounded-2xl overflow-hidden bg-card shadow-soft active:scale-[0.98] transition-transform relative"
+                    className={cn(
+                      "text-left rounded-2xl overflow-hidden bg-card shadow-soft active:scale-[0.98] transition-transform relative",
+                      isMutual && "ring-2 ring-accent"
+                    )}
                   >
                     <div className="aspect-square relative">
-                      <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-                      {isMutual && <span className="absolute top-2 left-2 bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1"><Users className="h-3 w-3" /> Match</span>}
+                      <img src={recipe.image_url ?? ""} alt={recipe.title} className={cn("absolute inset-0 w-full h-full object-cover", !isMutual && hasPartner && "opacity-90")} loading="lazy" />
+                      {isMutual ? (
+                        <span className="absolute top-2 left-2 bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1"><Sparkles className="h-3 w-3" /> Match</span>
+                      ) : hasPartner ? (
+                        <span className="absolute top-2 left-2 bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full border border-border">Your pick</span>
+                      ) : null}
                       {final && <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full">Picked</span>}
                     </div>
                     <div className="p-3">
