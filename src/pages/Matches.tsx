@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, Sparkles, Users } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type Recipe = Tables<"recipes">;
