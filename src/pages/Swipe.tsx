@@ -158,24 +158,6 @@ const Swipe = () => {
         </div>
       </div>
 
-      {remaining > 0 && (
-        <div className="px-5 py-6 flex items-center justify-center gap-6 safe-bottom">
-          <button
-            onClick={() => handleSwipe(false)}
-            className="h-16 w-16 rounded-full bg-card shadow-card grid place-items-center text-muted-foreground hover:text-destructive transition-colors active:scale-90"
-            aria-label="Skip"
-          >
-            <X className="h-7 w-7" strokeWidth={3} />
-          </button>
-          <button
-            onClick={() => handleSwipe(true)}
-            className="h-20 w-20 rounded-full gradient-primary shadow-glow grid place-items-center text-primary-foreground active:scale-90 transition-transform"
-            aria-label="Like"
-          >
-            <Heart className="h-9 w-9 fill-current" />
-          </button>
-        </div>
-      )}
 
       <AnimatePresence>
         {matchInfo && (

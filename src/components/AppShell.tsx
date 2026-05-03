@@ -7,9 +7,9 @@ import { format } from "date-fns";
 const today = () => format(new Date(), "yyyy-MM-dd");
 
 const tabs = [
-  { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
+  { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/shopping", label: "List", icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
