@@ -211,21 +211,26 @@ const Plan = () => {
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <p className="text-sm font-semibold">{format(weekStart, "MMM d")} – {format(addDays(weekStart, 6), "MMM d")}</p>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Week options">
-              <MoreVertical className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}>
-              <RefreshCw className="h-4 w-4 mr-2" /> Jump to this week
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={planAllWeek}>
-              <Sparkles className="h-4 w-4 mr-2" /> Plan whole week
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center">
+          <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, 7))} aria-label="Next week">
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Week options">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}>
+                <RefreshCw className="h-4 w-4 mr-2" /> Jump to this week
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={planAllWeek}>
+                <Sparkles className="h-4 w-4 mr-2" /> Plan whole week
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Week strip */}
