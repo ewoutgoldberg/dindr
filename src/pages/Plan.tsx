@@ -289,231 +289,30 @@ const Plan = () => {
         )}
       </section>
 
-      {/* Refine panel */}
-      <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen} className="mb-4">
-        <div className="flex items-center justify-between gap-2">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="flex-1 justify-between h-12">
-              <span className="flex items-center gap-2 font-semibold">
-                <SlidersHorizontal className="h-4 w-4" />
-                Refine
-                {activeFilterCount > 0 && (
-                  <Badge className="ml-1 h-5 px-2 bg-primary text-primary-foreground hover:bg-primary">
-                    {activeFilterCount}
-                  </Badge>
-                )}
-              </span>
-              <ChevronDown
-                className={cn("h-4 w-4 transition-transform", filtersOpen && "rotate-180")}
-              />
-            </Button>
-          </CollapsibleTrigger>
-          {activeFilterCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-muted-foreground">
-              Clear
-            </Button>
-          )}
+      {/* Filter reminder – filters live on their own page */}
+      <button
+        onClick={() => navigate(`/filters?date=${fmtDateKey(selected)}`)}
+        className="w-full mb-4 bg-card rounded-2xl p-4 shadow-soft text-left flex items-center gap-3 hover:bg-muted/40 transition-colors"
+      >
+        <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+          <SlidersHorizontal className="h-5 w-5" />
         </div>
-
-        <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-          <div className="bg-card rounded-3xl p-5 shadow-soft mt-3 space-y-5">
-            {/* Cooking time */}
-            <div>
-              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Clock className="h-4 w-4" /> Cooking time
-              </p>
-              <div className="flex gap-2">
-                {TIME_BUCKETS.map((t) => (
-                  <button
-                    key={t.value}
-                    onClick={() =>
-                      upsert({ max_time_minutes: currentPlan?.max_time_minutes === t.value ? null : t.value })
-                    }
-                    className={cn(
-                      "flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all",
-                      currentPlan?.max_time_minutes === t.value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background text-muted-foreground"
-                    )}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Difficulty */}
-            <div>
-              <p className="text-sm font-semibold mb-2">Difficulty</p>
-              <div className="flex gap-2">
-                {DIFFICULTIES.map((d) => (
-                  <button
-                    key={d.value}
-                    onClick={() =>
-                      upsert({ difficulty: currentPlan?.difficulty === d.value ? null : d.value })
-                    }
-                    className={cn(
-                      "flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all capitalize",
-                      currentPlan?.difficulty === d.value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background text-muted-foreground"
-                    )}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div>
-              <p className="text-sm font-semibold mb-2">Categories</p>
-              <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map((cat) => {
-                  const active = currentPlan?.categories?.includes(cat);
-                  return (
-                    <Badge
-                      key={cat}
-                      variant={active ? "default" : "outline"}
-                      onClick={() => toggleCategory(cat)}
-                      className={cn(
-                        "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
-                        active && "bg-primary text-primary-foreground hover:bg-primary"
-                      )}
-                    >
-                      {cat}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Pantry */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold flex items-center gap-2">
-                  <Carrot className="h-4 w-4" /> Already in your kitchen
-                </p>
-                {pantry.length > 0 && (
-                  <button
-                    onClick={() => {
-                      if (!user) return;
-                      setPantryState(setPantry(user.id, fmtDateKey(selected), []));
-                    }}
-                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-                  >
-                    <X className="h-3 w-3" /> Clear
-                  </button>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mb-2">
-                Add ingredients you already have. We'll prioritize recipes that use them.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  addPantryItem(pantryInput);
-                }}
-                className="flex gap-2"
-              >
-                <Input
-                  value={pantryInput}
-                  onChange={(e) => setPantryInput(e.target.value)}
-                  placeholder="e.g. tomato, garlic, pasta"
-                  maxLength={40}
-                  className="h-10"
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  variant="outline"
-                  aria-label="Add ingredient"
-                  disabled={!pantryInput.trim()}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </form>
-              {pantry.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {pantry.map((item) => (
-                    <Badge
-                      key={item}
-                      variant="secondary"
-                      className="cursor-pointer text-sm py-1.5 pl-3 pr-2 rounded-full flex items-center gap-1"
-                      onClick={() => removePantryItem(item)}
-                    >
-                      {item}
-                      <X className="h-3 w-3 opacity-70" />
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Food creator */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold flex items-center gap-2">
-                  <ChefHat className="h-4 w-4" /> Food creator
-                </p>
-                {selectedCreator && (
-                  <button
-                    onClick={() => upsert({ creator_id: null })}
-                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-                  >
-                    <X className="h-3 w-3" /> Clear
-                  </button>
-                )}
-              </div>
-              {creators.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No creators available yet.</p>
-              ) : (
-                <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
-                  {creators.map((c) => {
-                    const active = currentPlan?.creator_id === c.id;
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => upsert({ creator_id: active ? null : c.id })}
-                        className="shrink-0 w-20 flex flex-col items-center gap-1.5 snap-start group"
-                        aria-pressed={active}
-                      >
-                        <div
-                          className={cn(
-                            "h-16 w-16 rounded-full overflow-hidden ring-2 transition-all",
-                            active
-                              ? "ring-primary ring-offset-2 ring-offset-card scale-105"
-                              : "ring-transparent group-hover:ring-border"
-                          )}
-                        >
-                          {c.avatar_url ? (
-                            <img src={c.avatar_url} alt={c.name} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="h-full w-full grid place-items-center bg-muted text-muted-foreground">
-                              <ChefHat className="h-6 w-6" />
-                            </div>
-                          )}
-                        </div>
-                        <span
-                          className={cn(
-                            "text-[11px] font-semibold leading-tight text-center line-clamp-2",
-                            active ? "text-primary" : "text-muted-foreground"
-                          )}
-                        >
-                          {c.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {selectedCreator?.specialty && (
-                <p className="text-xs text-muted-foreground mt-2 italic">"{selectedCreator.specialty}"</p>
-              )}
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold flex items-center gap-2">
+            {activeFilterCount > 0 ? (
+              <>
+                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              </>
+            ) : (
+              "Set filters for this day"
+            )}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Only applied to {isToday(selected) ? "today" : fmtDayLong(selected)}
+          </p>
+        </div>
+        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+      </button>
 
       {/* Footer action */}
       <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate("/favorites")}>
