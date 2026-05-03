@@ -154,6 +154,36 @@ export type Database = {
           },
         ]
       }
+      partner_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          plan_date: string | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          plan_date?: string | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          plan_date?: string | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       partnerships: {
         Row: {
           created_at: string

@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { CalendarDays, Flame, Heart, ShoppingCart, User, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
@@ -12,11 +13,12 @@ const tabs = [
   { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/shopping", label: "List", icon: ShoppingCart },
-  { to: "/profile", label: "MyKitchen", icon: User },
+  { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
 ] as const;
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
+  const unread = useUnreadNotifications();
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -27,6 +29,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
             {tabs.map(({ to, label, icon: Icon, ...rest }) => {
               const matchPath = "match" in rest ? rest.match : (to as string);
               const target = typeof to === "function" ? to() : to;
+              const showBadge = "showBadge" in rest && rest.showBadge && unread > 0;
               return (
                 <NavLink
                   key={matchPath}
@@ -42,7 +45,14 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                     const active = isActive || pathname.startsWith(matchPath);
                     return (
                       <>
-                        <Icon className={cn("h-6 w-6 transition-transform", active && "scale-110")} strokeWidth={active ? 2.5 : 2} />
+                        <span className="relative">
+                          <Icon className={cn("h-6 w-6 transition-transform", active && "scale-110")} strokeWidth={active ? 2.5 : 2} />
+                          {showBadge && (
+                            <span className="absolute -top-1 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold grid place-items-center">
+                              {unread > 9 ? "9+" : unread}
+                            </span>
+                          )}
+                        </span>
                         <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
                       </>
                     );

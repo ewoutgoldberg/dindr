@@ -5,13 +5,17 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogOut, Users, Copy, Heart, X } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 
 type Profile = Tables<"profiles">;
 
 const Profile = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const unread = useUnreadNotifications();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partner, setPartner] = useState<Profile | null>(null);
   const [partnershipId, setPartnershipId] = useState<string | null>(null);
@@ -151,6 +155,15 @@ const Profile = () => {
           </>
         )}
       </section>
+
+      <Button variant="outline" className="w-full mb-2 justify-between" onClick={() => navigate("/notifications")}>
+        <span className="flex items-center"><Bell className="h-4 w-4 mr-2" /> Notifications</span>
+        {unread > 0 && (
+          <span className="min-w-[22px] h-[22px] px-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold grid place-items-center">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </Button>
 
       <Button variant="outline" className="w-full" onClick={signOut}>
         <LogOut className="h-4 w-4 mr-2" /> Sign out
