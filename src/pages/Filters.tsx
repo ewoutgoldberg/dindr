@@ -139,13 +139,13 @@ const Filters = () => {
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
-      <header className="mb-5 flex items-start justify-between gap-3">
+      <header className="mb-6 flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </p>
           <h1 className="text-3xl font-display font-extrabold mt-1">Tune your inspiration</h1>
-          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
+          <div className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
             <CalendarDays className="h-3.5 w-3.5" />
             <span>Only for {dayIsToday ? "today" : fmtDayLong(targetDate)}</span>
           </div>
