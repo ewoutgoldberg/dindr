@@ -96,7 +96,13 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "cv11";
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
+  }
+  /* Allow text selection only for inputs/textareas */
+  button, a, nav, header, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
   }
   h1, h2, h3, h4 { @apply font-display tracking-tight; }
 }
