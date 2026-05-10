@@ -124,13 +124,13 @@ const Swipe = () => {
 
   return (
     <div className="flex-1 flex flex-col bg-background">
-      <header className="px-5 pt-4 pb-3 flex items-center gap-3">
+      <header className="px-5 pt-6 pb-4 max-w-md mx-auto w-full flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
           <p className="text-xs font-semibold text-primary uppercase tracking-wider">Swiping for</p>
-          <h1 className="font-display font-bold text-lg leading-tight">{dateLabel}</h1>
+          <h1 className="font-display font-bold text-lg leading-tight mt-0.5">{dateLabel}</h1>
         </div>
         <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>

@@ -50,13 +50,13 @@ const Favorites = () => {
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
-      <header className="mb-5 flex items-center gap-3">
+      <header className="mb-6 flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
           <p className="text-sm font-semibold text-primary uppercase tracking-wider">Saved</p>
-          <h1 className="text-3xl font-display font-extrabold leading-tight">Favorites</h1>
+          <h1 className="text-3xl font-display font-extrabold mt-1">Favorites</h1>
         </div>
       </header>
 
