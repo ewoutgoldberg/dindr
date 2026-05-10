@@ -59,13 +59,13 @@ const SwipeFavorites = () => {
 
   return (
     <div className="flex-1 flex flex-col bg-background">
-      <header className="px-5 pt-4 pb-3 flex items-center gap-3">
+      <header className="px-5 pt-6 pb-4 max-w-md mx-auto w-full flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/favorites")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
           <p className="text-xs font-semibold text-primary uppercase tracking-wider">From your favorites</p>
-          <h1 className="font-display font-bold text-lg leading-tight">Pick tonight's dish</h1>
+          <h1 className="font-display font-bold text-lg leading-tight mt-0.5">Pick tonight&apos;s dish</h1>
         </div>
         <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
