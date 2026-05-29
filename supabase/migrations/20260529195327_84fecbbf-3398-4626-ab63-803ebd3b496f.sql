@@ -1,0 +1,2 @@
+UPDATE public.recipes SET image_url = 'https://images.unsplash.com/photo-1601001815853-3835274403b3?w=800' WHERE id = '285a0540-274d-491e-809e-23248935296b';
+UPDATE public.recipes SET image_url = 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800' WHERE id = '36532d14-168b-4d5e-874b-bf5d9d9fd950';
