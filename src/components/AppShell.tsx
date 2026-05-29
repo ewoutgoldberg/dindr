@@ -25,7 +25,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <main className={cn("flex-1 flex flex-col", !hideNav && "pb-24")}>{children}</main>
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
-          <div className="max-w-md mx-auto grid grid-cols-6 px-2 pt-2">
+          <div className="max-w-md mx-auto grid grid-cols-5 px-2 pt-2">
             {tabs.map(({ to, label, icon: Icon, ...rest }) => {
               const matchPath = "match" in rest ? rest.match : (to as string);
               const target = typeof to === "function" ? to() : to;
