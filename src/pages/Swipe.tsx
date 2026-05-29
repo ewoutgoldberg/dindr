@@ -5,9 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark, Calendar as CalendarIcon } from "lucide-react";
 import { useFavorite } from "@/hooks/useFavorite";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { addDays, isSameDay } from "date-fns";
+import { fmtDateKey } from "@/lib/dates";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
@@ -25,10 +28,26 @@ const Swipe = () => {
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<Recipe | null>(null);
+  const [dateConfirmed, setDateConfirmed] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(true);
+  const [pickedDate, setPickedDate] = useState<string>(date ?? fmtDateKey(new Date()));
+
+  const upcomingDates = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 30 }, (_, i) => addDays(today, i));
+  }, []);
+
+  const handleConfirmDate = () => {
+    if (pickedDate !== date) {
+      navigate(`/swipe/${pickedDate}`, { replace: true });
+    }
+    setDateConfirmed(true);
+    setPickerOpen(false);
+  };
 
   useEffect(() => {
     const load = async () => {
-      if (!user || !date) return;
+      if (!user || !date || !dateConfirmed) return;
       setLoading(true);
 
       // load plan filters
@@ -76,7 +95,7 @@ const Swipe = () => {
       setLoading(false);
     };
     load();
-  }, [user, date]);
+  }, [user, date, dateConfirmed]);
 
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
@@ -111,16 +130,9 @@ const Swipe = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const remaining = recipes.length - index;
-  const dateLabel = date ? format(parseISO(date), "EEEE, MMM d") : "";
+  const activeDateKey = dateConfirmed ? (date ?? pickedDate) : pickedDate;
+  const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
 
   return (
     <div className="flex-1 flex flex-col bg-background">
@@ -128,37 +140,64 @@ const Swipe = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div className="flex-1">
-          <p className="text-xs font-semibold text-primary uppercase tracking-wider">Swiping for</p>
-          <h1 className="font-display font-bold text-lg leading-tight mt-0.5">{dateLabel}</h1>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setPickedDate(activeDateKey);
+            setPickerOpen(true);
+          }}
+          className="flex-1 text-left group"
+        >
+          <p className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
+            Swiping for <CalendarIcon className="h-3 w-3" />
+          </p>
+          <h1 className="font-display font-bold text-lg leading-tight mt-0.5 group-hover:underline">{dateLabel}</h1>
+        </button>
         <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
 
-      <div className="flex-1 px-5 relative">
-        <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
-          {remaining === 0 ? (
-            <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
-          ) : (
-            <AnimatePresence>
-              {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
-                const isTop = stackIdx === arr.length - 1;
-                return (
-                  <SwipeCard
-                    key={r.id}
-                    recipe={r}
-                    isTop={isTop}
-                    depth={arr.length - 1 - stackIdx}
-                    onSwipe={isTop ? handleSwipe : undefined}
-                    onTap={() => navigate(`/recipe/${r.id}`)}
-                  />
-                );
-              })}
-            </AnimatePresence>
-          )}
-        </div>
-      </div>
+      <DatePickerDialog
+        open={pickerOpen}
+        dates={upcomingDates}
+        pickedDate={pickedDate}
+        onPick={setPickedDate}
+        onConfirm={handleConfirmDate}
+        onCancel={dateConfirmed ? () => setPickerOpen(false) : () => navigate("/plan")}
+      />
 
+      {!dateConfirmed ? (
+        <div className="flex-1 grid place-items-center text-muted-foreground text-sm px-6 text-center">
+          Pick a date above to start swiping.
+        </div>
+      ) : loading ? (
+        <div className="flex-1 grid place-items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="flex-1 px-5 relative">
+          <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
+            {remaining === 0 ? (
+              <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
+            ) : (
+              <AnimatePresence>
+                {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
+                  const isTop = stackIdx === arr.length - 1;
+                  return (
+                    <SwipeCard
+                      key={r.id}
+                      recipe={r}
+                      isTop={isTop}
+                      depth={arr.length - 1 - stackIdx}
+                      onSwipe={isTop ? handleSwipe : undefined}
+                      onTap={() => navigate(`/recipe/${r.id}`)}
+                    />
+                  );
+                })}
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {matchInfo && (
@@ -336,5 +375,81 @@ const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () =
     </motion.div>
   </motion.div>
 );
+
+const DatePickerDialog = ({
+  open,
+  dates,
+  pickedDate,
+  onPick,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  dates: Date[];
+  pickedDate: string;
+  onPick: (key: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (open && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+  }, [open, pickedDate]);
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
+          <DialogDescription>
+            Confirm the date so your picks land on the right meal plan.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none"
+        >
+          {dates.map((d) => {
+            const key = fmtDateKey(d);
+            const isSelected = key === pickedDate;
+            const today = isSameDay(d, new Date());
+            return (
+              <button
+                key={key}
+                ref={isSelected ? selectedRef : undefined}
+                onClick={() => onPick(key)}
+                className={cn(
+                  "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                    : "bg-card border-border hover:border-primary/50"
+                )}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+                  {today ? "Today" : format(d, "EEE")}
+                </span>
+                <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
+                  {format(d, "d")}
+                </span>
+                <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <DialogFooter className="sm:justify-stretch">
+          <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
+            Start swiping
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default Swipe;
