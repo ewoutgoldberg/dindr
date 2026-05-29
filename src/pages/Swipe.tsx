@@ -28,6 +28,22 @@ const Swipe = () => {
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<Recipe | null>(null);
+  const [dateConfirmed, setDateConfirmed] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(true);
+  const [pickedDate, setPickedDate] = useState<string>(date ?? fmtDateKey(new Date()));
+
+  const upcomingDates = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 30 }, (_, i) => addDays(today, i));
+  }, []);
+
+  const handleConfirmDate = () => {
+    if (pickedDate !== date) {
+      navigate(`/swipe/${pickedDate}`, { replace: true });
+    }
+    setDateConfirmed(true);
+    setPickerOpen(false);
+  };
 
   useEffect(() => {
     const load = async () => {
