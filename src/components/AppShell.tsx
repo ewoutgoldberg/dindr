@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, ShoppingCart, User, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, Flame, Heart, User, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
@@ -12,9 +12,9 @@ const tabs = [
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: "/plan", label: "Plan", icon: CalendarDays },
-  { to: "/shopping", label: "List", icon: ShoppingCart },
   { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
 ] as const;
+
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
