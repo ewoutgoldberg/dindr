@@ -5,7 +5,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
@@ -156,6 +156,10 @@ const Profile = () => {
         )}
       </section>
 
+      <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/shopping")}>
+        <ShoppingCart className="h-4 w-4 mr-2" /> Grocery list
+      </Button>
+
       <Button variant="outline" className="w-full mb-2 justify-between" onClick={() => navigate("/notifications")}>
         <span className="flex items-center"><Bell className="h-4 w-4 mr-2" /> Notifications</span>
         {unread > 0 && (
@@ -164,6 +168,7 @@ const Profile = () => {
           </span>
         )}
       </Button>
+
 
       <Button variant="outline" className="w-full" onClick={signOut}>
         <LogOut className="h-4 w-4 mr-2" /> Sign out
