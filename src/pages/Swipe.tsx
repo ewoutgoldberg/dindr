@@ -181,6 +181,22 @@ const Swipe = () => {
                 })}
               </AnimatePresence>
             )}
+            {remaining > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPickedDate(activeDateKey);
+                  setPickerOpen(true);
+                }}
+                className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-background/30 backdrop-blur-md text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-background/40 transition-colors text-left"
+              >
+                <CalendarIcon className="h-4 w-4 shrink-0" />
+                <div className="leading-tight">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Swiping for</p>
+                  <p className="text-sm font-display font-bold">{dateLabel}</p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}
