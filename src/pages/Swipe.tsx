@@ -47,7 +47,7 @@ const Swipe = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!user || !date) return;
+      if (!user || !date || !dateConfirmed) return;
       setLoading(true);
 
       // load plan filters
