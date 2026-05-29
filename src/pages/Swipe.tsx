@@ -140,20 +140,6 @@ const Swipe = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <button
-          type="button"
-          onClick={() => {
-            setPickedDate(activeDateKey);
-            setPickerOpen(true);
-          }}
-          className="flex-1 text-left group"
-        >
-          <p className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
-            Swiping for <CalendarIcon className="h-3 w-3" />
-          </p>
-          <h1 className="font-display font-bold text-lg leading-tight mt-0.5 group-hover:underline">{dateLabel}</h1>
-        </button>
-        <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
 
       <DatePickerDialog
@@ -194,6 +180,22 @@ const Swipe = () => {
                   );
                 })}
               </AnimatePresence>
+            )}
+            {remaining > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPickedDate(activeDateKey);
+                  setPickerOpen(true);
+                }}
+                className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-background/30 backdrop-blur-md text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-background/40 transition-colors text-left"
+              >
+                <CalendarIcon className="h-4 w-4 shrink-0" />
+                <div className="leading-tight">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Swiping for</p>
+                  <p className="text-sm font-display font-bold">{dateLabel}</p>
+                </div>
+              </button>
             )}
           </div>
         </div>
