@@ -140,20 +140,6 @@ const Swipe = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <button
-          type="button"
-          onClick={() => {
-            setPickedDate(activeDateKey);
-            setPickerOpen(true);
-          }}
-          className="flex-1 text-left group"
-        >
-          <p className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
-            Swiping for <CalendarIcon className="h-3 w-3" />
-          </p>
-          <h1 className="font-display font-bold text-lg leading-tight mt-0.5 group-hover:underline">{dateLabel}</h1>
-        </button>
-        <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
 
       <DatePickerDialog
