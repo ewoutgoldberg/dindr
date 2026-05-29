@@ -376,4 +376,80 @@ const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () =
   </motion.div>
 );
 
+const DatePickerDialog = ({
+  open,
+  dates,
+  pickedDate,
+  onPick,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  dates: Date[];
+  pickedDate: string;
+  onPick: (key: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (open && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+  }, [open, pickedDate]);
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
+          <DialogDescription>
+            Confirm the date so your picks land on the right meal plan.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none"
+        >
+          {dates.map((d) => {
+            const key = fmtDateKey(d);
+            const isSelected = key === pickedDate;
+            const today = isSameDay(d, new Date());
+            return (
+              <button
+                key={key}
+                ref={isSelected ? selectedRef : undefined}
+                onClick={() => onPick(key)}
+                className={cn(
+                  "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                    : "bg-card border-border hover:border-primary/50"
+                )}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+                  {today ? "Today" : format(d, "EEE")}
+                </span>
+                <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
+                  {format(d, "d")}
+                </span>
+                <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <DialogFooter className="sm:justify-stretch">
+          <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
+            Start swiping
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export default Swipe;
