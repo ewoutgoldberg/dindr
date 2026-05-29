@@ -174,31 +174,30 @@ const Swipe = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-
-      <div className="flex-1 px-5 relative">
-        <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
-          {remaining === 0 ? (
-            <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
-          ) : (
-            <AnimatePresence>
-              {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
-                const isTop = stackIdx === arr.length - 1;
-                return (
-                  <SwipeCard
-                    key={r.id}
-                    recipe={r}
-                    isTop={isTop}
-                    depth={arr.length - 1 - stackIdx}
-                    onSwipe={isTop ? handleSwipe : undefined}
-                    onTap={() => navigate(`/recipe/${r.id}`)}
-                  />
-                );
-              })}
-            </AnimatePresence>
-          )}
+        <div className="flex-1 px-5 relative">
+          <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
+            {remaining === 0 ? (
+              <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
+            ) : (
+              <AnimatePresence>
+                {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
+                  const isTop = stackIdx === arr.length - 1;
+                  return (
+                    <SwipeCard
+                      key={r.id}
+                      recipe={r}
+                      isTop={isTop}
+                      depth={arr.length - 1 - stackIdx}
+                      onSwipe={isTop ? handleSwipe : undefined}
+                      onTap={() => navigate(`/recipe/${r.id}`)}
+                    />
+                  );
+                })}
+              </AnimatePresence>
+            )}
+          </div>
         </div>
-      </div>
-
+      )}
 
       <AnimatePresence>
         {matchInfo && (
