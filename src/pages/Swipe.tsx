@@ -130,16 +130,9 @@ const Swipe = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const remaining = recipes.length - index;
-  const dateLabel = date ? format(parseISO(date), "EEEE, MMM d") : "";
+  const activeDateKey = dateConfirmed ? (date ?? pickedDate) : pickedDate;
+  const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
 
   return (
     <div className="flex-1 flex flex-col bg-background">
@@ -147,12 +140,40 @@ const Swipe = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/plan")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div className="flex-1">
-          <p className="text-xs font-semibold text-primary uppercase tracking-wider">Swiping for</p>
-          <h1 className="font-display font-bold text-lg leading-tight mt-0.5">{dateLabel}</h1>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setPickedDate(activeDateKey);
+            setPickerOpen(true);
+          }}
+          className="flex-1 text-left group"
+        >
+          <p className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
+            Swiping for <CalendarIcon className="h-3 w-3" />
+          </p>
+          <h1 className="font-display font-bold text-lg leading-tight mt-0.5 group-hover:underline">{dateLabel}</h1>
+        </button>
         <Badge variant="secondary" className="rounded-full">{remaining} left</Badge>
       </header>
+
+      <DatePickerDialog
+        open={pickerOpen}
+        dates={upcomingDates}
+        pickedDate={pickedDate}
+        onPick={setPickedDate}
+        onConfirm={handleConfirmDate}
+        onCancel={dateConfirmed ? () => setPickerOpen(false) : () => navigate("/plan")}
+      />
+
+      {!dateConfirmed ? (
+        <div className="flex-1 grid place-items-center text-muted-foreground text-sm px-6 text-center">
+          Pick a date above to start swiping.
+        </div>
+      ) : loading ? (
+        <div className="flex-1 grid place-items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
 
       <div className="flex-1 px-5 relative">
         <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
