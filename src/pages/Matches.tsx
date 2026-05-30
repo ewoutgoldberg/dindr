@@ -141,48 +141,68 @@ const Matches = () => {
     tone: "mine" | "partner" | "match";
     isFinal?: boolean;
   }) => (
-    <button
-      onClick={() => navigate(`/recipe/${recipe.id}?date=${date}`)}
+    <div
       className={cn(
-        "text-left rounded-2xl overflow-hidden bg-card shadow-soft active:scale-[0.98] transition-transform relative w-full",
+        "group text-left rounded-2xl overflow-hidden bg-card shadow-soft transition-all relative w-full",
         tone === "match" && "ring-2 ring-accent",
         isFinal && "ring-2 ring-success",
+        tone === "partner" && "hover:ring-2 hover:ring-accent hover:shadow-glow",
       )}
     >
-      <div className="aspect-square relative">
-        <img
-          src={recipe.image_url ?? PLACEHOLDER}
-          alt={recipe.title}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-          onError={handleImgErr}
-        />
-        {isFinal && (
-          <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1">
-            <Check className="h-3 w-3" /> Picked
-          </span>
-        )}
-      </div>
-      <div className="p-3">
-        <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
-        <p className="text-xs text-muted-foreground mt-1">
-          {recipe.cooking_time_minutes} min · {recipe.category}
-        </p>
-        {tone !== "partner" && (
-          <Button
-            variant={isFinal ? "secondary" : "outline"}
-            size="sm"
-            className="w-full mt-2 h-8 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFinal(date, recipe.id);
-            }}
-          >
-            {isFinal ? "Final pick ✓" : "Make it final"}
-          </Button>
-        )}
-      </div>
-    </button>
+      <button
+        onClick={() => navigate(`/recipe/${recipe.id}?date=${date}`)}
+        className="text-left w-full active:scale-[0.98] transition-transform"
+      >
+        <div className="aspect-square relative">
+          <img
+            src={recipe.image_url ?? PLACEHOLDER}
+            alt={recipe.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            onError={handleImgErr}
+          />
+          {isFinal && (
+            <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1">
+              <Check className="h-3 w-3" /> Picked
+            </span>
+          )}
+          {tone === "partner" && (
+            <div className="absolute inset-0 grid place-items-center bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="hero"
+                size="sm"
+                className="shadow-glow animate-pop"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  matchRecipe(date, recipe);
+                }}
+              >
+                <Zap className="h-3.5 w-3.5" /> Match this
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="p-3">
+          <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {recipe.cooking_time_minutes} min · {recipe.category}
+          </p>
+          {tone !== "partner" && (
+            <Button
+              variant={isFinal ? "secondary" : "outline"}
+              size="sm"
+              className="w-full mt-2 h-8 text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFinal(date, recipe.id);
+              }}
+            >
+              {isFinal ? "Final pick ✓" : "Make it final"}
+            </Button>
+          )}
+        </div>
+      </button>
+    </div>
   );
 
   const SectionHeader = ({
