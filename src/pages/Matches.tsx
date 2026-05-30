@@ -192,27 +192,14 @@ const Matches = () => {
         </p>
       </header>
 
-      {groups.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="h-20 w-20 rounded-full bg-muted grid place-items-center mx-auto mb-4">
-            <Heart className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="font-display font-bold text-xl">No likes yet</h2>
-          <p className="text-muted-foreground mt-2 mb-6">Plan a day and start swiping to fill this space.</p>
-          <Button variant="hero" onClick={() => navigate("/plan")}>
-            Plan a meal
-          </Button>
-        </div>
-      ) : (
-        <CollapsibleGroups
-          groups={groups}
-          hasPartner={hasPartner}
-          navigate={navigate}
-          handleImgErr={handleImgErr}
-          RecipeTile={RecipeTile}
-          SectionHeader={SectionHeader}
-        />
-      )}
+      <CollapsibleGroups
+        groups={groups}
+        hasPartner={hasPartner}
+        navigate={navigate}
+        handleImgErr={handleImgErr}
+        RecipeTile={RecipeTile}
+        SectionHeader={SectionHeader}
+      />
     </div>
   );
 };
