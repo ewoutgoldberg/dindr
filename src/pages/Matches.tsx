@@ -232,9 +232,15 @@ const CollapsibleGroups = ({
     });
 
   const displayGroups = useMemo(() => {
-    if (groups.some((g) => g.date === today)) return groups;
-    const todayGroup: Group = { date: today, mine: [], partner: [], mutual: [], finalId: null };
-    return [todayGroup, ...groups].sort((a, b) => b.date.localeCompare(a.date));
+    const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - 6); // last 7 calendar days incl. today
+    const cutoffStr = format(cutoff, "yyyy-MM-dd");
+    const recent = groups.filter((g) => g.date >= cutoffStr && g.date <= today);
+    if (!recent.some((g) => g.date === today)) {
+      recent.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
+    }
+    return recent.sort((a, b) => b.date.localeCompare(a.date));
   }, [groups, today]);
 
   return (
