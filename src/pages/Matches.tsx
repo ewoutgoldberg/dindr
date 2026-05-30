@@ -231,9 +231,15 @@ const CollapsibleGroups = ({
       return next;
     });
 
+  const displayGroups = useMemo(() => {
+    if (groups.some((g) => g.date === today)) return groups;
+    const todayGroup: Group = { date: today, mine: [], partner: [], mutual: [], finalId: null };
+    return [todayGroup, ...groups].sort((a, b) => b.date.localeCompare(a.date));
+  }, [groups, today]);
+
   return (
     <>
-      {groups.map((g) => {
+      {displayGroups.map((g) => {
         const isOpen = openDates.has(g.date);
         const isToday = g.date === today;
         const finalRecipe =
