@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,12 +24,14 @@ const Swipe = () => {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const location = useLocation();
+  const preConfirmed = (location.state as { dateConfirmed?: boolean } | null)?.dateConfirmed === true;
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<Recipe | null>(null);
-  const [dateConfirmed, setDateConfirmed] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(true);
+  const [dateConfirmed, setDateConfirmed] = useState(preConfirmed);
+  const [pickerOpen, setPickerOpen] = useState(!preConfirmed);
   const [pickedDate, setPickedDate] = useState<string>(date ?? fmtDateKey(new Date()));
 
   const upcomingDates = useMemo(() => {
