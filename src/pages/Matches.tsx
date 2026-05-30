@@ -204,140 +204,202 @@ const Matches = () => {
           </Button>
         </div>
       ) : (
-        groups.map((g) => {
-          const finalRecipe =
-            g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
-          const mineOnly = g.mine.filter((r) => !g.mutual.some((m) => m.id === r.id) && r.id !== g.finalId);
-          const partnerOnly = g.partner.filter(
-            (r) => !g.mutual.some((m) => m.id === r.id) && !g.mine.some((m) => m.id === r.id) && r.id !== g.finalId,
-          );
-          const matchesToShow = g.mutual.filter((r) => r.id !== g.finalId);
+        <CollapsibleGroups
+          groups={groups}
+          hasPartner={hasPartner}
+          navigate={navigate}
+          handleImgErr={handleImgErr}
+          RecipeTile={RecipeTile}
+          SectionHeader={SectionHeader}
+        />
+      )}
+    </div>
+  );
+};
 
-          return (
-            <section key={g.date} className="mb-10">
-              <div className="flex items-baseline justify-between mb-3">
-                <h2 className="font-display font-bold text-lg">{fmtDayLong(parseISO(g.date))}</h2>
+type CollapsibleGroupsProps = {
+  groups: Group[];
+  hasPartner: boolean;
+  navigate: ReturnType<typeof useNavigate>;
+  handleImgErr: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  RecipeTile: React.FC<{ recipe: Recipe; date: string; tone: "mine" | "partner" | "match"; isFinal?: boolean }>;
+  SectionHeader: React.FC<{ icon: React.ReactNode; label: string; count: number; tint: string }>;
+};
+
+const CollapsibleGroups = ({
+  groups,
+  hasPartner,
+  navigate,
+  handleImgErr,
+  RecipeTile,
+  SectionHeader,
+}: CollapsibleGroupsProps) => {
+  const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
+  const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([today]));
+
+  const toggle = (date: string) =>
+    setOpenDates((prev) => {
+      const next = new Set(prev);
+      next.has(date) ? next.delete(date) : next.add(date);
+      return next;
+    });
+
+  return (
+    <>
+      {groups.map((g) => {
+        const isOpen = openDates.has(g.date);
+        const isToday = g.date === today;
+        const finalRecipe =
+          g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
+        const mineOnly = g.mine.filter((r) => !g.mutual.some((m) => m.id === r.id) && r.id !== g.finalId);
+        const partnerOnly = g.partner.filter(
+          (r) => !g.mutual.some((m) => m.id === r.id) && !g.mine.some((m) => m.id === r.id) && r.id !== g.finalId,
+        );
+        const matchesToShow = g.mutual.filter((r) => r.id !== g.finalId);
+        const totalItems = (finalRecipe ? 1 : 0) + matchesToShow.length + mineOnly.length + partnerOnly.length;
+
+        return (
+          <section key={g.date} className={cn("mb-4 rounded-2xl border border-border bg-card overflow-hidden", isOpen && "shadow-soft")}>
+            <button
+              onClick={() => toggle(g.date)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left active:scale-[0.997] transition-transform"
+              aria-expanded={isOpen}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <h2 className="font-display font-bold text-base truncate">{fmtDayLong(parseISO(g.date))}</h2>
+                {isToday && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                    Today
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
                 {g.mutual.length > 0 ? (
                   <Badge className="bg-accent text-accent-foreground">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {g.mutual.length} match{g.mutual.length > 1 ? "es" : ""}
+                    {g.mutual.length}
                   </Badge>
                 ) : hasPartner ? (
-                  <Badge variant="outline" className="text-muted-foreground">
-                    No match yet
+                  <Badge variant="outline" className="text-muted-foreground text-[10px]">
+                    {totalItems} pick{totalItems === 1 ? "" : "s"}
                   </Badge>
-                ) : null}
+                ) : (
+                  <Badge variant="outline" className="text-muted-foreground text-[10px]">
+                    {totalItems}
+                  </Badge>
+                )}
+                <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
               </div>
+            </button>
 
-              {/* FINAL PICK — hero */}
-              {finalRecipe && (
-                <div className="mb-2">
-                  <SectionHeader
-                    icon={<Check className="h-3.5 w-3.5 text-success-foreground" />}
-                    label="Final pick"
-                    count={1}
-                    tint="bg-success"
-                  />
-                  <button
-                    onClick={() => navigate(`/recipe/${finalRecipe.id}?date=${g.date}`)}
-                    className="w-full text-left rounded-2xl overflow-hidden bg-card shadow-soft ring-2 ring-success active:scale-[0.99] transition-transform relative"
-                  >
-                    <div className="aspect-[16/9] relative">
-                      <img
-                        src={finalRecipe.image_url ?? PLACEHOLDER}
-                        alt={finalRecipe.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={handleImgErr}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                      <span className="absolute top-3 left-3 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1">
-                        <Check className="h-3 w-3" /> Final pick
-                      </span>
-                      <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <p className="font-display font-extrabold text-lg leading-tight">{finalRecipe.title}</p>
-                        <p className="text-xs opacity-90 mt-0.5">
-                          {finalRecipe.cooking_time_minutes} min · {finalRecipe.category}
-                        </p>
+            {isOpen && (
+              <div className="px-4 pb-4">
+                {/* FINAL PICK — hero */}
+                {finalRecipe && (
+                  <div className="mb-2">
+                    <SectionHeader
+                      icon={<Check className="h-3.5 w-3.5 text-success-foreground" />}
+                      label="Final pick"
+                      count={1}
+                      tint="bg-success"
+                    />
+                    <button
+                      onClick={() => navigate(`/recipe/${finalRecipe.id}?date=${g.date}`)}
+                      className="w-full text-left rounded-2xl overflow-hidden bg-card shadow-soft ring-2 ring-success active:scale-[0.99] transition-transform relative"
+                    >
+                      <div className="aspect-[16/9] relative">
+                        <img
+                          src={finalRecipe.image_url ?? PLACEHOLDER}
+                          alt={finalRecipe.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={handleImgErr}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                        <span className="absolute top-3 left-3 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1">
+                          <Check className="h-3 w-3" /> Final pick
+                        </span>
+                        <div className="absolute bottom-3 left-3 right-3 text-white">
+                          <p className="font-display font-extrabold text-lg leading-tight">{finalRecipe.title}</p>
+                          <p className="text-xs opacity-90 mt-0.5">
+                            {finalRecipe.cooking_time_minutes} min · {finalRecipe.category}
+                          </p>
+                        </div>
                       </div>
+                    </button>
+                  </div>
+                )}
+
+                {hasPartner && (
+                  <div className="flex justify-end mt-3">
+                    <NotifyPartnerButton
+                      planDate={g.date}
+                      variant="ghost"
+                      size="sm"
+                      label="Ping partner"
+                      className="h-7 px-2 text-xs"
+                    />
+                  </div>
+                )}
+
+                {matchesToShow.length > 0 && (
+                  <>
+                    <SectionHeader
+                      icon={<Sparkles className="h-3.5 w-3.5 text-accent-foreground" />}
+                      label="Matches"
+                      count={matchesToShow.length}
+                      tint="bg-accent"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      {matchesToShow.map((r) => (
+                        <RecipeTile key={r.id} recipe={r} date={g.date} tone="match" />
+                      ))}
                     </div>
-                  </button>
-                </div>
-              )}
+                  </>
+                )}
 
-              {/* PING PARTNER */}
-              {hasPartner && (
-                <div className="flex justify-end mt-3">
-                  <NotifyPartnerButton
-                    planDate={g.date}
-                    variant="ghost"
-                    size="sm"
-                    label="Ping partner"
-                    className="h-7 px-2 text-xs"
-                  />
-                </div>
-              )}
+                {mineOnly.length > 0 && (
+                  <>
+                    <SectionHeader
+                      icon={<UserIcon className="h-3.5 w-3.5 text-primary-foreground" />}
+                      label="Your suggestions"
+                      count={mineOnly.length}
+                      tint="bg-primary"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      {mineOnly.map((r) => (
+                        <RecipeTile key={r.id} recipe={r} date={g.date} tone="mine" />
+                      ))}
+                    </div>
+                  </>
+                )}
 
-              {/* MATCHES */}
-              {matchesToShow.length > 0 && (
-                <>
-                  <SectionHeader
-                    icon={<Sparkles className="h-3.5 w-3.5 text-accent-foreground" />}
-                    label="Matches"
-                    count={matchesToShow.length}
-                    tint="bg-accent"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    {matchesToShow.map((r) => (
-                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="match" />
-                    ))}
-                  </div>
-                </>
-              )}
+                {hasPartner && partnerOnly.length > 0 && (
+                  <>
+                    <SectionHeader
+                      icon={<Users className="h-3.5 w-3.5 text-secondary-foreground" />}
+                      label="Partner's suggestions"
+                      count={partnerOnly.length}
+                      tint="bg-secondary"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      {partnerOnly.map((r) => (
+                        <RecipeTile key={r.id} recipe={r} date={g.date} tone="partner" />
+                      ))}
+                    </div>
+                  </>
+                )}
 
-              {/* YOUR SUGGESTIONS */}
-              {mineOnly.length > 0 && (
-                <>
-                  <SectionHeader
-                    icon={<UserIcon className="h-3.5 w-3.5 text-primary-foreground" />}
-                    label="Your suggestions"
-                    count={mineOnly.length}
-                    tint="bg-primary"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    {mineOnly.map((r) => (
-                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="mine" />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* PARTNER SUGGESTIONS */}
-              {hasPartner && partnerOnly.length > 0 && (
-                <>
-                  <SectionHeader
-                    icon={<Users className="h-3.5 w-3.5 text-secondary-foreground" />}
-                    label="Partner's suggestions"
-                    count={partnerOnly.length}
-                    tint="bg-secondary"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    {partnerOnly.map((r) => (
-                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="partner" />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {hasPartner && matchesToShow.length === 0 && !finalRecipe && (
-                <p className="text-xs text-muted-foreground mt-3 italic">
-                  Keep swiping — a match happens when you both like the same recipe.
-                </p>
-              )}
-            </section>
-          );
-        })
-      )}
-    </div>
+                {hasPartner && matchesToShow.length === 0 && !finalRecipe && (
+                  <p className="text-xs text-muted-foreground mt-3 italic">
+                    Keep swiping — a match happens when you both like the same recipe.
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </>
   );
 };
 
