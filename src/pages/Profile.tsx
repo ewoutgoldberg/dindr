@@ -156,6 +156,10 @@ const Profile = () => {
         )}
       </section>
 
+      <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/favorites")}>
+        <Heart className="h-4 w-4 mr-2" /> Favorites
+      </Button>
+
       <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/shopping")}>
         <ShoppingCart className="h-4 w-4 mr-2" /> Grocery list
       </Button>
