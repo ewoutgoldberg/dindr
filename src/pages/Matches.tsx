@@ -94,6 +94,29 @@ const Matches = () => {
     setGroups((prev) => prev.map((g) => (g.date === date ? { ...g, finalId: recipeId } : g)));
   };
 
+  const matchRecipe = async (date: string, recipe: Recipe) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from("swipes")
+      .upsert(
+        { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked: true },
+        { onConflict: "user_id,recipe_id,plan_date" },
+      );
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("It's a match! 🎉");
+    setGroups((prev) =>
+      prev.map((g) => {
+        if (g.date !== date) return g;
+        const mine = g.mine.some((r) => r.id === recipe.id) ? g.mine : [...g.mine, recipe];
+        const mutual = g.mutual.some((r) => r.id === recipe.id) ? g.mutual : [...g.mutual, recipe];
+        return { ...g, mine, mutual };
+      }),
+    );
+  };
+
   const handleImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.src.endsWith(PLACEHOLDER)) return;
     e.currentTarget.src = PLACEHOLDER;
