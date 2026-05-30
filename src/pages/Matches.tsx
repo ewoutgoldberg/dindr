@@ -192,27 +192,14 @@ const Matches = () => {
         </p>
       </header>
 
-      {groups.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="h-20 w-20 rounded-full bg-muted grid place-items-center mx-auto mb-4">
-            <Heart className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="font-display font-bold text-xl">No likes yet</h2>
-          <p className="text-muted-foreground mt-2 mb-6">Plan a day and start swiping to fill this space.</p>
-          <Button variant="hero" onClick={() => navigate("/plan")}>
-            Plan a meal
-          </Button>
-        </div>
-      ) : (
-        <CollapsibleGroups
-          groups={groups}
-          hasPartner={hasPartner}
-          navigate={navigate}
-          handleImgErr={handleImgErr}
-          RecipeTile={RecipeTile}
-          SectionHeader={SectionHeader}
-        />
-      )}
+      <CollapsibleGroups
+        groups={groups}
+        hasPartner={hasPartner}
+        navigate={navigate}
+        handleImgErr={handleImgErr}
+        RecipeTile={RecipeTile}
+        SectionHeader={SectionHeader}
+      />
     </div>
   );
 };
@@ -244,9 +231,15 @@ const CollapsibleGroups = ({
       return next;
     });
 
+  const displayGroups = useMemo(() => {
+    if (groups.some((g) => g.date === today)) return groups;
+    const todayGroup: Group = { date: today, mine: [], partner: [], mutual: [], finalId: null };
+    return [todayGroup, ...groups].sort((a, b) => b.date.localeCompare(a.date));
+  }, [groups, today]);
+
   return (
     <>
-      {groups.map((g) => {
+      {displayGroups.map((g) => {
         const isOpen = openDates.has(g.date);
         const isToday = g.date === today;
         const finalRecipe =
@@ -294,6 +287,22 @@ const CollapsibleGroups = ({
 
             {isOpen && (
               <div className="px-4 pb-4">
+                {totalItems === 0 && (
+                  <div className="text-center py-6 px-4 rounded-xl bg-muted/40 border border-dashed border-border">
+                    <div className="h-12 w-12 rounded-full bg-background grid place-items-center mx-auto mb-3">
+                      <Heart className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="font-display font-bold text-sm">No picks yet for this day</p>
+                    <p className="text-xs text-muted-foreground mt-1 mb-4">
+                      {hasPartner
+                        ? "Start swiping to create a match with your partner."
+                        : "Start swiping to build your shortlist."}
+                    </p>
+                    <Button variant="hero" size="sm" onClick={() => navigate(`/swipe?date=${g.date}`)}>
+                      <Sparkles className="h-3.5 w-3.5" /> Start swiping
+                    </Button>
+                  </div>
+                )}
                 {/* FINAL PICK — hero */}
                 {finalRecipe && (
                   <div className="mb-2">
