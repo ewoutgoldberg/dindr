@@ -287,6 +287,22 @@ const CollapsibleGroups = ({
 
             {isOpen && (
               <div className="px-4 pb-4">
+                {totalItems === 0 && (
+                  <div className="text-center py-6 px-4 rounded-xl bg-muted/40 border border-dashed border-border">
+                    <div className="h-12 w-12 rounded-full bg-background grid place-items-center mx-auto mb-3">
+                      <Heart className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="font-display font-bold text-sm">No picks yet for this day</p>
+                    <p className="text-xs text-muted-foreground mt-1 mb-4">
+                      {hasPartner
+                        ? "Start swiping to create a match with your partner."
+                        : "Start swiping to build your shortlist."}
+                    </p>
+                    <Button variant="hero" size="sm" onClick={() => navigate(`/swipe?date=${g.date}`)}>
+                      <Sparkles className="h-3.5 w-3.5" /> Start swiping
+                    </Button>
+                  </div>
+                )}
                 {/* FINAL PICK — hero */}
                 {finalRecipe && (
                   <div className="mb-2">
