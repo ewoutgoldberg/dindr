@@ -401,7 +401,7 @@ const DatePickerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm border-white/20 bg-background/30 backdrop-blur-2xl text-primary-foreground shadow-2xl">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
           <DialogDescription>
