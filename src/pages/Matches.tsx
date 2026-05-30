@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Loader2, Sparkles, Users } from "lucide-react";
+import { Check, Heart, Loader2, Sparkles, User as UserIcon, Users } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes">;
-type Group = { date: string; mine: { recipe: Recipe; final: boolean }[]; partner: Recipe[]; mutual: Recipe[] };
+type Group = {
+  date: string;
+  mine: Recipe[];
+  partner: Recipe[];
+  mutual: Recipe[];
+  finalId: string | null;
+};
+
+const PLACEHOLDER = "/placeholder.svg";
 
 const Matches = () => {
   const { user } = useAuth();
@@ -42,25 +50,34 @@ const Matches = () => {
         .eq("liked", true)
         .order("plan_date", { ascending: true });
 
-      const { data: plans } = await supabase.from("meal_plans").select("plan_date, final_recipe_id").eq("user_id", user.id);
+      const { data: plans } = await supabase
+        .from("meal_plans")
+        .select("plan_date, final_recipe_id")
+        .eq("user_id", user.id);
       const finalMap = new Map(plans?.map((p) => [p.plan_date, p.final_recipe_id]));
 
       const map = new Map<string, Group>();
       swipes?.forEach((s) => {
         const recipe = s.recipes as Recipe;
         if (!recipe) return;
-        if (!map.has(s.plan_date)) map.set(s.plan_date, { date: s.plan_date, mine: [], partner: [], mutual: [] });
+        if (!map.has(s.plan_date))
+          map.set(s.plan_date, {
+            date: s.plan_date,
+            mine: [],
+            partner: [],
+            mutual: [],
+            finalId: finalMap.get(s.plan_date) ?? null,
+          });
         const g = map.get(s.plan_date)!;
         if (s.user_id === user.id) {
-          g.mine.push({ recipe, final: finalMap.get(s.plan_date) === recipe.id });
+          if (!g.mine.some((r) => r.id === recipe.id)) g.mine.push(recipe);
         } else {
-          g.partner.push(recipe);
+          if (!g.partner.some((r) => r.id === recipe.id)) g.partner.push(recipe);
         }
       });
-      // mutual
       map.forEach((g) => {
         const partnerIds = new Set(g.partner.map((r) => r.id));
-        g.mutual = g.mine.map((m) => m.recipe).filter((r) => partnerIds.has(r.id));
+        g.mutual = g.mine.filter((r) => partnerIds.has(r.id));
       });
       setGroups(Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date)));
       setLoading(false);
@@ -70,21 +87,98 @@ const Matches = () => {
 
   const setFinal = async (date: string, recipeId: string) => {
     if (!user) return;
-    await supabase.from("meal_plans").upsert(
-      { user_id: user.id, plan_date: date, final_recipe_id: recipeId },
-      { onConflict: "user_id,plan_date" }
-    );
+    await supabase
+      .from("meal_plans")
+      .upsert({ user_id: user.id, plan_date: date, final_recipe_id: recipeId }, { onConflict: "user_id,plan_date" });
     toast.success("Decision saved!");
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.date === date ? { ...g, mine: g.mine.map((m) => ({ ...m, final: m.recipe.id === recipeId })) } : g
-      )
-    );
+    setGroups((prev) => prev.map((g) => (g.date === date ? { ...g, finalId: recipeId } : g)));
+  };
+
+  const handleImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (e.currentTarget.src.endsWith(PLACEHOLDER)) return;
+    e.currentTarget.src = PLACEHOLDER;
   };
 
   if (loading) {
-    return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
+
+  const RecipeTile = ({
+    recipe,
+    date,
+    tone,
+    isFinal,
+  }: {
+    recipe: Recipe;
+    date: string;
+    tone: "mine" | "partner" | "match";
+    isFinal?: boolean;
+  }) => (
+    <button
+      onClick={() => navigate(`/recipe/${recipe.id}?date=${date}`)}
+      className={cn(
+        "text-left rounded-2xl overflow-hidden bg-card shadow-soft active:scale-[0.98] transition-transform relative w-full",
+        tone === "match" && "ring-2 ring-accent",
+        isFinal && "ring-2 ring-success",
+      )}
+    >
+      <div className="aspect-square relative">
+        <img
+          src={recipe.image_url ?? PLACEHOLDER}
+          alt={recipe.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          onError={handleImgErr}
+        />
+        {isFinal && (
+          <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1">
+            <Check className="h-3 w-3" /> Picked
+          </span>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {recipe.cooking_time_minutes} min · {recipe.category}
+        </p>
+        {tone !== "partner" && (
+          <Button
+            variant={isFinal ? "secondary" : "outline"}
+            size="sm"
+            className="w-full mt-2 h-8 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFinal(date, recipe.id);
+            }}
+          >
+            {isFinal ? "Final pick ✓" : "Make it final"}
+          </Button>
+        )}
+      </div>
+    </button>
+  );
+
+  const SectionHeader = ({
+    icon,
+    label,
+    count,
+    tint,
+  }: {
+    icon: React.ReactNode;
+    label: string;
+    count: number;
+    tint: string;
+  }) => (
+    <div className="flex items-center gap-2 mb-2 mt-4">
+      <span className={cn("inline-flex items-center justify-center h-6 w-6 rounded-full", tint)}>{icon}</span>
+      <h3 className="text-[11px] font-bold uppercase tracking-wider text-foreground">{label}</h3>
+      <span className="text-[11px] text-muted-foreground">({count})</span>
+    </div>
+  );
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
@@ -96,16 +190,6 @@ const Matches = () => {
             ? "It's only a real match when you both pick the same recipe."
             : "Connect a partner in your profile to turn picks into matches."}
         </p>
-        {hasPartner && (
-          <div className="mt-4 flex flex-wrap gap-3 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent/15 text-accent-foreground border border-accent/30">
-              <Sparkles className="h-3 w-3" /> Match — you both liked it
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">
-              Suggestion — only one of you liked it
-            </span>
-          </div>
-        )}
       </header>
 
       {groups.length === 0 ? (
@@ -115,96 +199,143 @@ const Matches = () => {
           </div>
           <h2 className="font-display font-bold text-xl">No likes yet</h2>
           <p className="text-muted-foreground mt-2 mb-6">Plan a day and start swiping to fill this space.</p>
-          <Button variant="hero" onClick={() => navigate("/plan")}>Plan a meal</Button>
+          <Button variant="hero" onClick={() => navigate("/plan")}>
+            Plan a meal
+          </Button>
         </div>
       ) : (
-        groups.map((g) => (
-          <section key={g.date} className="mb-8">
-            <div className="flex items-baseline justify-between mb-3">
-              <h2 className="font-display font-bold text-lg">{fmtDayLong(parseISO(g.date))}</h2>
-              {g.mutual.length > 0 ? (
-                <Badge className="bg-accent text-accent-foreground"><Sparkles className="h-3 w-3 mr-1" />{g.mutual.length} match{g.mutual.length > 1 ? "es" : ""}</Badge>
-              ) : hasPartner ? (
-                <Badge variant="outline" className="text-muted-foreground">No match yet</Badge>
-              ) : null}
-            </div>
+        groups.map((g) => {
+          const finalRecipe =
+            g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
+          const mineOnly = g.mine.filter((r) => !g.mutual.some((m) => m.id === r.id) && r.id !== g.finalId);
+          const partnerOnly = g.partner.filter(
+            (r) => !g.mutual.some((m) => m.id === r.id) && !g.mine.some((m) => m.id === r.id) && r.id !== g.finalId,
+          );
+          const matchesToShow = g.mutual.filter((r) => r.id !== g.finalId);
 
-            {hasPartner && g.mutual.length === 0 && (
-              <p className="text-xs text-muted-foreground mb-3 italic">
-                Keep swiping — a match happens when you both like the same recipe.
-              </p>
-            )}
-
-            {hasPartner && (
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  {g.mutual.length > 0 ? "Matches & suggestions" : "Suggestions"}
-                </p>
-                <NotifyPartnerButton
-                  planDate={g.date}
-                  variant="ghost"
-                  size="sm"
-                  label="Ping partner"
-                  className="h-7 px-2 text-xs"
-                />
+          return (
+            <section key={g.date} className="mb-10">
+              <div className="flex items-baseline justify-between mb-3">
+                <h2 className="font-display font-bold text-lg">{fmtDayLong(parseISO(g.date))}</h2>
+                {g.mutual.length > 0 ? (
+                  <Badge className="bg-accent text-accent-foreground">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {g.mutual.length} match{g.mutual.length > 1 ? "es" : ""}
+                  </Badge>
+                ) : hasPartner ? (
+                  <Badge variant="outline" className="text-muted-foreground">
+                    No match yet
+                  </Badge>
+                ) : null}
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-3">
-              {g.mine.map(({ recipe, final }) => {
-                const isMutual = g.mutual.some((r) => r.id === recipe.id);
-                return (
+              {/* FINAL PICK — hero */}
+              {finalRecipe && (
+                <div className="mb-2">
+                  <SectionHeader
+                    icon={<Check className="h-3.5 w-3.5 text-success-foreground" />}
+                    label="Final pick"
+                    count={1}
+                    tint="bg-success"
+                  />
                   <button
-                    key={recipe.id}
-                    onClick={() => navigate(`/recipe/${recipe.id}?date=${g.date}`)}
-                    className={cn(
-                      "text-left rounded-2xl overflow-hidden bg-card shadow-soft active:scale-[0.98] transition-transform relative",
-                      isMutual && "ring-2 ring-accent"
-                    )}
+                    onClick={() => navigate(`/recipe/${finalRecipe.id}?date=${g.date}`)}
+                    className="w-full text-left rounded-2xl overflow-hidden bg-card shadow-soft ring-2 ring-success active:scale-[0.99] transition-transform relative"
                   >
-                    <div className="aspect-square relative">
-                      <img src={recipe.image_url ?? ""} alt={recipe.title} className={cn("absolute inset-0 w-full h-full object-cover", !isMutual && hasPartner && "opacity-90")} loading="lazy" />
-                      {isMutual ? (
-                        <span className="absolute top-2 left-2 bg-accent text-accent-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1"><Sparkles className="h-3 w-3" /> Match</span>
-                      ) : hasPartner ? (
-                        <span className="absolute top-2 left-2 bg-background/90 text-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full border border-border">Your pick</span>
-                      ) : null}
-                      {final && <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full">Picked</span>}
-                    </div>
-                    <div className="p-3">
-                      <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{recipe.cooking_time_minutes} min · {recipe.category}</p>
-                      <Button
-                        variant={final ? "secondary" : "outline"}
-                        size="sm"
-                        className="w-full mt-2 h-8 text-xs"
-                        onClick={(e) => { e.stopPropagation(); setFinal(g.date, recipe.id); }}
-                      >
-                        {final ? "Final pick ✓" : "Make it final"}
-                      </Button>
+                    <div className="aspect-[16/9] relative">
+                      <img
+                        src={finalRecipe.image_url ?? PLACEHOLDER}
+                        alt={finalRecipe.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={handleImgErr}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                      <span className="absolute top-3 left-3 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <Check className="h-3 w-3" /> Final pick
+                      </span>
+                      <div className="absolute bottom-3 left-3 right-3 text-white">
+                        <p className="font-display font-extrabold text-lg leading-tight">{finalRecipe.title}</p>
+                        <p className="text-xs opacity-90 mt-0.5">
+                          {finalRecipe.cooking_time_minutes} min · {finalRecipe.category}
+                        </p>
+                      </div>
                     </div>
                   </button>
-                );
-              })}
-              {hasPartner && g.partner.filter((p) => !g.mine.some((m) => m.recipe.id === p.id)).map((recipe) => (
-                <button
-                  key={`p-${recipe.id}`}
-                  onClick={() => navigate(`/recipe/${recipe.id}?date=${g.date}`)}
-                  className="text-left rounded-2xl overflow-hidden bg-card shadow-soft border-2 border-dashed border-border relative"
-                >
-                  <div className="aspect-square relative">
-                    <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover opacity-90" loading="lazy" />
-                    <span className="absolute top-2 left-2 bg-secondary text-secondary-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full">Partner</span>
+                </div>
+              )}
+
+              {/* PING PARTNER */}
+              {hasPartner && (
+                <div className="flex justify-end mt-3">
+                  <NotifyPartnerButton
+                    planDate={g.date}
+                    variant="ghost"
+                    size="sm"
+                    label="Ping partner"
+                    className="h-7 px-2 text-xs"
+                  />
+                </div>
+              )}
+
+              {/* MATCHES */}
+              {matchesToShow.length > 0 && (
+                <>
+                  <SectionHeader
+                    icon={<Sparkles className="h-3.5 w-3.5 text-accent-foreground" />}
+                    label="Matches"
+                    count={matchesToShow.length}
+                    tint="bg-accent"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    {matchesToShow.map((r) => (
+                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="match" />
+                    ))}
                   </div>
-                  <div className="p-3">
-                    <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{recipe.cooking_time_minutes} min</p>
+                </>
+              )}
+
+              {/* YOUR SUGGESTIONS */}
+              {mineOnly.length > 0 && (
+                <>
+                  <SectionHeader
+                    icon={<UserIcon className="h-3.5 w-3.5 text-primary-foreground" />}
+                    label="Your suggestions"
+                    count={mineOnly.length}
+                    tint="bg-primary"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    {mineOnly.map((r) => (
+                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="mine" />
+                    ))}
                   </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        ))
+                </>
+              )}
+
+              {/* PARTNER SUGGESTIONS */}
+              {hasPartner && partnerOnly.length > 0 && (
+                <>
+                  <SectionHeader
+                    icon={<Users className="h-3.5 w-3.5 text-secondary-foreground" />}
+                    label="Partner's suggestions"
+                    count={partnerOnly.length}
+                    tint="bg-secondary"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    {partnerOnly.map((r) => (
+                      <RecipeTile key={r.id} recipe={r} date={g.date} tone="partner" />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {hasPartner && matchesToShow.length === 0 && !finalRecipe && (
+                <p className="text-xs text-muted-foreground mt-3 italic">
+                  Keep swiping — a match happens when you both like the same recipe.
+                </p>
+              )}
+            </section>
+          );
+        })
       )}
     </div>
   );
