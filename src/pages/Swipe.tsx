@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark, Calendar as CalendarIcon } from "lucide-react";
 import { useFavorite } from "@/hooks/useFavorite";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
 import { addDays, isSameDay } from "date-fns";
 import { fmtDateKey } from "@/lib/dates";
 import { format, parseISO } from "date-fns";
@@ -400,54 +402,60 @@ const DatePickerDialog = ({
   }, [open, pickedDate]);
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
-          <DialogDescription>
-            Confirm the date so your picks land on the right meal plan.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div
-          ref={scrollRef}
-          className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none"
+    <DialogPrimitive.Root open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/20 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content
+          className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-white/20 bg-background/40 backdrop-blur-2xl p-6 text-primary-foreground shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
         >
-          {dates.map((d) => {
-            const key = fmtDateKey(d);
-            const isSelected = key === pickedDate;
-            const today = isSameDay(d, new Date());
-            return (
-              <button
-                key={key}
-                ref={isSelected ? selectedRef : undefined}
-                onClick={() => onPick(key)}
-                className={cn(
-                  "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
-                    : "bg-card border-border hover:border-primary/50"
-                )}
-              >
-                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
-                  {today ? "Today" : format(d, "EEE")}
-                </span>
-                <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
-                  {format(d, "d")}
-                </span>
-                <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
-              </button>
-            );
-          })}
-        </div>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
+            <DialogDescription className="text-primary-foreground/80">
+              Confirm the date so your picks land on the right meal plan.
+            </DialogDescription>
+          </DialogHeader>
 
-        <DialogFooter className="sm:justify-stretch">
-          <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
-            Start swiping
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <div
+            ref={scrollRef}
+            className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none"
+          >
+            {dates.map((d) => {
+              const key = fmtDateKey(d);
+              const isSelected = key === pickedDate;
+              const today = isSameDay(d, new Date());
+              return (
+                <button
+                  key={key}
+                  ref={isSelected ? selectedRef : undefined}
+                  onClick={() => onPick(key)}
+                  className={cn(
+                    "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                      : "bg-background/30 border-white/20 text-primary-foreground hover:border-primary/50"
+                  )}
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+                    {today ? "Today" : format(d, "EEE")}
+                  </span>
+                  <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
+                    {format(d, "d")}
+                  </span>
+                  <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="sm:justify-stretch">
+            <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
+              Start swiping
+            </Button>
+          </DialogFooter>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+
   );
 };
 
