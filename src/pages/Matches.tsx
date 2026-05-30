@@ -183,7 +183,7 @@ const Matches = () => {
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
       <header className="mb-6">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Suggestions & matches</p>
+        
         <h1 className="text-3xl font-display font-extrabold mt-1">Matches</h1>
         <p className="text-muted-foreground mt-1">
           {hasPartner
