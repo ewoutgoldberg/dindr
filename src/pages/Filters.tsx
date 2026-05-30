@@ -1,11 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { parseISO, isToday as isTodayFn } from "date-fns";
+import { parseISO, isSameDay, addDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Clock,
   SlidersHorizontal,
@@ -14,12 +22,12 @@ import {
   Carrot,
   Plus,
   Sparkles,
-  CalendarDays,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
-import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey, fmtDayLong } from "@/lib/dates";
+import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 
 type MealPlan = {
@@ -37,27 +45,36 @@ type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "spe
 const Filters = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dateParam = searchParams.get("date");
-  const targetDate = useMemo(() => {
-    if (dateParam) {
-      try {
-        return parseISO(dateParam);
-      } catch {
-        return new Date();
-      }
-    }
-    return new Date();
-  }, [dateParam]);
-  const today = useMemo(() => fmtDateKey(targetDate), [targetDate]);
-  const dayIsToday = isTodayFn(targetDate);
+
+  const upcomingDates = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 30 }, (_, i) => addDays(today, i));
+  }, []);
+
+  const [pickedDate, setPickedDate] = useState<string>(dateParam ?? fmtDateKey(new Date()));
+  const [dateConfirmed, setDateConfirmed] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(true);
+
+  const today = pickedDate;
+  const dateLabel = format(parseISO(today), "EEEE, MMM d");
+
   const [plan, setPlan] = useState<MealPlan | null>(null);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
 
+  const handleConfirmDate = () => {
+    if (pickedDate !== dateParam) {
+      setSearchParams({ date: pickedDate }, { replace: true });
+    }
+    setDateConfirmed(true);
+    setPickerOpen(false);
+  };
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
     supabase
       .from("meal_plans")
@@ -66,7 +83,7 @@ const Filters = () => {
       .eq("plan_date", today)
       .maybeSingle()
       .then(({ data }) => setPlan((data as MealPlan) ?? null));
-  }, [user, today]);
+  }, [user, today, dateConfirmed]);
 
   useEffect(() => {
     supabase
@@ -139,16 +156,31 @@ const Filters = () => {
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
+      <DatePickerDialog
+        open={pickerOpen}
+        dates={upcomingDates}
+        pickedDate={pickedDate}
+        onPick={setPickedDate}
+        onConfirm={handleConfirmDate}
+        onCancel={dateConfirmed ? () => setPickerOpen(false) : () => navigate("/plan")}
+      />
+
       <header className="mb-6 flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4" /> Filters
           </p>
           <h1 className="text-3xl font-display font-extrabold mt-1">Tune your inspiration</h1>
-          <div className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold">
-            <CalendarDays className="h-3.5 w-3.5" />
-            <span>Only for {dayIsToday ? "today" : fmtDayLong(targetDate)}</span>
-          </div>
+          {dateConfirmed && (
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold hover:bg-primary/15 transition-colors"
+            >
+              <CalendarIcon className="h-3.5 w-3.5" />
+              <span>{dateLabel}</span>
+            </button>
+          )}
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground shrink-0">
@@ -157,6 +189,12 @@ const Filters = () => {
         )}
       </header>
 
+      {!dateConfirmed ? (
+        <div className="grid place-items-center text-muted-foreground text-sm py-20 text-center">
+          Pick a date to start tuning your filters.
+        </div>
+      ) : (
+        <>
       <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
         {/* Cooking time */}
         <div>
@@ -344,7 +382,81 @@ const Filters = () => {
       <Button variant="hero" size="lg" className="w-full mt-5" onClick={() => navigate(`/swipe/${today}`)}>
         <Sparkles className="h-5 w-5 mr-2" /> Start swiping
       </Button>
+        </>
+      )}
     </div>
+  );
+};
+
+const DatePickerDialog = ({
+  open,
+  dates,
+  pickedDate,
+  onPick,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  dates: Date[];
+  pickedDate: string;
+  onPick: (key: string) => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (open && selectedRef.current) {
+      selectedRef.current.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+  }, [open, pickedDate]);
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">Which day are you filtering for?</DialogTitle>
+          <DialogDescription>
+            Filters apply only to this date's meal plan.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none">
+          {dates.map((d) => {
+            const key = fmtDateKey(d);
+            const isSelected = key === pickedDate;
+            const today = isSameDay(d, new Date());
+            return (
+              <button
+                key={key}
+                ref={isSelected ? selectedRef : undefined}
+                onClick={() => onPick(key)}
+                className={cn(
+                  "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                    : "bg-card border-border hover:border-primary/50"
+                )}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+                  {today ? "Today" : format(d, "EEE")}
+                </span>
+                <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
+                  {format(d, "d")}
+                </span>
+                <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <DialogFooter className="sm:justify-stretch">
+          <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
+            Confirm date
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
