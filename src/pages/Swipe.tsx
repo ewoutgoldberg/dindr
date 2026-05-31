@@ -389,12 +389,24 @@ const DatePickerDialog = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
+  const didInitialScroll = useRef(false);
 
   useEffect(() => {
-    if (open && selectedRef.current) {
+    if (!open) {
+      didInitialScroll.current = false;
+      return;
+    }
+    if (!didInitialScroll.current && selectedRef.current) {
       selectedRef.current.scrollIntoView({ block: "nearest", inline: "center" });
+      didInitialScroll.current = true;
     }
   }, [open, pickedDate]);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }} modal={false}>
@@ -408,36 +420,54 @@ const DatePickerDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div
-          ref={scrollRef}
-          className="flex gap-2 overflow-x-auto py-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-none"
-        >
-          {dates.map((d) => {
-            const key = fmtDateKey(d);
-            const isSelected = key === pickedDate;
-            const today = isSameDay(d, new Date());
-            return (
-              <button
-                key={key}
-                ref={isSelected ? selectedRef : undefined}
-                onClick={() => onPick(key)}
-                className={cn(
-                  "snap-center shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
-                    : "bg-card border-border hover:border-primary/50"
-                )}
-              >
-                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
-                  {today ? "Today" : format(d, "EEE")}
-                </span>
-                <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
-                  {format(d, "d")}
-                </span>
-                <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
-              </button>
-            );
-          })}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => scrollBy(-1)}
+            aria-label="Previous dates"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 grid place-items-center rounded-full bg-background/90 border border-border shadow-sm hover:bg-background"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollBy(1)}
+            aria-label="Next dates"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 grid place-items-center rounded-full bg-background/90 border border-border shadow-sm hover:bg-background"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div
+            ref={scrollRef}
+            className="flex gap-2 overflow-x-auto py-2 px-10 scrollbar-none scroll-smooth"
+          >
+            {dates.map((d) => {
+              const key = fmtDateKey(d);
+              const isSelected = key === pickedDate;
+              const today = isSameDay(d, new Date());
+              return (
+                <button
+                  key={key}
+                  ref={isSelected ? selectedRef : undefined}
+                  onClick={() => onPick(key)}
+                  className={cn(
+                    "shrink-0 w-16 py-3 rounded-2xl border-2 flex flex-col items-center transition-all",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                      : "bg-card border-border hover:border-primary/50"
+                  )}
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+                    {today ? "Today" : format(d, "EEE")}
+                  </span>
+                  <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
+                    {format(d, "d")}
+                  </span>
+                  <span className="text-[10px] opacity-70">{format(d, "MMM")}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <DialogFooter className="sm:justify-stretch">
