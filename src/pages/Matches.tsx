@@ -279,7 +279,11 @@ const CollapsibleGroups = ({
     cutoff.setHours(0, 0, 0, 0);
     cutoff.setDate(cutoff.getDate() - 6); // last 7 calendar days incl. today
     const cutoffStr = format(cutoff, "yyyy-MM-dd");
-    const recent = groups.filter((g) => g.date >= cutoffStr && g.date <= today);
+    const horizon = new Date();
+    horizon.setHours(0, 0, 0, 0);
+    horizon.setDate(horizon.getDate() + 14); // also include upcoming planned dates
+    const horizonStr = format(horizon, "yyyy-MM-dd");
+    const recent = groups.filter((g) => g.date >= cutoffStr && g.date <= horizonStr);
     if (!recent.some((g) => g.date === today)) {
       recent.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
     }
