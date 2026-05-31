@@ -76,7 +76,7 @@ const Filters = () => {
   };
 
   useEffect(() => {
-    if (!user || !dateConfirmed) return;
+    if (!user) return;
     setPantryState(getPantry(user.id, today));
     supabase
       .from("meal_plans")
@@ -85,7 +85,8 @@ const Filters = () => {
       .eq("plan_date", today)
       .maybeSingle()
       .then(({ data }) => setPlan((data as MealPlan) ?? null));
-  }, [user, today, dateConfirmed]);
+  }, [user, today]);
+
 
   useEffect(() => {
     supabase
