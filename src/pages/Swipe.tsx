@@ -149,11 +149,7 @@ const Swipe = () => {
         onCancel={dateConfirmed ? () => setPickerOpen(false) : () => navigate("/plan")}
       />
 
-      {!dateConfirmed ? (
-        <div className="flex-1 grid place-items-center text-muted-foreground text-sm px-6 text-center">
-          Pick a date above to start swiping.
-        </div>
-      ) : loading ? (
+      {loading ? (
         <div className="flex-1 grid place-items-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
