@@ -76,7 +76,7 @@ const Filters = () => {
   };
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
     supabase
       .from("meal_plans")
@@ -85,8 +85,7 @@ const Filters = () => {
       .eq("plan_date", today)
       .maybeSingle()
       .then(({ data }) => setPlan((data as MealPlan) ?? null));
-  }, [user, today]);
-
+  }, [user, today, dateConfirmed]);
 
   useEffect(() => {
     supabase
@@ -192,9 +191,12 @@ const Filters = () => {
         )}
       </header>
 
-
-
-
+      {!dateConfirmed ? (
+        <div className="grid place-items-center text-muted-foreground text-sm py-20 text-center">
+          Pick a date to start tuning your filters.
+        </div>
+      ) : (
+        <>
       <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
         {/* Cooking time */}
         <div>
@@ -382,9 +384,8 @@ const Filters = () => {
       <Button variant="hero" size="lg" className="w-full mt-5" onClick={() => navigate(`/swipe/${today}`, { state: { dateConfirmed: true } })}>
         <Sparkles className="h-5 w-5 mr-2" /> Start swiping
       </Button>
-
-
-
+        </>
+      )}
     </div>
   );
 };
