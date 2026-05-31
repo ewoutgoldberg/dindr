@@ -192,12 +192,8 @@ const Filters = () => {
         )}
       </header>
 
-      {!dateConfirmed ? (
-        <div className="grid place-items-center text-muted-foreground text-sm py-20 text-center">
-          Pick a date to start tuning your filters.
-        </div>
-      ) : (
-        <>
+      <>
+
       <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
         {/* Cooking time */}
         <div>
