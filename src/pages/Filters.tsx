@@ -412,7 +412,7 @@ const DatePickerDialog = ({
   }, [open, pickedDate]);
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }} modal={false}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Which day are you filtering for?</DialogTitle>
