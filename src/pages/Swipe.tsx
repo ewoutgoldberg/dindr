@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark, Calendar as CalendarIcon } from "lucide-react";
 import { useFavorite } from "@/hooks/useFavorite";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { addDays, isSameDay } from "date-fns";
 import { fmtDateKey } from "@/lib/dates";
 import { format, parseISO } from "date-fns";
@@ -401,7 +402,9 @@ const DatePickerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
-      <DialogContent className="max-w-sm">
+      <DialogPortal>
+        <DialogOverlay className="bg-transparent" />
+        <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
           <DialogDescription>
@@ -446,7 +449,8 @@ const DatePickerDialog = ({
             Start swiping
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 };
