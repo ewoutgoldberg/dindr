@@ -449,7 +449,8 @@ const DatePickerDialog = ({
             Start swiping
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 };
