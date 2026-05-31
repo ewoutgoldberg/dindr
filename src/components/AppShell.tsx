@@ -23,6 +23,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {!hideNav && <PingPopup />}
       <main className={cn("flex-1 flex flex-col", !hideNav && "pb-24")}>{children}</main>
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
