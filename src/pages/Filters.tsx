@@ -459,7 +459,8 @@ const DatePickerDialog = ({
             Confirm date
           </Button>
         </DialogFooter>
-      </DialogContent>
+        </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 };
