@@ -192,7 +192,8 @@ const Filters = () => {
         )}
       </header>
 
-      <>
+
+
 
       <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
         {/* Cooking time */}
