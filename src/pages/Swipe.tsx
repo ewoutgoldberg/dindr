@@ -420,7 +420,7 @@ const DatePickerDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="relative">
+        <div className="relative min-w-0 overflow-hidden">
           <button
             type="button"
             onClick={() => scrollBy(-1)}
