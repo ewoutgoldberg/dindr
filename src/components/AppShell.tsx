@@ -4,6 +4,7 @@ import { CalendarDays, Flame, Heart, User, SlidersHorizontal } from "lucide-reac
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+import { PingPopup } from "@/components/PingPopup";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
