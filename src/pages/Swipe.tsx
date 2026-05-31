@@ -98,7 +98,7 @@ const Swipe = () => {
       setLoading(false);
     };
     load();
-  }, [user, date, dateConfirmed]);
+  }, [user, date]);
 
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
