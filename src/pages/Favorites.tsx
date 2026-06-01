@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarPlus, Check, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtDateKey } from "@/lib/dates";
