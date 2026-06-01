@@ -265,14 +265,10 @@ const CollapsibleGroups = ({
   SectionHeader,
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
-  const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([today]));
+  const [openDate, setOpenDate] = useState<string | null>(today);
 
-  const toggle = (date: string) =>
-    setOpenDates((prev) => {
-      const next = new Set(prev);
-      next.has(date) ? next.delete(date) : next.add(date);
-      return next;
-    });
+  const toggle = (date: string) => setOpenDate((prev) => (prev === date ? null : date));
+
 
   const displayGroups = useMemo(() => {
     const cutoff = new Date();
@@ -293,7 +289,7 @@ const CollapsibleGroups = ({
   return (
     <>
       {displayGroups.map((g) => {
-        const isOpen = openDates.has(g.date);
+        const isOpen = openDate === g.date;
         const isToday = g.date === today;
         const finalRecipe =
           g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
