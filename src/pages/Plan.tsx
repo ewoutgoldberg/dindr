@@ -125,7 +125,7 @@ const Plan = () => {
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
       {/* Header */}
       <header className="mb-6">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Meal plan</p>
+        
         <h1 className="text-3xl font-display font-extrabold mt-1">What&apos;s cooking?</h1>
       </header>
 
