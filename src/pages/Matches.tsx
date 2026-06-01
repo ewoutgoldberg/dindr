@@ -265,14 +265,10 @@ const CollapsibleGroups = ({
   SectionHeader,
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
-  const [openDates, setOpenDates] = useState<Set<string>>(() => new Set([today]));
+  const [openDate, setOpenDate] = useState<string | null>(today);
 
-  const toggle = (date: string) =>
-    setOpenDates((prev) => {
-      const next = new Set(prev);
-      next.has(date) ? next.delete(date) : next.add(date);
-      return next;
-    });
+  const toggle = (date: string) => setOpenDate((prev) => (prev === date ? null : date));
+
 
   const displayGroups = useMemo(() => {
     const cutoff = new Date();
