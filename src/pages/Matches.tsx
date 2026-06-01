@@ -289,7 +289,7 @@ const CollapsibleGroups = ({
   return (
     <>
       {displayGroups.map((g) => {
-        const isOpen = openDates.has(g.date);
+        const isOpen = openDate === g.date;
         const isToday = g.date === today;
         const finalRecipe =
           g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
