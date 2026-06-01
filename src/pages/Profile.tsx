@@ -104,7 +104,39 @@ const Profile = () => {
     toast.success("Saved");
   };
 
+  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("lovable-uploads")
+      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("lovable-uploads").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    setUploadingAvatar(false);
+    if (updErr) {
+      toast.error(updErr.message);
+      return;
+    }
+    setProfile((p) => (p ? { ...p, avatar_url: url } : p));
+    toast.success("Photo updated");
+  };
+
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
