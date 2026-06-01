@@ -213,30 +213,6 @@ const Plan = () => {
         )}
       </section>
 
-      {/* Filter reminder – filters live on their own page */}
-      <button
-        onClick={() => navigate(`/filters?date=${fmtDateKey(selected)}`)}
-        className="w-full mb-4 bg-card rounded-2xl p-4 shadow-soft text-left flex items-center gap-3 hover:bg-muted/40 transition-colors"
-      >
-        <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
-          <SlidersHorizontal className="h-5 w-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold flex items-center gap-2">
-            {activeFilterCount > 0 ? (
-              <>
-                {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
-              </>
-            ) : (
-              "Set filters for this day"
-            )}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Only applied to {isToday(selected) ? "today" : fmtDayLong(selected)}
-          </p>
-        </div>
-        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
-      </button>
 
       {/* Notify partner – per selected day */}
       <div className="mb-4">
@@ -249,9 +225,6 @@ const Plan = () => {
       </div>
 
       {/* Footer action */}
-      <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate("/favorites")}>
-        <Heart className="h-4 w-4 mr-2 text-accent fill-accent" /> Browse my favorites
-      </Button>
     </div>
   );
 };
