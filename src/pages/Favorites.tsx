@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, CalendarPlus, Check, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { fmtDateKey } from "@/lib/dates";
 
 type FavoriteRow = Tables<"favorites"> & {
   recipes: (Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "name" | "avatar_url"> | null }) | null;
@@ -138,19 +142,109 @@ const Favorites = () => {
                     </div>
                   </div>
                 </Link>
-                <button
-                  onClick={() => remove(f.id)}
-                  className="px-3 text-muted-foreground hover:text-destructive transition-colors"
-                  aria-label="Remove favorite"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex flex-col items-center justify-center px-2 gap-1 border-l border-border">
+                  <PlanFavoriteAction recipeId={f.recipes.id} userId={user?.id} />
+                  <button
+                    onClick={() => remove(f.id)}
+                    className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
+                    aria-label="Remove favorite"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </li>
             ) : null
           )}
         </ul>
       )}
     </div>
+  );
+};
+
+const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: string }) => {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [busy, setBusy] = useState<"suggest" | "final" | null>(null);
+
+  const suggest = async () => {
+    if (!userId || !date) return;
+    setBusy("suggest");
+    const planDate = fmtDateKey(date);
+    const { error } = await supabase
+      .from("swipes")
+      .upsert(
+        { user_id: userId, recipe_id: recipeId, plan_date: planDate, liked: true },
+        { onConflict: "user_id,recipe_id,plan_date" },
+      );
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Added as suggestion for ${format(date, "EEE d MMM")}`);
+    setOpen(false);
+  };
+
+  const makeFinal = async () => {
+    if (!userId || !date) return;
+    setBusy("final");
+    const planDate = fmtDateKey(date);
+    // also record a like so it shows up under matches/suggestions
+    await supabase
+      .from("swipes")
+      .upsert(
+        { user_id: userId, recipe_id: recipeId, plan_date: planDate, liked: true },
+        { onConflict: "user_id,recipe_id,plan_date" },
+      );
+    const { error } = await supabase
+      .from("meal_plans")
+      .upsert(
+        { user_id: userId, plan_date: planDate, final_recipe_id: recipeId },
+        { onConflict: "user_id,plan_date" },
+      );
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Final pick for ${format(date, "EEE d MMM")}`);
+    setOpen(false);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+          aria-label="Plan this recipe"
+        >
+          <CalendarPlus className="h-4 w-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-auto p-0">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          initialFocus
+          className={cn("p-3 pointer-events-auto")}
+        />
+        <div className="p-3 pt-0 flex flex-col gap-2 border-t border-border">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={suggest}
+            disabled={!date || busy !== null}
+          >
+            {busy === "suggest" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            Suggest for this day
+          </Button>
+          <Button
+            size="sm"
+            variant="hero"
+            onClick={makeFinal}
+            disabled={!date || busy !== null}
+          >
+            {busy === "final" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+            Make final pick
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
