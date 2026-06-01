@@ -196,9 +196,14 @@ const Profile = () => {
         <h2 className="font-display font-bold text-lg flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Cooking pair</h2>
         {partner ? (
           <div className="mt-3 flex items-center gap-3 bg-muted rounded-2xl p-3">
-            <div className="h-12 w-12 rounded-full gradient-warm grid place-items-center text-primary-foreground font-bold">
-              {partner.display_name?.charAt(0).toUpperCase()}
-            </div>
+            {partner.avatar_url ? (
+              <img src={partner.avatar_url} alt={partner.display_name ?? "Partner"} className="h-12 w-12 rounded-full object-cover" />
+            ) : (
+              <div className="h-12 w-12 rounded-full gradient-warm grid place-items-center text-primary-foreground font-bold">
+                {partner.display_name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+
             <div className="flex-1 min-w-0">
               <p className="font-bold flex items-center gap-1.5"><Heart className="h-4 w-4 text-primary fill-primary" /> Connected</p>
               <p className="text-sm text-muted-foreground truncate">{partner.display_name}</p>
