@@ -162,14 +162,14 @@ const Plan = () => {
         {days.map((d) => {
           const k = fmtDateKey(d);
           const isSel = isSameDay(d, selected);
-          const hasPlan = !!plans[k];
-          const isFinal = !!plans[k]?.final_recipe_id;
+          const plan = plans[k];
+          const recipe = plan?.final_recipe_id ? recipesById[plan.final_recipe_id] : null;
           return (
             <button
               key={k}
               onClick={() => setSelected(d)}
               className={cn(
-                "flex flex-col items-center py-3 rounded-2xl transition-all relative",
+                "flex flex-col items-center pt-2 pb-1.5 rounded-2xl transition-all relative",
                 isSel
                   ? "bg-secondary text-secondary-foreground shadow-card"
                   : "bg-muted/60 hover:bg-muted text-foreground"
@@ -177,15 +177,20 @@ const Plan = () => {
               aria-pressed={isSel}
             >
               <span className="text-[10px] font-semibold uppercase opacity-70">{fmtDayShort(d)}</span>
-              <span className="text-lg font-display font-bold mt-0.5">{fmtDayNum(d)}</span>
+              <span className="text-base font-display font-bold leading-tight">{fmtDayNum(d)}</span>
               {isToday(d) && <span className="absolute top-1 right-1.5 h-1.5 w-1.5 rounded-full bg-accent" />}
-              {hasPlan && !isSel && (
-                <span className={cn("h-1 w-1 rounded-full mt-1", isFinal ? "bg-success" : "bg-primary")} />
-              )}
+              <div className="mt-1.5 h-8 w-8 rounded-lg overflow-hidden bg-background/60 grid place-items-center">
+                {recipe?.image_url ? (
+                  <img src={recipe.image_url} alt={recipe.title} className="h-full w-full object-cover" />
+                ) : plan ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                ) : null}
+              </div>
             </button>
           );
         })}
       </div>
+
 
       {/* Day card – the focus of the page */}
       <section className="mb-4">
