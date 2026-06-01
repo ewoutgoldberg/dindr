@@ -59,8 +59,8 @@ const Favorites = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-primary uppercase tracking-wider">Saved</p>
-          <h1 className="text-3xl font-display font-extrabold mt-1">Favorites</h1>
+          <h1 className="text-3xl font-display font-extrabold">Favorites</h1>
+
         </div>
       </header>
 
