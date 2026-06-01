@@ -147,14 +147,44 @@ const Profile = () => {
 
       <section className="bg-card rounded-3xl p-5 shadow-soft mb-5">
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-16 w-16 rounded-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-2xl">
-            {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
-          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 active:scale-95 transition-transform"
+            aria-label="Change profile photo"
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-2xl">
+                {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
+              {uploadingAvatar ? (
+                <Loader2 className="h-5 w-5 text-foreground animate-spin" />
+              ) : (
+                <Camera className="h-5 w-5 text-foreground" />
+              )}
+            </div>
+            <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft">
+              {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            className="hidden"
+            onChange={onPickAvatar}
+          />
           <div className="min-w-0">
             <p className="font-display font-bold text-lg truncate">{profile?.display_name ?? "Cook"}</p>
             <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
           </div>
         </div>
+
         <Label htmlFor="name">Display name</Label>
         <div className="flex gap-2 mt-1">
           <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className="rounded-xl" />
