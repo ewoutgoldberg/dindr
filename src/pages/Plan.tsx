@@ -214,6 +214,62 @@ const Plan = () => {
       </section>
 
 
+      {/* Week overview with planned recipes */}
+      <section className="mb-4">
+        <div className="flex items-baseline justify-between mb-2 px-1">
+          <h2 className="font-display font-bold text-base">Week overview</h2>
+          <p className="text-xs text-muted-foreground">
+            {days.filter((d) => plans[fmtDateKey(d)]?.final_recipe_id).length} of 7 planned
+          </p>
+        </div>
+        <div className="bg-card rounded-2xl shadow-soft divide-y divide-border/60 overflow-hidden">
+          {days.map((d) => {
+            const k = fmtDateKey(d);
+            const plan = plans[k];
+            const recipe = plan?.final_recipe_id ? recipesById[plan.final_recipe_id] : null;
+            const isSel = isSameDay(d, selected);
+            return (
+              <button
+                key={k}
+                onClick={() => {
+                  setSelected(d);
+                  if (recipe) navigate(`/recipe/${recipe.id}`);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors",
+                  isSel ? "bg-muted/60" : "hover:bg-muted/40"
+                )}
+              >
+                <div className="flex flex-col items-center w-9 shrink-0">
+                  <span className="text-[10px] font-semibold uppercase text-muted-foreground">{fmtDayShort(d)}</span>
+                  <span className="text-base font-display font-bold leading-tight">{fmtDayNum(d)}</span>
+                </div>
+                <div className="h-10 w-10 rounded-lg overflow-hidden bg-muted shrink-0 grid place-items-center">
+                  {recipe?.image_url ? (
+                    <img src={recipe.image_url} alt={recipe.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  {recipe ? (
+                    <>
+                      <p className="text-sm font-semibold leading-tight line-clamp-1">{recipe.title}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <Clock className="h-3 w-3" /> {recipe.cooking_time_minutes} min
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">{plan ? "Not picked yet" : "No plan"}</p>
+                  )}
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Notify partner – per selected day */}
       <div className="mb-4">
         <NotifyPartnerButton
