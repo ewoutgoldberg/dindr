@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+
 
 type Profile = Tables<"profiles">;
 
@@ -23,6 +24,9 @@ const Profile = () => {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const load = async () => {
     if (!user) return;
@@ -100,7 +104,39 @@ const Profile = () => {
     toast.success("Saved");
   };
 
+  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("lovable-uploads")
+      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("lovable-uploads").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    setUploadingAvatar(false);
+    if (updErr) {
+      toast.error(updErr.message);
+      return;
+    }
+    setProfile((p) => (p ? { ...p, avatar_url: url } : p));
+    toast.success("Photo updated");
+  };
+
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
@@ -111,14 +147,44 @@ const Profile = () => {
 
       <section className="bg-card rounded-3xl p-5 shadow-soft mb-5">
         <div className="flex items-center gap-4 mb-4">
-          <div className="h-16 w-16 rounded-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-2xl">
-            {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
-          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 active:scale-95 transition-transform"
+            aria-label="Change profile photo"
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-2xl">
+                {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
+              {uploadingAvatar ? (
+                <Loader2 className="h-5 w-5 text-foreground animate-spin" />
+              ) : (
+                <Camera className="h-5 w-5 text-foreground" />
+              )}
+            </div>
+            <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft">
+              {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            className="hidden"
+            onChange={onPickAvatar}
+          />
           <div className="min-w-0">
             <p className="font-display font-bold text-lg truncate">{profile?.display_name ?? "Cook"}</p>
             <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
           </div>
         </div>
+
         <Label htmlFor="name">Display name</Label>
         <div className="flex gap-2 mt-1">
           <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className="rounded-xl" />
@@ -130,9 +196,14 @@ const Profile = () => {
         <h2 className="font-display font-bold text-lg flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Cooking pair</h2>
         {partner ? (
           <div className="mt-3 flex items-center gap-3 bg-muted rounded-2xl p-3">
-            <div className="h-12 w-12 rounded-full gradient-warm grid place-items-center text-primary-foreground font-bold">
-              {partner.display_name?.charAt(0).toUpperCase()}
-            </div>
+            {partner.avatar_url ? (
+              <img src={partner.avatar_url} alt={partner.display_name ?? "Partner"} className="h-12 w-12 rounded-full object-cover" />
+            ) : (
+              <div className="h-12 w-12 rounded-full gradient-warm grid place-items-center text-primary-foreground font-bold">
+                {partner.display_name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+
             <div className="flex-1 min-w-0">
               <p className="font-bold flex items-center gap-1.5"><Heart className="h-4 w-4 text-primary fill-primary" /> Connected</p>
               <p className="text-sm text-muted-foreground truncate">{partner.display_name}</p>
