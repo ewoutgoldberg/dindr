@@ -24,6 +24,9 @@ const Profile = () => {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const load = async () => {
     if (!user) return;
