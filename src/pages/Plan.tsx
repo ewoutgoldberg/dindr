@@ -225,9 +225,6 @@ const Plan = () => {
       </div>
 
       {/* Footer action */}
-      <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => navigate("/favorites")}>
-        <Heart className="h-4 w-4 mr-2 text-accent fill-accent" /> Browse my favorites
-      </Button>
     </div>
   );
 };
