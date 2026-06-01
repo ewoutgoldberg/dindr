@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarPlus, Check, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, Clock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtDateKey } from "@/lib/dates";
@@ -163,8 +163,17 @@ const Favorites = () => {
 
 const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: string }) => {
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [offset, setOffset] = useState(0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + offset + i);
+    return d;
+  });
+  const [date, setDate] = useState<Date | undefined>(today);
   const [busy, setBusy] = useState<"suggest" | "final" | null>(null);
+
 
   const suggest = async () => {
     if (!userId || !date) return;
@@ -215,15 +224,48 @@ const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: s
           <CalendarPlus className="h-4 w-4" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
-          className={cn("p-3 pointer-events-auto")}
-        />
-        <div className="p-3 pt-0 flex flex-col gap-2 border-t border-border">
+      <PopoverContent align="end" className="w-[260px] p-3">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={() => setOffset((o) => Math.max(0, o - 5))}
+            disabled={offset === 0}
+            className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+            aria-label="Earlier days"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <p className="text-xs font-semibold text-muted-foreground">
+            {offset === 0 ? "Next 5 days" : `+${offset} days`}
+          </p>
+          <button
+            onClick={() => setOffset((o) => o + 5)}
+            className="p-1 text-muted-foreground hover:text-foreground"
+            aria-label="Later days"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-5 gap-1 mb-3">
+          {days.map((d) => {
+            const isSel = date && fmtDateKey(d) === fmtDateKey(date);
+            return (
+              <button
+                key={d.toISOString()}
+                onClick={() => setDate(d)}
+                className={cn(
+                  "flex flex-col items-center py-2 rounded-xl transition-colors",
+                  isSel
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/60 hover:bg-muted text-foreground"
+                )}
+              >
+                <span className="text-[9px] font-semibold uppercase opacity-70">{format(d, "EEE")}</span>
+                <span className="text-sm font-display font-bold">{format(d, "d")}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-col gap-2">
           <Button
             size="sm"
             variant="outline"
@@ -243,6 +285,7 @@ const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: s
             Make final pick
           </Button>
         </div>
+
       </PopoverContent>
     </Popover>
   );
