@@ -163,8 +163,17 @@ const Favorites = () => {
 
 const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: string }) => {
   const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [offset, setOffset] = useState(0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + offset + i);
+    return d;
+  });
+  const [date, setDate] = useState<Date | undefined>(today);
   const [busy, setBusy] = useState<"suggest" | "final" | null>(null);
+
 
   const suggest = async () => {
     if (!userId || !date) return;
