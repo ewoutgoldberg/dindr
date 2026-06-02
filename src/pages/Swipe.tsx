@@ -138,7 +138,7 @@ const Swipe = () => {
   const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden">
 
       <DatePickerDialog
         open={pickerOpen}
@@ -154,7 +154,7 @@ const Swipe = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="flex-1 flex px-5 pb-3 relative">
+        <div className="flex-1 flex px-5 pb-3 relative min-h-0">
           <div className="relative w-full max-w-md mx-auto flex-1 min-h-0">
             {remaining === 0 ? (
               <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
