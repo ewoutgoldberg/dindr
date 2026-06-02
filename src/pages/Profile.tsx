@@ -97,20 +97,26 @@ const Profile = () => {
     load();
   };
 
-  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onPickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be smaller than 10MB");
       return;
     }
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const uploadCropped = async (blob: Blob) => {
+    if (!user) return;
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+    const path = `avatars/${user.id}-${Date.now()}.jpg`;
     const { error: upErr } = await supabase.storage
       .from("lovable-uploads")
-      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      .upload(path, blob, { cacheControl: "3600", upsert: true, contentType: "image/jpeg" });
     if (upErr) {
       setUploadingAvatar(false);
       toast.error(upErr.message);
@@ -120,6 +126,7 @@ const Profile = () => {
     const url = pub.publicUrl;
     const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
     setUploadingAvatar(false);
+    setCropSrc(null);
     if (updErr) {
       toast.error(updErr.message);
       return;
