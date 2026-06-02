@@ -4,8 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
@@ -23,7 +22,6 @@ const Profile = () => {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +30,6 @@ const Profile = () => {
     if (!user) return;
     const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setProfile(p);
-    setName(p?.display_name ?? "");
 
     const { data: partnership } = await supabase
       .from("partnerships")
@@ -98,12 +95,6 @@ const Profile = () => {
     load();
   };
 
-  const saveName = async () => {
-    if (!user) return;
-    await supabase.from("profiles").update({ display_name: name.trim().slice(0, 60) }).eq("id", user.id);
-    toast.success("Saved");
-  };
-
   const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -140,60 +131,83 @@ const Profile = () => {
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
-      <header className="mb-6">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Account</p>
-        <h1 className="text-3xl font-display font-extrabold mt-1">Profile</h1>
-      </header>
-
-      <section className="bg-card rounded-3xl p-5 shadow-soft mb-5">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 active:scale-95 transition-transform"
-            aria-label="Change profile photo"
-          >
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-2xl">
-                {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
-              {uploadingAvatar ? (
-                <Loader2 className="h-5 w-5 text-foreground animate-spin" />
-              ) : (
-                <Camera className="h-5 w-5 text-foreground" />
-              )}
+      {/* Profile header — compact & centered */}
+      <section className="flex flex-col items-center mb-8">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="relative h-20 w-20 rounded-full overflow-hidden shrink-0 active:scale-95 transition-transform mb-3"
+          aria-label="Change profile photo"
+        >
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-3xl">
+              {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
             </div>
-            <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft">
-              {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
-            </span>
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="user"
-            className="hidden"
-            onChange={onPickAvatar}
-          />
-          <div className="min-w-0">
-            <p className="font-display font-bold text-lg truncate">{profile?.display_name ?? "Cook"}</p>
-            <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+          )}
+          <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
+            {uploadingAvatar ? (
+              <Loader2 className="h-5 w-5 text-foreground animate-spin" />
+            ) : (
+              <Camera className="h-5 w-5 text-foreground" />
+            )}
           </div>
-        </div>
-
-        <Label htmlFor="name">Display name</Label>
-        <div className="flex gap-2 mt-1">
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className="rounded-xl" />
-          <Button variant="secondary" onClick={saveName}>Save</Button>
-        </div>
+          <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft border-2 border-background">
+            {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+          </span>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          className="hidden"
+          onChange={onPickAvatar}
+        />
+        <h1 className="font-display font-extrabold text-xl">{profile?.display_name ?? "Cook"}</h1>
+        <p className="text-sm text-muted-foreground">{user?.email}</p>
       </section>
 
+      {/* Menu items — single grouped card */}
+      <section className="bg-card rounded-3xl shadow-soft overflow-hidden mb-5">
+        <button
+          onClick={() => navigate("/favorites")}
+          className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+        >
+          <BookOpen className="h-5 w-5 text-primary shrink-0" />
+          <span className="flex-1 font-semibold text-sm">My recipe book</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <div className="mx-5 h-px bg-border" />
+        <button
+          onClick={() => navigate("/shopping")}
+          className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+        >
+          <ShoppingCart className="h-5 w-5 text-primary shrink-0" />
+          <span className="flex-1 font-semibold text-sm">Grocery list</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <div className="mx-5 h-px bg-border" />
+        <button
+          onClick={() => navigate("/notifications")}
+          className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+        >
+          <Bell className="h-5 w-5 text-primary shrink-0" />
+          <span className="flex-1 font-semibold text-sm">Notifications</span>
+          {unread > 0 ? (
+            <span className="min-w-[22px] h-[22px] px-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold grid place-items-center">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          ) : (
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+      </section>
+
+      {/* Cooking pair */}
       <section className="bg-card rounded-3xl p-5 shadow-soft mb-5">
-        <h2 className="font-display font-bold text-lg flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Cooking pair</h2>
+        <h2 className="font-display font-bold text-lg flex items-center gap-2 mb-1"><Users className="h-5 w-5 text-primary" /> Cooking pair</h2>
         {partner ? (
           <div className="mt-3 flex items-center gap-3 bg-muted rounded-2xl p-3">
             {partner.avatar_url ? (
@@ -213,41 +227,27 @@ const Profile = () => {
         ) : (
           <>
             <p className="text-sm text-muted-foreground mt-2 mb-4">Share your code with someone to plan meals together. Likes, shopping list and final picks will sync.</p>
-            <Label>Your invite code</Label>
-            <button onClick={copyCode} className="mt-1 w-full bg-muted rounded-2xl p-4 flex items-center justify-between active:scale-[0.99]">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Your invite code</p>
+            <button onClick={copyCode} className="w-full bg-muted rounded-2xl p-4 flex items-center justify-between active:scale-[0.99] transition-transform">
               <span className="font-mono font-bold text-2xl tracking-[0.3em]">{profile?.invite_code}</span>
               <Copy className="h-5 w-5 text-muted-foreground" />
             </button>
-            <Label htmlFor="code" className="mt-4 block">Enter partner's code</Label>
-            <div className="flex gap-2 mt-1">
-              <Input id="code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold" />
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-1.5">Enter partner&apos;s code</p>
+            <div className="flex gap-2">
+              <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold" />
               <Button variant="hero" onClick={connect} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Connect"}</Button>
             </div>
           </>
         )}
       </section>
 
-      <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/favorites")}>
-        <Heart className="h-4 w-4 mr-2" /> My recipe book
-      </Button>
-
-      <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/shopping")}>
-        <ShoppingCart className="h-4 w-4 mr-2" /> Grocery list
-      </Button>
-
-      <Button variant="outline" className="w-full mb-2 justify-between" onClick={() => navigate("/notifications")}>
-        <span className="flex items-center"><Bell className="h-4 w-4 mr-2" /> Notifications</span>
-        {unread > 0 && (
-          <span className="min-w-[22px] h-[22px] px-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold grid place-items-center">
-            {unread > 9 ? "9+" : unread}
-          </span>
-        )}
-      </Button>
-
-
-      <Button variant="outline" className="w-full" onClick={signOut}>
-        <LogOut className="h-4 w-4 mr-2" /> Sign out
-      </Button>
+      {/* Sign out — subtle */}
+      <button
+        onClick={signOut}
+        className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
+      >
+        <LogOut className="h-4 w-4" /> Sign out
+      </button>
     </div>
   );
 };
