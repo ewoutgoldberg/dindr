@@ -133,30 +133,32 @@ const Profile = () => {
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
       {/* Profile header — compact & centered */}
       <section className="flex flex-col items-center mb-8">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="relative h-20 w-20 rounded-full overflow-hidden shrink-0 active:scale-95 transition-transform mb-3"
-          aria-label="Change profile photo"
-        >
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-          ) : (
-            <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-3xl">
-              {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
-            {uploadingAvatar ? (
-              <Loader2 className="h-5 w-5 text-foreground animate-spin" />
+        <div className="relative h-20 w-20 shrink-0 mb-3">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="relative h-full w-full rounded-full overflow-hidden active:scale-95 transition-transform"
+            aria-label="Change profile photo"
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
             ) : (
-              <Camera className="h-5 w-5 text-foreground" />
+              <div className="h-full w-full gradient-primary grid place-items-center text-primary-foreground font-display font-extrabold text-3xl">
+                {(profile?.display_name ?? user?.email ?? "?").charAt(0).toUpperCase()}
+              </div>
             )}
-          </div>
-          <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft border-2 border-background">
+            <div className="absolute inset-0 bg-background/40 opacity-0 hover:opacity-100 grid place-items-center transition-opacity">
+              {uploadingAvatar ? (
+                <Loader2 className="h-5 w-5 text-foreground animate-spin" />
+              ) : (
+                <Camera className="h-5 w-5 text-foreground" />
+              )}
+            </div>
+          </button>
+          <span className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-soft border-2 border-background pointer-events-none">
             {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
           </span>
-        </button>
+        </div>
         <input
           ref={fileInputRef}
           type="file"
