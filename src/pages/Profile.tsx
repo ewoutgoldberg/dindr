@@ -260,6 +260,13 @@ const Profile = () => {
       >
         <LogOut className="h-4 w-4" /> Sign out
       </button>
+
+      <AvatarCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onConfirm={uploadCropped}
+      />
     </div>
   );
 };
