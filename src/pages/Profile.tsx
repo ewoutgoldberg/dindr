@@ -228,7 +228,7 @@ const Profile = () => {
       </section>
 
       <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/favorites")}>
-        <Heart className="h-4 w-4 mr-2" /> Favorites
+        <Heart className="h-4 w-4 mr-2" /> My recipe book
       </Button>
 
       <Button variant="outline" className="w-full mb-2 justify-start" onClick={() => navigate("/shopping")}>
