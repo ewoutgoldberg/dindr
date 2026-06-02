@@ -59,7 +59,7 @@ const Favorites = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-display font-extrabold">Favorites</h1>
+          <h1 className="text-3xl font-display font-extrabold">My recipe book</h1>
 
         </div>
       </header>
