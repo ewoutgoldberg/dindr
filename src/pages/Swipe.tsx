@@ -154,8 +154,8 @@ const Swipe = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="flex-1 px-5 relative">
-          <div className="relative w-full max-w-md mx-auto aspect-[3/4.4]">
+        <div className="flex-1 flex px-5 pb-3 relative">
+          <div className="relative w-full max-w-md mx-auto flex-1 min-h-0">
             {remaining === 0 ? (
               <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
             ) : (
