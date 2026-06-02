@@ -8,6 +8,7 @@ import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, Boo
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 
 
 type Profile = Tables<"profiles">;
@@ -23,6 +24,7 @@ const Profile = () => {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -95,20 +97,26 @@ const Profile = () => {
     load();
   };
 
-  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onPickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be smaller than 5MB");
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be smaller than 10MB");
       return;
     }
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const uploadCropped = async (blob: Blob) => {
+    if (!user) return;
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `avatars/${user.id}-${Date.now()}.${ext}`;
+    const path = `avatars/${user.id}-${Date.now()}.jpg`;
     const { error: upErr } = await supabase.storage
       .from("lovable-uploads")
-      .upload(path, file, { cacheControl: "3600", upsert: true, contentType: file.type });
+      .upload(path, blob, { cacheControl: "3600", upsert: true, contentType: "image/jpeg" });
     if (upErr) {
       setUploadingAvatar(false);
       toast.error(upErr.message);
@@ -118,6 +126,7 @@ const Profile = () => {
     const url = pub.publicUrl;
     const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
     setUploadingAvatar(false);
+    setCropSrc(null);
     if (updErr) {
       toast.error(updErr.message);
       return;
@@ -251,6 +260,13 @@ const Profile = () => {
       >
         <LogOut className="h-4 w-4" /> Sign out
       </button>
+
+      <AvatarCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onConfirm={uploadCropped}
+      />
     </div>
   );
 };
