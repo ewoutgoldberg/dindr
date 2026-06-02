@@ -205,37 +205,39 @@ const Profile = () => {
         </button>
       </section>
 
-      {/* Cooking pair */}
-      <section className="bg-card rounded-3xl p-5 shadow-soft mb-5">
-        <h2 className="font-display font-bold text-lg flex items-center gap-2 mb-1"><Users className="h-5 w-5 text-primary" /> Cooking pair</h2>
+      {/* Cooking pair — compact */}
+      <section className="bg-card rounded-3xl p-4 shadow-soft mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Users className="h-4 w-4 text-primary" />
+          <h2 className="font-display font-bold text-base">Cooking pair</h2>
+        </div>
         {partner ? (
-          <div className="mt-3 flex items-center gap-3 bg-muted rounded-2xl p-3">
+          <div className="flex items-center gap-2.5">
             {partner.avatar_url ? (
-              <img src={partner.avatar_url} alt={partner.display_name ?? "Partner"} className="h-12 w-12 rounded-full object-cover" />
+              <img src={partner.avatar_url} alt={partner.display_name ?? "Partner"} className="h-9 w-9 rounded-full object-cover" />
             ) : (
-              <div className="h-12 w-12 rounded-full gradient-warm grid place-items-center text-primary-foreground font-bold">
+              <div className="h-9 w-9 rounded-full gradient-warm grid place-items-center text-primary-foreground text-sm font-bold">
                 {partner.display_name?.charAt(0).toUpperCase()}
               </div>
             )}
-
             <div className="flex-1 min-w-0">
-              <p className="font-bold flex items-center gap-1.5"><Heart className="h-4 w-4 text-primary fill-primary" /> Connected</p>
-              <p className="text-sm text-muted-foreground truncate">{partner.display_name}</p>
+              <p className="text-sm font-semibold truncate">{partner.display_name}</p>
+              <p className="text-xs text-muted-foreground">Connected</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={disconnect} className="text-muted-foreground"><X className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="sm" onClick={disconnect} className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
+              <X className="h-3.5 w-3.5" /> Disconnect
+            </Button>
           </div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground mt-2 mb-4">Share your code with someone to plan meals together. Likes, shopping list and final picks will sync.</p>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Your invite code</p>
-            <button onClick={copyCode} className="w-full bg-muted rounded-2xl p-4 flex items-center justify-between active:scale-[0.99] transition-transform">
-              <span className="font-mono font-bold text-2xl tracking-[0.3em]">{profile?.invite_code}</span>
-              <Copy className="h-5 w-5 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground mb-3">Share your code to sync likes &amp; picks.</p>
+            <button onClick={copyCode} className="w-full bg-muted rounded-xl px-4 py-3 flex items-center justify-between active:scale-[0.99] transition-transform mb-3">
+              <span className="font-mono font-bold text-lg tracking-[0.3em]">{profile?.invite_code}</span>
+              <Copy className="h-4 w-4 text-muted-foreground" />
             </button>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-4 mb-1.5">Enter partner&apos;s code</p>
             <div className="flex gap-2">
-              <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold" />
-              <Button variant="hero" onClick={connect} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Connect"}</Button>
+              <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold h-10" />
+              <Button variant="hero" onClick={connect} disabled={busy} className="h-10 px-4">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Connect"}</Button>
             </div>
           </>
         )}
