@@ -8,6 +8,7 @@ import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, Boo
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 
 
 type Profile = Tables<"profiles">;
