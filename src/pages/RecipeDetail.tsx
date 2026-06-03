@@ -63,10 +63,28 @@ const RecipeDetail = () => {
     load();
   }, [id, user]);
 
+  const normalizeIngredients = (raw: unknown): Array<{ name: string; quantity: string }> => {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((ing) => {
+      if (typeof ing === "string") {
+        const m = ing.match(/^([\d.,/]+\s*[a-zA-Z]*\.?)\s+(.+)$/);
+        if (m) return { quantity: m[1].trim(), name: m[2].trim() };
+        return { name: ing, quantity: "" };
+      }
+      if (ing && typeof ing === "object") {
+        const o = ing as Record<string, unknown>;
+        return {
+          name: String(o.name ?? o.ingredient ?? ""),
+          quantity: String(o.quantity ?? o.amount ?? ""),
+        };
+      }
+      return { name: String(ing ?? ""), quantity: "" };
+    });
+  };
+
   const addToShopping = async () => {
     if (!recipe || !user) return;
-    const ingredients = recipe.ingredients as Array<{ name: string; quantity: string }>;
-    const items = ingredients.map((ing) => ({
+    const items = normalizeIngredients(recipe.ingredients).map((ing) => ({
       user_id: user.id,
       name: ing.name,
       quantity: ing.quantity,
@@ -110,7 +128,7 @@ const RecipeDetail = () => {
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!recipe) return <div className="min-h-screen grid place-items-center text-muted-foreground">Recipe not found</div>;
 
-  const ingredients = recipe.ingredients as Array<{ name: string; quantity: string }>;
+  const ingredients = normalizeIngredients(recipe.ingredients);
   const instructions = recipe.instructions as string[];
   const scale = servings / recipe.servings;
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
