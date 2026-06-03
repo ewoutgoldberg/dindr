@@ -116,13 +116,7 @@ const CreatorDashboard = () => {
           <ul className="space-y-2">
             {drafts.map((r) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                {r.image_url ? (
-                  <img src={r.image_url} alt={r.title} className="h-14 w-14 rounded-xl object-cover bg-muted shrink-0" />
-                ) : (
-                  <div className="h-14 w-14 rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground">
-                    <ImageIcon className="h-5 w-5" />
-                  </div>
-                )}
+                <RecipeThumb url={r.image_url} alt={r.title} size={56} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{r.title}</p>
                   <p className="text-xs text-muted-foreground">{r.content_source}</p>
