@@ -37,6 +37,44 @@ const AdminCreatorForm = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  const importFromUrl = async () => {
+    const u = importUrl.trim();
+    if (!u) return toast.error("Paste a URL first");
+    setImporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("import-creator", {
+        body: { url: u },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const c = data?.creator;
+      if (!c) throw new Error("No creator data returned");
+      setForm((f) => ({
+        ...f,
+        name: c.name || f.name,
+        handle: c.handle || f.handle,
+        bio: c.bio || f.bio,
+        story: c.story || f.story,
+        specialty: c.specialty || f.specialty,
+        location: c.location || f.location,
+        avatar_url: c.avatar_url || f.avatar_url,
+        cover_url: c.cover_url || f.cover_url,
+        instagram_url: c.instagram_url || f.instagram_url,
+        tiktok_url: c.tiktok_url || f.tiktok_url,
+        youtube_url: c.youtube_url || f.youtube_url,
+        website_url: c.website_url || f.website_url,
+      }));
+      toast.success("Profile prefilled — review & save");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`Import failed: ${msg}`);
+    } finally {
+      setImporting(false);
+    }
+  };
 
   useEffect(() => {
     if (isNew) return;
