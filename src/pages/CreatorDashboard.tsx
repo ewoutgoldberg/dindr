@@ -155,6 +155,27 @@ const CreatorDashboard = () => {
         </div>
       </div>
 
+      <div className="bg-card rounded-2xl p-4 shadow-soft mb-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Link2 className="h-4 w-4 text-primary" />
+          <h2 className="font-display font-bold text-sm">Import a recipe from a link</h2>
+        </div>
+        <p className="text-xs text-muted-foreground mb-2">
+          Paste a link to one of your recipes (blog, Instagram, TikTok, YouTube) and we'll add it as a draft.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://..."
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            disabled={importing}
+          />
+          <Button onClick={importRecipe} disabled={importing} variant="hero">
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Import"}
+          </Button>
+        </div>
+      </div>
+
       <section className="mb-6">
         <h2 className="font-display font-bold mb-3">Suggested recipes</h2>
         {drafts.length === 0 ? (
