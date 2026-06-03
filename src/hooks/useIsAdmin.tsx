@@ -14,6 +14,7 @@ export const useIsAdmin = () => {
     }
     let cancelled = false;
     (async () => {
+      console.log("[useIsAdmin] querying for user", user.id);
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
@@ -21,6 +22,7 @@ export const useIsAdmin = () => {
         .eq("role", "admin")
         .maybeSingle();
       if (cancelled) return;
+      console.log("[useIsAdmin] result", { data, error });
       if (error) console.error("useIsAdmin error", error);
       setIsAdmin(!!data);
     })();
