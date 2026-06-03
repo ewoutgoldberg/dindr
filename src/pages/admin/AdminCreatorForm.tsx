@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
@@ -37,6 +37,44 @@ const AdminCreatorForm = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  const importFromUrl = async () => {
+    const u = importUrl.trim();
+    if (!u) return toast.error("Paste a URL first");
+    setImporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("import-creator", {
+        body: { url: u },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const c = data?.creator;
+      if (!c) throw new Error("No creator data returned");
+      setForm((f) => ({
+        ...f,
+        name: c.name || f.name,
+        handle: c.handle || f.handle,
+        bio: c.bio || f.bio,
+        story: c.story || f.story,
+        specialty: c.specialty || f.specialty,
+        location: c.location || f.location,
+        avatar_url: c.avatar_url || f.avatar_url,
+        cover_url: c.cover_url || f.cover_url,
+        instagram_url: c.instagram_url || f.instagram_url,
+        tiktok_url: c.tiktok_url || f.tiktok_url,
+        youtube_url: c.youtube_url || f.youtube_url,
+        website_url: c.website_url || f.website_url,
+      }));
+      toast.success("Profile prefilled — review & save");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`Import failed: ${msg}`);
+    } finally {
+      setImporting(false);
+    }
+  };
 
   useEffect(() => {
     if (isNew) return;
@@ -123,6 +161,27 @@ const AdminCreatorForm = () => {
           <Button size="sm" variant="ghost" onClick={copyClaim}><Copy className="h-3.5 w-3.5" /> Copy claim link</Button>
         </div>
       )}
+
+      <div className="bg-card rounded-2xl p-4 shadow-soft mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <h2 className="font-display font-bold text-sm">Import from URL</h2>
+        </div>
+        <p className="text-xs text-muted-foreground mb-2">
+          Paste an Instagram, TikTok, YouTube or website link — we'll fill in the profile for you.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://instagram.com/nonna..."
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            disabled={importing}
+          />
+          <Button onClick={importFromUrl} disabled={importing} variant="hero">
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Import"}
+          </Button>
+        </div>
+      </div>
 
       <div className="bg-card rounded-2xl p-4 shadow-soft space-y-3 mb-5">
         <div className="grid grid-cols-2 gap-3">
