@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 
-import { Loader2, CheckCircle2, Pencil, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, Pencil, Sparkles, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
@@ -95,7 +95,13 @@ const CreatorDashboard = () => {
           <ul className="space-y-2">
             {drafts.map((r) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                <img src={r.image_url ?? ""} alt="" className="h-14 w-14 rounded-xl object-cover bg-muted shrink-0" />
+                {r.image_url ? (
+                  <img src={r.image_url} alt={r.title} className="h-14 w-14 rounded-xl object-cover bg-muted shrink-0" />
+                ) : (
+                  <div className="h-14 w-14 rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground">
+                    <ImageIcon className="h-5 w-5" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{r.title}</p>
                   <p className="text-xs text-muted-foreground">{r.content_source}</p>
@@ -118,7 +124,13 @@ const CreatorDashboard = () => {
           <ul className="space-y-2">
             {published.map((r) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                <img src={r.image_url ?? ""} alt="" className="h-12 w-12 rounded-xl object-cover bg-muted shrink-0" />
+                {r.image_url ? (
+                  <img src={r.image_url} alt={r.title} className="h-12 w-12 rounded-xl object-cover bg-muted shrink-0" />
+                ) : (
+                  <div className="h-12 w-12 rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground">
+                    <ImageIcon className="h-4 w-4" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{r.title}</p>
                 </div>
