@@ -49,6 +49,13 @@ const App = () => (
               <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
               <Route path="/swipe-favorites" element={<RequireAuth><SwipeFavorites /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+              <Route path="/claim/:token" element={<Claim />} />
+              <Route path="/creator/dashboard" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
+              <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id/recipes/new" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id/recipes/:recipeId" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppShell>
