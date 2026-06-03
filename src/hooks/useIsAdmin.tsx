@@ -12,14 +12,22 @@ export const useIsAdmin = () => {
       setIsAdmin(false);
       return;
     }
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data));
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) console.error("useIsAdmin error", error);
+      setIsAdmin(!!data);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user, loading]);
 
-  return { isAdmin, loading: loading || isAdmin === null };
+  return { isAdmin: !!isAdmin, loading: loading || isAdmin === null };
 };
