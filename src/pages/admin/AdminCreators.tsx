@@ -92,11 +92,18 @@ const AdminCreators = () => {
         <ul className="space-y-2">
           {filtered.map((c) => (
             <li key={c.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-              <img
-                src={c.avatar_url ?? ""}
-                alt=""
-                className="h-12 w-12 rounded-full object-cover bg-muted shrink-0"
-              />
+              {c.avatar_url ? (
+                <img
+                  src={c.avatar_url}
+                  alt=""
+                  className="h-12 w-12 rounded-full object-cover bg-muted shrink-0"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              ) : (
+                <div className="h-12 w-12 rounded-full bg-muted shrink-0 flex items-center justify-center text-sm font-semibold text-muted-foreground">
+                  {c.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold truncate">{c.name}</p>
