@@ -88,9 +88,11 @@ const AdminCreatorForm = () => {
     toast.success(`Status: ${status}`);
   };
 
-  const copyClaim = () => {
-    if (!form.claim_token) return;
-    const url = `${window.location.origin}/claim/${form.claim_token}`;
+  const copyClaim = async () => {
+    if (!id) return;
+    const { data: token, error } = await supabase.rpc("get_creator_claim_token", { _creator_id: id });
+    if (error || !token) return toast.error("Could not fetch claim link");
+    const url = `${window.location.origin}/claim/${token}`;
     navigator.clipboard.writeText(url);
     toast.success("Claim link copied");
   };

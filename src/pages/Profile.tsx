@@ -73,19 +73,7 @@ const Profile = () => {
       return;
     }
     setBusy(true);
-    const { data: target } = await supabase.from("profiles").select("id").eq("invite_code", c).maybeSingle();
-    if (!target) {
-      setBusy(false);
-      toast.error("Invalid code");
-      return;
-    }
-    if (target.id === user.id) {
-      setBusy(false);
-      toast.error("That's your own code!");
-      return;
-    }
-    const [a, b] = [user.id, target.id].sort();
-    const { error } = await supabase.from("partnerships").insert({ user_a: a, user_b: b });
+    const { error } = await supabase.rpc("connect_partner_by_code", { _invite_code: c });
     setBusy(false);
     if (error) {
       toast.error(error.message);

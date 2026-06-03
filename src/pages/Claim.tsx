@@ -23,10 +23,10 @@ const Claim = () => {
   useEffect(() => {
     if (!token) return;
     (async () => {
-      const { data: c } = await supabase.from("food_creators").select("*").eq("claim_token", token).maybeSingle();
-      setCreator(c);
-      if (c) {
-        const { data: r } = await supabase.from("recipes").select("*").eq("creator_id", c.id);
+      const { data: c } = await supabase.rpc("get_creator_by_claim_token", { _token: token });
+      setCreator((c as Creator) ?? null);
+      if (c && (c as Creator).id) {
+        const { data: r } = await supabase.from("recipes").select("*").eq("creator_id", (c as Creator).id);
         setRecipes(r ?? []);
       }
       setLoading(false);
