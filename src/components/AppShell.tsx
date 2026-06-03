@@ -104,6 +104,3 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
     </div>
   );
 };
-    </div>
-  );
-};
