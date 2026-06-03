@@ -4,11 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, ChefHat } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 
 type Profile = Tables<"profiles">;
