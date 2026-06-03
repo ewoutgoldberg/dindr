@@ -58,7 +58,10 @@ export const CreatorCard = ({ creator, variant = "full" }: { creator: Creator; v
         />
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-primary uppercase tracking-wider">Created by</p>
-          <h3 className="font-display font-extrabold text-lg leading-tight truncate">{creator.name}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-display font-extrabold text-lg leading-tight truncate">{creator.name}</h3>
+            {showNewBadge(creator) && <NewBadge />}
+          </div>
           {creator.specialty && <p className="text-xs text-muted-foreground truncate">{creator.specialty}</p>}
         </div>
       </div>
