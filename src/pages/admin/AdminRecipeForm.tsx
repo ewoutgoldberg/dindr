@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 type Recipe = Tables<"recipes">;
@@ -37,6 +37,36 @@ const AdminRecipeForm = () => {
   const [instructionsText, setInstructionsText] = useState("");
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  const importFromUrl = async () => {
+    if (!importUrl.trim()) return toast.error("Paste a recipe URL first");
+    setImporting(true);
+    const { data, error } = await supabase.functions.invoke("import-recipe", {
+      body: { url: importUrl.trim() },
+    });
+    setImporting(false);
+    if (error) return toast.error(error.message ?? "Import failed");
+    if (data?.error) return toast.error(`Import failed: ${data.error}`);
+    const r = data?.recipe;
+    if (!r) return toast.error("No recipe returned");
+    setForm((f) => ({
+      ...f,
+      title: r.title ?? f.title,
+      description: r.description ?? f.description,
+      image_url: r.image_url ?? f.image_url,
+      category: r.category ?? f.category,
+      cuisine: r.cuisine ?? f.cuisine,
+      difficulty: r.difficulty ?? f.difficulty,
+      cooking_time_minutes: r.cooking_time_minutes ?? f.cooking_time_minutes,
+      servings: r.servings ?? f.servings,
+      content_source: "imported",
+    }));
+    if (Array.isArray(r.ingredients)) setIngredientsText(r.ingredients.join("\n"));
+    if (Array.isArray(r.instructions)) setInstructionsText(r.instructions.join("\n"));
+    toast.success("Recipe imported — review and save");
+  };
 
   useEffect(() => {
     if (isNew) return;
@@ -81,6 +111,20 @@ const AdminRecipeForm = () => {
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
       <h1 className="font-display font-extrabold text-2xl mb-5">{isNew ? "New recipe" : "Edit recipe"}</h1>
+
+      {isNew && (
+        <div className="bg-card rounded-2xl p-4 shadow-soft mb-4 flex flex-col sm:flex-row gap-2">
+          <Input
+            placeholder="https://… recipe URL (Instagram, blog, YouTube)"
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={importFromUrl} disabled={importing} variant="outline">
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Sparkles className="h-4 w-4" /> Import</>}
+          </Button>
+        </div>
+      )}
 
       <div className="bg-card rounded-2xl p-4 shadow-soft space-y-3">
         <div><Label>Title</Label><Input value={form.title ?? ""} onChange={(e) => set("title", e.target.value)} /></div>
