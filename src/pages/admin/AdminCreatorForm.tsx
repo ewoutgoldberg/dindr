@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
