@@ -37,8 +37,6 @@ const Profile = () => {
     const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setProfile(p);
 
-    const { data: cp } = await supabase.from("food_creators").select("id").eq("user_id", user.id).maybeSingle();
-    setHasCreatorProfile(!!cp);
 
     const { data: partnership } = await supabase
       .from("partnerships")
