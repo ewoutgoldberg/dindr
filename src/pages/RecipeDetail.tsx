@@ -63,10 +63,28 @@ const RecipeDetail = () => {
     load();
   }, [id, user]);
 
+  const normalizeIngredients = (raw: unknown): Array<{ name: string; quantity: string }> => {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((ing) => {
+      if (typeof ing === "string") {
+        const m = ing.match(/^([\d.,/]+\s*[a-zA-Z]*\.?)\s+(.+)$/);
+        if (m) return { quantity: m[1].trim(), name: m[2].trim() };
+        return { name: ing, quantity: "" };
+      }
+      if (ing && typeof ing === "object") {
+        const o = ing as Record<string, unknown>;
+        return {
+          name: String(o.name ?? o.ingredient ?? ""),
+          quantity: String(o.quantity ?? o.amount ?? ""),
+        };
+      }
+      return { name: String(ing ?? ""), quantity: "" };
+    });
+  };
+
   const addToShopping = async () => {
     if (!recipe || !user) return;
-    const ingredients = recipe.ingredients as Array<{ name: string; quantity: string }>;
-    const items = ingredients.map((ing) => ({
+    const items = normalizeIngredients(recipe.ingredients).map((ing) => ({
       user_id: user.id,
       name: ing.name,
       quantity: ing.quantity,
