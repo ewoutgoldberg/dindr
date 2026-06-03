@@ -49,52 +49,73 @@ export type Database = {
       food_creators: {
         Row: {
           avatar_url: string | null
+          badge_new: boolean
           bio: string | null
+          claim_token: string | null
+          claimed_at: string | null
           cover_url: string | null
           created_at: string
           handle: string
           id: string
           instagram_url: string | null
+          invited_at: string | null
           location: string | null
           name: string
           specialty: string | null
+          status: string
           story: string | null
           tiktok_url: string | null
           updated_at: string
+          user_id: string | null
+          verified_at: string | null
           website_url: string | null
           youtube_url: string | null
         }
         Insert: {
           avatar_url?: string | null
+          badge_new?: boolean
           bio?: string | null
+          claim_token?: string | null
+          claimed_at?: string | null
           cover_url?: string | null
           created_at?: string
           handle: string
           id?: string
           instagram_url?: string | null
+          invited_at?: string | null
           location?: string | null
           name: string
           specialty?: string | null
+          status?: string
           story?: string | null
           tiktok_url?: string | null
           updated_at?: string
+          user_id?: string | null
+          verified_at?: string | null
           website_url?: string | null
           youtube_url?: string | null
         }
         Update: {
           avatar_url?: string | null
+          badge_new?: boolean
           bio?: string | null
+          claim_token?: string | null
+          claimed_at?: string | null
           cover_url?: string | null
           created_at?: string
           handle?: string
           id?: string
           instagram_url?: string | null
+          invited_at?: string | null
           location?: string | null
           name?: string
           specialty?: string | null
+          status?: string
           story?: string | null
           tiktok_url?: string | null
           updated_at?: string
+          user_id?: string | null
+          verified_at?: string | null
           website_url?: string | null
           youtube_url?: string | null
         }
@@ -235,9 +256,11 @@ export type Database = {
       recipes: {
         Row: {
           category: string
+          content_source: string
           cooking_time_minutes: number
           created_at: string
           creator: string | null
+          creator_approved: boolean
           creator_id: string | null
           cuisine: string | null
           description: string | null
@@ -246,14 +269,17 @@ export type Database = {
           image_url: string | null
           ingredients: Json
           instructions: Json
+          published: boolean
           servings: number
           title: string
         }
         Insert: {
           category: string
+          content_source?: string
           cooking_time_minutes: number
           created_at?: string
           creator?: string | null
+          creator_approved?: boolean
           creator_id?: string | null
           cuisine?: string | null
           description?: string | null
@@ -262,14 +288,17 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json
           instructions?: Json
+          published?: boolean
           servings?: number
           title: string
         }
         Update: {
           category?: string
+          content_source?: string
           cooking_time_minutes?: number
           created_at?: string
           creator?: string | null
+          creator_approved?: boolean
           creator_id?: string | null
           cuisine?: string | null
           description?: string | null
@@ -278,6 +307,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json
           instructions?: Json
+          published?: boolean
           servings?: number
           title?: string
         }
@@ -425,6 +455,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_creator: {
+        Args: { _token: string }
+        Returns: {
+          avatar_url: string | null
+          badge_new: boolean
+          bio: string | null
+          claim_token: string | null
+          claimed_at: string | null
+          cover_url: string | null
+          created_at: string
+          handle: string
+          id: string
+          instagram_url: string | null
+          invited_at: string | null
+          location: string | null
+          name: string
+          specialty: string | null
+          status: string
+          story: string | null
+          tiktok_url: string | null
+          updated_at: string
+          user_id: string | null
+          verified_at: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "food_creators"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       generate_invite_code: { Args: never; Returns: string }
       get_partner: { Args: { _user_id: string }; Returns: string }
       has_role: {
