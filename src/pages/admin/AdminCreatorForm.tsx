@@ -39,6 +39,24 @@ const AdminCreatorForm = () => {
   const [saving, setSaving] = useState(false);
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+
+  const uploadImage = async (field: "avatar_url" | "cover_url", file: File) => {
+    setUploading(field === "avatar_url" ? "avatar" : "cover");
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `creators/${id ?? "new"}-${field}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("lovable-uploads").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("lovable-uploads").getPublicUrl(path);
+      set(field, data.publicUrl);
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error(`Upload failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const importFromUrl = async () => {
     const u = importUrl.trim();
