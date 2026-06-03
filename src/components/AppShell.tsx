@@ -1,20 +1,22 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, Bell, Eye } from "lucide-react";
+import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, Bell, Eye, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
-import { useIsCreator } from "@/hooks/useIsCreator";
+import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
 import { PingPopup } from "@/components/PingPopup";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
 type Tab = {
-  to: string | (() => string);
+  to?: string | (() => string);
   match?: string;
   label: string;
   icon: typeof Flame;
   showBadge?: boolean;
+  onClick?: () => void;
 };
 
 const consumerTabs: Tab[] = [
