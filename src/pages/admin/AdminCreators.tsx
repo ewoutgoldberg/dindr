@@ -39,8 +39,9 @@ const AdminCreators = () => {
 
   const filtered = filter === "all" ? creators : creators.filter((c) => c.status === filter);
 
-  const copyClaim = (token: string | null) => {
-    if (!token) return;
+  const copyClaim = async (creatorId: string) => {
+    const { data: token, error } = await supabase.rpc("get_creator_claim_token", { _creator_id: creatorId });
+    if (error || !token) return toast.error("Could not fetch claim link");
     const url = `${window.location.origin}/claim/${token}`;
     navigator.clipboard.writeText(url);
     toast.success("Claim link copied");
