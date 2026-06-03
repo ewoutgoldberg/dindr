@@ -11,6 +11,27 @@ import { toast } from "sonner";
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes">;
 
+const RecipeThumb = ({ url, alt, size = 56 }: { url: string | null; alt: string; size?: number }) => {
+  const [broken, setBroken] = useState(false);
+  const px = `${size}px`;
+  if (!url || broken) {
+    return (
+      <div className="rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground" style={{ width: px, height: px }}>
+        <ImageIcon className="h-5 w-5" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={alt}
+      onError={() => setBroken(true)}
+      className="rounded-xl object-cover bg-muted shrink-0"
+      style={{ width: px, height: px }}
+    />
+  );
+};
+
 const CreatorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
