@@ -20,7 +20,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const unread = useUnreadNotifications();
   const { isAdmin } = useIsAdmin();
-  const [hasCreatorProfile, setHasCreatorProfile] = useState(false);
+  const { hasCreatorProfile, viewMode } = useIsCreator();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partner, setPartner] = useState<Profile | null>(null);
   const [partnershipId, setPartnershipId] = useState<string | null>(null);
