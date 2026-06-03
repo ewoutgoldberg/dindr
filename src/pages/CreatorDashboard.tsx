@@ -139,13 +139,7 @@ const CreatorDashboard = () => {
           <ul className="space-y-2">
             {published.map((r) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                {r.image_url ? (
-                  <img src={r.image_url} alt={r.title} className="h-12 w-12 rounded-xl object-cover bg-muted shrink-0" />
-                ) : (
-                  <div className="h-12 w-12 rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground">
-                    <ImageIcon className="h-4 w-4" />
-                  </div>
-                )}
+                <RecipeThumb url={r.image_url} alt={r.title} size={48} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{r.title}</p>
                 </div>
