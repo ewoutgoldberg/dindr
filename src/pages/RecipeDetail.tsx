@@ -244,7 +244,8 @@ const RecipeDetail = () => {
   );
 };
 
-function scaleQty(q: string, scale: number): string {
+function scaleQty(q: string | null | undefined, scale: number): string {
+  if (!q) return "";
   const m = q.match(/^([\d.,/]+)\s*(.*)$/);
   if (!m) return q;
   const numStr = m[1].replace(",", ".");
