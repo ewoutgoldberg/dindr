@@ -6,6 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, MapPin, Loader2 } from "lucide-react";
 import { SocialIcons } from "@/components/CreatorCard";
+import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
+
+const RecipeImg = ({ url, alt }: { url: string | null; alt: string }) => {
+  const [broken, setBroken] = useState(false);
+  const src = url && !broken ? url : fallbackRecipeImage;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setBroken(true)}
+      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+    />
+  );
+};
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes">;
@@ -113,12 +128,7 @@ const Creator = () => {
                   to={`/recipe/${r.id}`}
                   className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-shadow"
                 >
-                  <img
-                    src={r.image_url ?? ""}
-                    alt={r.title}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
+                  <RecipeImg url={r.image_url} alt={r.title} />
                   <div className="absolute inset-0 gradient-card-overlay" />
                   <div className="absolute inset-x-0 bottom-0 p-3 text-primary-foreground">
                     <h3 className="font-display font-bold text-sm leading-tight line-clamp-2 drop-shadow">{r.title}</h3>
