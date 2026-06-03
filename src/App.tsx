@@ -24,6 +24,7 @@ import CreatorDashboard from "./pages/CreatorDashboard";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminCreatorForm from "./pages/admin/AdminCreatorForm";
 import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
+import AdminImportCreators from "./pages/admin/AdminImportCreators";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/creator/dashboard" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
               <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/import" element={<RequireAuth><RequireAdmin><AdminImportCreators /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/:id" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/:id/recipes/new" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/:id/recipes/:recipeId" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />

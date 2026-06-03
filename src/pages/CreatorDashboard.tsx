@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Loader2, CheckCircle2, Pencil, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -57,21 +57,33 @@ const CreatorDashboard = () => {
   const drafts = recipes.filter((r) => !r.creator_approved || !r.published);
   const published = recipes.filter((r) => r.published && r.creator_approved);
 
+  const profileComplete = [creator.name, creator.bio, creator.avatar_url, creator.specialty].filter(Boolean).length;
+
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-24 animate-fade-in">
       <div className="bg-card rounded-3xl p-5 shadow-card mb-5">
         <div className="flex items-start gap-3">
           <Sparkles className="h-5 w-5 text-primary mt-0.5" />
           <div>
-            <h1 className="font-display font-extrabold text-xl">Welcome, {creator.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              We've prepared your profile and {recipes.length} recipes. Review, edit, or publish them below.
+            <h1 className="font-display font-extrabold text-xl">Welkom op Dindr, {creator.name} 👋</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              We hebben alvast een profiel en recepten voor je voorbereid. Bekijk, pas aan of publiceer ze hieronder.
             </p>
           </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <Badge variant="secondary">{published.length} published</Badge>
-          <Badge variant="outline">{drafts.length} drafts</Badge>
+        <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="bg-muted/50 rounded-xl p-3 text-center">
+            <div className="font-display font-extrabold text-lg">{profileComplete}/4</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Profile</div>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3 text-center">
+            <div className="font-display font-extrabold text-lg">{drafts.length}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Drafts</div>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3 text-center">
+            <div className="font-display font-extrabold text-lg">{published.length}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Published</div>
+          </div>
         </div>
       </div>
 

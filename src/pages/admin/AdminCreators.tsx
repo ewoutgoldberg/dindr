@@ -5,7 +5,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, ChevronRight, Copy } from "lucide-react";
+import { Loader2, Plus, ChevronRight, Copy, Upload, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
@@ -47,6 +47,16 @@ const AdminCreators = () => {
     toast.success("Claim link copied");
   };
 
+  const verify = async (creatorId: string) => {
+    const { error } = await supabase
+      .from("food_creators")
+      .update({ status: "verified", verified_at: new Date().toISOString() })
+      .eq("id", creatorId);
+    if (error) return toast.error(error.message);
+    toast.success("Creator verified");
+    load();
+  };
+
   return (
     <div className="max-w-2xl mx-auto w-full px-5 py-6 animate-fade-in">
       <header className="flex items-center justify-between mb-5">
@@ -54,9 +64,14 @@ const AdminCreators = () => {
           <h1 className="font-display font-extrabold text-2xl">Creators</h1>
           <p className="text-sm text-muted-foreground">Manage profiles &amp; claim links</p>
         </div>
-        <Button asChild variant="hero" size="sm">
-          <Link to="/admin/creators/new"><Plus className="h-4 w-4" /> New</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/admin/creators/import"><Upload className="h-4 w-4" /> Import</Link>
+          </Button>
+          <Button asChild variant="hero" size="sm">
+            <Link to="/admin/creators/new"><Plus className="h-4 w-4" /> New</Link>
+          </Button>
+        </div>
       </header>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Status)} className="mb-5">
@@ -92,6 +107,11 @@ const AdminCreators = () => {
               <Button variant="ghost" size="icon" onClick={() => copyClaim(c.id)} title="Copy claim link">
                 <Copy className="h-4 w-4" />
               </Button>
+              {c.status === "claimed" && (
+                <Button variant="ghost" size="icon" onClick={() => verify(c.id)} title="Verify creator">
+                  <BadgeCheck className="h-4 w-4 text-emerald-600" />
+                </Button>
+              )}
               <Button asChild variant="ghost" size="icon">
                 <Link to={`/admin/creators/${c.id}`}><ChevronRight className="h-4 w-4" /></Link>
               </Button>
