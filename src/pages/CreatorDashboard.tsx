@@ -54,9 +54,24 @@ const CreatorDashboard = () => {
       const { data, error } = await supabase.functions.invoke("import-recipe", {
         body: { url: u },
       });
+      // Try to read structured error body when the function returned non-2xx
+      let payload: any = data;
+      if (error && (error as any).context?.json) {
+        try { payload = await (error as any).context.json(); } catch { /* ignore */ }
+      } else if (error && (error as any).context?.text) {
+        try { payload = JSON.parse(await (error as any).context.text()); } catch { /* ignore */ }
+      }
+      if (payload?.error === "not_a_recipe") {
+        toast.error("That page doesn't look like a recipe. Try a direct recipe link.");
+        return;
+      }
+      if (payload?.error === "rate_limited") {
+        toast.error("Too many imports right now — try again in a minute.");
+        return;
+      }
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      const r = data?.recipe;
+      if (payload?.error) throw new Error(payload.error);
+      const r = payload?.recipe;
       if (!r) throw new Error("No recipe data returned");
       const { error: insErr } = await supabase.from("recipes").insert({
         creator_id: creator.id,
