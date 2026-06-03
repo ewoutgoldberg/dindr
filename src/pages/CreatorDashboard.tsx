@@ -42,6 +42,49 @@ const CreatorDashboard = () => {
   const [creator, setCreator] = useState<Creator | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  const importRecipe = async () => {
+    if (!creator) return;
+    const u = importUrl.trim();
+    if (!u) return toast.error("Paste a recipe URL first");
+    setImporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("import-recipe", {
+        body: { url: u },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const r = data?.recipe;
+      if (!r) throw new Error("No recipe data returned");
+      const { error: insErr } = await supabase.from("recipes").insert({
+        creator_id: creator.id,
+        title: r.title,
+        description: r.description ?? null,
+        image_url: r.image_url ?? null,
+        category: r.category ?? "dinner",
+        cuisine: r.cuisine ?? null,
+        difficulty: r.difficulty ?? "medium",
+        cooking_time_minutes: r.cooking_time_minutes ?? 30,
+        servings: r.servings ?? 2,
+        ingredients: r.ingredients ?? [],
+        instructions: r.instructions ?? [],
+        content_source: "imported",
+        creator_approved: false,
+        published: false,
+      });
+      if (insErr) throw insErr;
+      toast.success("Recipe imported — review it under drafts");
+      setImportUrl("");
+      load();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(`Import failed: ${msg}`);
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const load = async () => {
     if (!user) return;
