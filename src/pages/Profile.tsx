@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
 
 
 type Profile = Tables<"profiles">;
