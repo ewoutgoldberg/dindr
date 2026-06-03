@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 
-import { Loader2, CheckCircle2, Pencil, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, Pencil, Sparkles, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
