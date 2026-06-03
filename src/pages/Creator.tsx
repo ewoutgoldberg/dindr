@@ -128,12 +128,7 @@ const Creator = () => {
                   to={`/recipe/${r.id}`}
                   className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-shadow"
                 >
-                  <img
-                    src={r.image_url ?? ""}
-                    alt={r.title}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
+                  <RecipeImg url={r.image_url} alt={r.title} />
                   <div className="absolute inset-0 gradient-card-overlay" />
                   <div className="absolute inset-x-0 bottom-0 p-3 text-primary-foreground">
                     <h3 className="font-display font-bold text-sm leading-tight line-clamp-2 drop-shadow">{r.title}</h3>
