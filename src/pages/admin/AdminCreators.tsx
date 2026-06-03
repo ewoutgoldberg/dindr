@@ -5,7 +5,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, ChevronRight, Copy } from "lucide-react";
+import { Loader2, Plus, ChevronRight, Copy, Upload, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
@@ -54,9 +54,14 @@ const AdminCreators = () => {
           <h1 className="font-display font-extrabold text-2xl">Creators</h1>
           <p className="text-sm text-muted-foreground">Manage profiles &amp; claim links</p>
         </div>
-        <Button asChild variant="hero" size="sm">
-          <Link to="/admin/creators/new"><Plus className="h-4 w-4" /> New</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/admin/creators/import"><Upload className="h-4 w-4" /> Import</Link>
+          </Button>
+          <Button asChild variant="hero" size="sm">
+            <Link to="/admin/creators/new"><Plus className="h-4 w-4" /> New</Link>
+          </Button>
+        </div>
       </header>
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Status)} className="mb-5">
