@@ -11,6 +11,14 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const NewBadge = () => (
+  <span className="inline-flex items-center gap-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5">
+    Nieuw op Dindr
+  </span>
+);
+
+const showNewBadge = (c: Creator) => c.badge_new && c.status !== "claimed" && c.status !== "verified";
+
 export const CreatorCard = ({ creator, variant = "full" }: { creator: Creator; variant?: "full" | "compact" }) => {
   if (variant === "compact") {
     return (
@@ -26,7 +34,10 @@ export const CreatorCard = ({ creator, variant = "full" }: { creator: Creator; v
         />
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">Recipe by</p>
-          <p className="font-display font-bold truncate">{creator.name}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-display font-bold truncate">{creator.name}</p>
+            {showNewBadge(creator) && <NewBadge />}
+          </div>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Link>
