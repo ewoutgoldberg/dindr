@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
 
 import { Loader2, CheckCircle2, Pencil, Sparkles, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -14,7 +15,9 @@ type Recipe = Tables<"recipes">;
 const RecipeThumb = ({ url, alt, size = 56 }: { url: string | null; alt: string; size?: number }) => {
   const [broken, setBroken] = useState(false);
   const px = `${size}px`;
-  if (!url || broken) {
+  const src = url && !broken ? url : fallbackRecipeImage;
+
+  if (!src) {
     return (
       <div className="rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground" style={{ width: px, height: px }}>
         <ImageIcon className="h-5 w-5" />
@@ -23,7 +26,7 @@ const RecipeThumb = ({ url, alt, size = 56 }: { url: string | null; alt: string;
   }
   return (
     <img
-      src={url}
+      src={src}
       alt={alt}
       onError={() => setBroken(true)}
       className="rounded-xl object-cover bg-muted shrink-0"
