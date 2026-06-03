@@ -147,7 +147,23 @@ const AdminRecipeForm = () => {
       <div className="bg-card rounded-2xl p-4 shadow-soft space-y-3">
         <div><Label>Title</Label><Input value={form.title ?? ""} onChange={(e) => set("title", e.target.value)} /></div>
         <div><Label>Description</Label><Textarea rows={2} value={form.description ?? ""} onChange={(e) => set("description", e.target.value)} /></div>
-        <div><Label>Image URL</Label><Input value={form.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} /></div>
+        <div>
+          <Label>Image</Label>
+          <div className="flex items-center gap-2">
+            {form.image_url ? (
+              <img src={form.image_url} alt="" className="h-14 w-14 rounded-lg object-cover bg-muted" onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }} />
+            ) : (
+              <div className="h-14 w-14 rounded-lg bg-muted shrink-0" />
+            )}
+            <label className="cursor-pointer">
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} />
+              <Button type="button" variant="outline" size="sm" asChild>
+                <span>{uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Upload className="h-3.5 w-3.5 mr-1" />Upload</>}</span>
+              </Button>
+            </label>
+          </div>
+          <Input className="mt-2" placeholder="or paste URL" value={form.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div><Label>Category</Label><Input value={form.category ?? ""} onChange={(e) => set("category", e.target.value)} /></div>
           <div><Label>Cuisine</Label><Input value={form.cuisine ?? ""} onChange={(e) => set("cuisine", e.target.value)} /></div>
