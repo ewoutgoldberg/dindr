@@ -488,7 +488,59 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      connect_partner_by_code: {
+        Args: { _invite_code: string }
+        Returns: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "partnerships"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       generate_invite_code: { Args: never; Returns: string }
+      get_creator_by_claim_token: {
+        Args: { _token: string }
+        Returns: {
+          avatar_url: string | null
+          badge_new: boolean
+          bio: string | null
+          claim_token: string | null
+          claimed_at: string | null
+          cover_url: string | null
+          created_at: string
+          handle: string
+          id: string
+          instagram_url: string | null
+          invited_at: string | null
+          location: string | null
+          name: string
+          specialty: string | null
+          status: string
+          story: string | null
+          tiktok_url: string | null
+          updated_at: string
+          user_id: string | null
+          verified_at: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "food_creators"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_creator_claim_token: {
+        Args: { _creator_id: string }
+        Returns: string
+      }
       get_partner: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
