@@ -107,6 +107,11 @@ const AdminCreators = () => {
               <Button variant="ghost" size="icon" onClick={() => copyClaim(c.id)} title="Copy claim link">
                 <Copy className="h-4 w-4" />
               </Button>
+              {c.status === "claimed" && (
+                <Button variant="ghost" size="icon" onClick={() => verify(c.id)} title="Verify creator">
+                  <BadgeCheck className="h-4 w-4 text-emerald-600" />
+                </Button>
+              )}
               <Button asChild variant="ghost" size="icon">
                 <Link to={`/admin/creators/${c.id}`}><ChevronRight className="h-4 w-4" /></Link>
               </Button>
