@@ -47,6 +47,16 @@ const AdminCreators = () => {
     toast.success("Claim link copied");
   };
 
+  const verify = async (creatorId: string) => {
+    const { error } = await supabase
+      .from("food_creators")
+      .update({ status: "verified", verified_at: new Date().toISOString() })
+      .eq("id", creatorId);
+    if (error) return toast.error(error.message);
+    toast.success("Creator verified");
+    load();
+  };
+
   return (
     <div className="max-w-2xl mx-auto w-full px-5 py-6 animate-fade-in">
       <header className="flex items-center justify-between mb-5">
