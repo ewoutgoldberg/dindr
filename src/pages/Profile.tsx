@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
 
 
 type Profile = Tables<"profiles">;
@@ -19,7 +20,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const unread = useUnreadNotifications();
   const { isAdmin } = useIsAdmin();
-  const [hasCreatorProfile, setHasCreatorProfile] = useState(false);
+  const { hasCreatorProfile, viewMode } = useIsCreator();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partner, setPartner] = useState<Profile | null>(null);
   const [partnershipId, setPartnershipId] = useState<string | null>(null);
@@ -36,8 +37,6 @@ const Profile = () => {
     const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setProfile(p);
 
-    const { data: cp } = await supabase.from("food_creators").select("id").eq("user_id", user.id).maybeSingle();
-    setHasCreatorProfile(!!cp);
 
     const { data: partnership } = await supabase
       .from("partnerships")
@@ -211,11 +210,16 @@ const Profile = () => {
           <>
             <div className="mx-5 h-px bg-border" />
             <button
-              onClick={() => navigate("/creator/dashboard")}
+              onClick={() => {
+                setViewMode(viewMode === "creator" ? "consumer" : "creator");
+                if (viewMode !== "creator") navigate("/creator/dashboard");
+              }}
               className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
               <ChefHat className="h-5 w-5 text-primary shrink-0" />
-              <span className="flex-1 font-semibold text-sm">Creator dashboard</span>
+              <span className="flex-1 font-semibold text-sm">
+                {viewMode === "creator" ? "Switch to cook view" : "Switch to creator view"}
+              </span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
           </>
