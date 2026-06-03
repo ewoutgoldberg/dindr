@@ -1,25 +1,43 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, User, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, Bell, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
+import { useIsCreator } from "@/hooks/useIsCreator";
 import { PingPopup } from "@/components/PingPopup";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
-const tabs = [
+type Tab = {
+  to: string | (() => string);
+  match?: string;
+  label: string;
+  icon: typeof Flame;
+  showBadge?: boolean;
+};
+
+const consumerTabs: Tab[] = [
   { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
-] as const;
-
+];
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
   const unread = useUnreadNotifications();
+  const { isCreator, creatorId } = useIsCreator();
+
+  const creatorTabs: Tab[] = [
+    { to: "/creator/dashboard", match: "/creator/dashboard", label: "Dashboard", icon: ChefHat },
+    { to: creatorId ? `/creator/${creatorId}` : "/creator/dashboard", match: "/creator/", label: "Public", icon: Eye },
+    { to: "/notifications", label: "Inbox", icon: Bell, showBadge: true },
+    { to: "/profile", label: "MyKitchen", icon: User },
+  ];
+
+  const tabs = isCreator ? creatorTabs : consumerTabs;
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
     <div className="min-h-screen flex flex-col bg-background">
