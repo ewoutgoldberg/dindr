@@ -39,6 +39,24 @@ const AdminRecipeForm = () => {
   const [saving, setSaving] = useState(false);
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `recipes/${recipeId ?? "new"}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("lovable-uploads").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("lovable-uploads").getPublicUrl(path);
+      set("image_url", data.publicUrl);
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error(`Upload failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const importFromUrl = async () => {
     if (!importUrl.trim()) return toast.error("Paste a recipe URL first");
