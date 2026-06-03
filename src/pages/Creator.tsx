@@ -6,6 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, MapPin, Loader2 } from "lucide-react";
 import { SocialIcons } from "@/components/CreatorCard";
+import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
+
+const RecipeImg = ({ url, alt }: { url: string | null; alt: string }) => {
+  const [broken, setBroken] = useState(false);
+  const src = url && !broken ? url : fallbackRecipeImage;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setBroken(true)}
+      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+    />
+  );
+};
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes">;
