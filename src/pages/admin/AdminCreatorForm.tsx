@@ -162,6 +162,27 @@ const AdminCreatorForm = () => {
         </div>
       )}
 
+      <div className="bg-card rounded-2xl p-4 shadow-soft mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <h2 className="font-display font-bold text-sm">Import from URL</h2>
+        </div>
+        <p className="text-xs text-muted-foreground mb-2">
+          Paste an Instagram, TikTok, YouTube or website link — we'll fill in the profile for you.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://instagram.com/nonna..."
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            disabled={importing}
+          />
+          <Button onClick={importFromUrl} disabled={importing} variant="hero">
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Import"}
+          </Button>
+        </div>
+      </div>
+
       <div className="bg-card rounded-2xl p-4 shadow-soft space-y-3 mb-5">
         <div className="grid grid-cols-2 gap-3">
           <div><Label>Name</Label><Input value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} /></div>
