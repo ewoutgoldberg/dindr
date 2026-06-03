@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Plus, Trash2, CheckCircle2, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 type Creator = Tables<"food_creators">;
@@ -39,6 +39,24 @@ const AdminCreatorForm = () => {
   const [saving, setSaving] = useState(false);
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+
+  const uploadImage = async (field: "avatar_url" | "cover_url", file: File) => {
+    setUploading(field === "avatar_url" ? "avatar" : "cover");
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `creators/${id ?? "new"}-${field}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("lovable-uploads").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("lovable-uploads").getPublicUrl(path);
+      set(field, data.publicUrl);
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error(`Upload failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const importFromUrl = async () => {
     const u = importUrl.trim();
@@ -193,8 +211,42 @@ const AdminCreatorForm = () => {
         <div><Label>Bio</Label><Textarea rows={2} value={form.bio ?? ""} onChange={(e) => set("bio", e.target.value)} /></div>
         <div><Label>Story</Label><Textarea rows={4} value={form.story ?? ""} onChange={(e) => set("story", e.target.value)} /></div>
         <div className="grid grid-cols-2 gap-3">
-          <div><Label>Avatar URL</Label><Input value={form.avatar_url ?? ""} onChange={(e) => set("avatar_url", e.target.value)} /></div>
-          <div><Label>Cover URL</Label><Input value={form.cover_url ?? ""} onChange={(e) => set("cover_url", e.target.value)} /></div>
+          <div className="col-span-2 grid grid-cols-2 gap-3">
+            <div>
+              <Label>Avatar</Label>
+              <div className="flex items-center gap-2">
+                {form.avatar_url ? (
+                  <img src={form.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover bg-muted" onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }} />
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-muted shrink-0" />
+                )}
+                <label className="cursor-pointer">
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadImage("avatar_url", e.target.files[0])} />
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <span>{uploading === "avatar" ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Upload className="h-3.5 w-3.5 mr-1" />Upload</>}</span>
+                  </Button>
+                </label>
+              </div>
+              <Input className="mt-2" placeholder="or paste URL" value={form.avatar_url ?? ""} onChange={(e) => set("avatar_url", e.target.value)} />
+            </div>
+            <div>
+              <Label>Cover</Label>
+              <div className="flex items-center gap-2">
+                {form.cover_url ? (
+                  <img src={form.cover_url} alt="" className="h-12 w-20 rounded-lg object-cover bg-muted" onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }} />
+                ) : (
+                  <div className="h-12 w-20 rounded-lg bg-muted shrink-0" />
+                )}
+                <label className="cursor-pointer">
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadImage("cover_url", e.target.files[0])} />
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <span>{uploading === "cover" ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Upload className="h-3.5 w-3.5 mr-1" />Upload</>}</span>
+                  </Button>
+                </label>
+              </div>
+              <Input className="mt-2" placeholder="or paste URL" value={form.cover_url ?? ""} onChange={(e) => set("cover_url", e.target.value)} />
+            </div>
+          </div>
           <div><Label>Instagram URL</Label><Input value={form.instagram_url ?? ""} onChange={(e) => set("instagram_url", e.target.value)} /></div>
           <div><Label>TikTok URL</Label><Input value={form.tiktok_url ?? ""} onChange={(e) => set("tiktok_url", e.target.value)} /></div>
           <div><Label>YouTube URL</Label><Input value={form.youtube_url ?? ""} onChange={(e) => set("youtube_url", e.target.value)} /></div>
