@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 type Recipe = Tables<"recipes">;
