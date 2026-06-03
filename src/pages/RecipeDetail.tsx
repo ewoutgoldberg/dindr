@@ -128,7 +128,7 @@ const RecipeDetail = () => {
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!recipe) return <div className="min-h-screen grid place-items-center text-muted-foreground">Recipe not found</div>;
 
-  const ingredients = recipe.ingredients as Array<{ name: string; quantity: string }>;
+  const ingredients = normalizeIngredients(recipe.ingredients);
   const instructions = recipe.instructions as string[];
   const scale = servings / recipe.servings;
   const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
