@@ -231,7 +231,16 @@ const AdminCreatorForm = () => {
               <ul className="space-y-2">
                 {recipes.map((r) => (
                   <li key={r.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50">
-                    <img src={r.image_url ?? ""} alt="" className="h-10 w-10 rounded-lg object-cover bg-muted" />
+                    {r.image_url ? (
+                      <img
+                        src={r.image_url}
+                        alt=""
+                        className="h-10 w-10 rounded-lg object-cover bg-muted"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = "hidden"; }}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-lg bg-muted shrink-0" />
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{r.title}</p>
                       <div className="flex gap-1 mt-0.5">
