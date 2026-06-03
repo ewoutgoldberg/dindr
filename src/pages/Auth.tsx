@@ -26,7 +26,8 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/plan";
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/plan";
 
   useEffect(() => {
     if (user) navigate(from, { replace: true });

@@ -1,68 +1,67 @@
 ## Doel
+Dindr kan vooraf creator-profielen en recepten klaarzetten. Creators claimen later hun account via een unieke link en kunnen content goedkeuren of aanpassen.
 
-Dinder zo opzetten dat hij goed werkt als installeerbare web app op telefoons (iPhone & Android), zonder de complexiteit en valkuilen van een full PWA met service worker.
+## Database wijzigingen (Lovable Cloud)
 
-## Aanpak: manifest-only installable web app
+**`food_creators` — nieuwe kolommen**
+- `status` text default `'unclaimed'` — check: `unclaimed | invited | claimed | verified`
+- `user_id` uuid nullable (gekoppelde auth user na claim)
+- `claim_token` text unique (gegenereerd bij aanmaken)
+- `invited_at`, `claimed_at`, `verified_at` timestamps
+- `badge_new` boolean default true (verdwijnt na claim)
 
-We voegen een **web app manifest + mobiele meta tags + app icons** toe. Geen `vite-plugin-pwa`, geen service worker. Reden: een service worker veroorzaakt vaak problemen in de Lovable preview (stale cache, gebroken navigatie) en jij hebt geen offline-modus nodig — alleen "Add to Home Screen" en een goede mobiele ervaring.
+**`recipes` — nieuwe kolommen**
+- `content_source` text default `'admin_created'` — `admin_created | creator_created | imported`
+- `creator_approved` boolean default false
+- `published` boolean default false
 
-Resultaat: gebruikers kunnen Dinder vanuit Safari/Chrome aan hun home screen toevoegen, hij start zonder browser-balk, met de juiste kleuren, het juiste icoon en een echte app-feel.
+**RLS updates**
+- `food_creators`: public SELECT blijft; UPDATE toegestaan voor `auth.uid() = user_id` (na claim) of admin
+- `recipes`: SELECT alleen waar `published = true` OR admin OR `creator_id` van eigen profiel; UPDATE voor eigen creator-profiel of admin
+- Nieuwe security-definer functie `claim_creator(token text)` die `user_id` koppelt en status op `claimed` zet
 
-## Wat we toevoegen
+**Bestaande data**: alle huidige creators krijgen status `verified` (al live), bestaande recipes `published = true, creator_approved = true`.
 
-1. **App icons** in `public/`
-   - `icon-192.png` (192x192) en `icon-512.png` (512x512), gegenereerd uit het Dinder logo met de coral/oranje merkkleur als achtergrond
-   - `icon-maskable-512.png` voor Android adaptive icons (logo met veilige padding)
-   - `apple-touch-icon.png` (180x180) voor iOS home screen
+## Routes & pagina's
 
-2. **`public/manifest.webmanifest`** met:
-   - `name`: "Dinder — Tinder for Dinner"
-   - `short_name`: "Dinder"
-   - `description`, `start_url: "/"`, `scope: "/"`
-   - `display: "standalone"` (volledig scherm, geen browser-UI)
-   - `background_color: "#F4523E"`, `theme_color: "#F4523E"`
-   - `orientation: "portrait"`
-   - `icons` array met de drie PNG's hierboven (incl. `purpose: "maskable"`)
-
-3. **`index.html` mobiele meta tags**
-   - Link naar het manifest
-   - `apple-touch-icon` link
-   - iOS-specifieke tags: `apple-mobile-web-app-capable`, `apple-mobile-web-app-status-bar-style: black-translucent`, `apple-mobile-web-app-title: "Dinder"`
-   - Behoud bestaande `theme-color` en viewport (die zijn al goed: `viewport-fit=cover` voor notch/safe-area)
-
-4. **Kleine mobiel-UX verbeteringen**
-   - Body krijgt `overscroll-behavior: none` (al aanwezig op y, uitbreiden naar x) en `-webkit-user-select: none` op niet-tekst elementen, zodat het minder als webpagina aanvoelt en meer als app
-   - Controleren dat alle pagina's `safe-bottom`/`env(safe-area-inset-*)` correct gebruiken (bottom nav doet dit al — quick check op overige schermen)
-
-## Wat we NIET doen
-
-- Geen `vite-plugin-pwa` of service worker — geen offline-cache, geen update-prompts. Dat geeft in Lovable previews stale-build problemen en jij hebt het niet nodig voor "installeerbaar zijn".
-- Geen Capacitor / native build — dat is een aparte route die je eerder niet gevraagd hebt. Als je later in de App/Play Store wilt, kunnen we die stap apart zetten.
-
-## Beperkingen om te weten
-
-- Push notifications van de "Notify partner" feature blijven **in-app** (badge op MyKitchen). Echte OS-push notifications vereisen een service worker + backend setup, of de Capacitor-route.
-- Installeerbaarheid op iOS werkt alleen via Safari → Share → "Voeg toe aan beginscherm". Android Chrome toont vanzelf een install-prompt.
-
-## Technische details
-
-Bestanden die gewijzigd / toegevoegd worden:
-
-```text
-public/
-  manifest.webmanifest          (nieuw)
-  icon-192.png                  (nieuw, gegenereerd)
-  icon-512.png                  (nieuw, gegenereerd)
-  icon-maskable-512.png         (nieuw, gegenereerd)
-  apple-touch-icon.png          (nieuw, gegenereerd)
-index.html                      (manifest + apple meta tags toevoegen)
-src/index.css                   (kleine overscroll/select tweaks)
+```
+/admin/creators          Lijst + filters (unclaimed/invited/claimed/verified)
+/admin/creators/new      Creator aanmaken (alle velden + foto upload)
+/admin/creators/:id      Detail: profiel bewerken, recepten beheren, claim-link kopiëren, uitnodigen
+/admin/creators/:id/recipes/new   Recept toevoegen aan creator
+/claim/:token            Publieke claim-flow (login/signup → bevestigen)
+/creator/dashboard       Welkomstscherm na claim: profiel, recepten (concepten/publicaties), goedkeuren
 ```
 
-Geen wijzigingen aan `vite.config.ts`, geen extra dependencies.
+Admin-toegang via bestaande `has_role(uid, 'admin')`.
 
-## Hoe je het test
+## UI componenten
 
-1. Na implementatie publiceren via de Publish-knop (manifests werken niet altijd 1-op-1 in de iframe-preview).
-2. Op je telefoon naar `https://dindr.lovable.app` → Share → Add to Home Screen.
-3. Open vanaf het home screen: app start fullscreen, met Dinder-icoon en coral splash, zonder browser-balk.
+- **AdminCreatorsList**: tabs voor statussen, "Nieuwe creator" knop, kopieer claim-link
+- **CreatorForm**: velden zoals gespecificeerd, avatar/cover upload naar `lovable-uploads`
+- **ClaimPage**: toont preview profiel + recepten, knop "Claim dit profiel" (vereist login)
+- **CreatorDashboard**: stats (X recepten, Y concepten), lijsten met goedkeur/bewerk/publiceer acties
+- **"Nieuw op Dindr" badge** op CreatorCard wanneer `badge_new = true && status != claimed/verified`
+
+## Recept-goedkeuringsflow
+
+1. Admin maakt recept (`content_source='admin_created'`, `creator_approved=false`, `published=false`)
+2. Creator claimt profiel
+3. Dashboard toont sectie "Voorgestelde recepten" met Goedkeur / Bewerk / Verwijder
+4. Goedkeuren → `creator_approved=true, published=true`
+5. Bewerken → opent editor, na opslaan publiceren
+
+## Feed gedrag
+
+`Creator.tsx` en swipe-feed tonen ook unclaimed creators + hun gepubliceerde recepten, met badge "Nieuw op Dindr". Badge verdwijnt zodra status `claimed` of `verified` is.
+
+## Buiten scope (later)
+- Bulk import CSV/JSON
+- Email-uitnodigingen versturen (nu: link kopiëren handmatig)
+- Verified-badge promotie flow (admin zet handmatig)
+
+## Volgorde van implementatie
+1. Migratie (kolommen, RLS, claim-functie, defaults voor bestaande rijen)
+2. Admin pagina's (lijst + form + detail)
+3. Claim-flow + creator dashboard
+4. Feed-aanpassingen (badge, filter op `published`)

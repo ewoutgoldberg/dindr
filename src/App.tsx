@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Plan from "./pages/Plan";
@@ -18,6 +19,11 @@ import Creator from "./pages/Creator";
 import Favorites from "./pages/Favorites";
 import SwipeFavorites from "./pages/SwipeFavorites";
 import Notifications from "./pages/Notifications";
+import Claim from "./pages/Claim";
+import CreatorDashboard from "./pages/CreatorDashboard";
+import AdminCreators from "./pages/admin/AdminCreators";
+import AdminCreatorForm from "./pages/admin/AdminCreatorForm";
+import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +49,13 @@ const App = () => (
               <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
               <Route path="/swipe-favorites" element={<RequireAuth><SwipeFavorites /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+              <Route path="/claim/:token" element={<Claim />} />
+              <Route path="/creator/dashboard" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
+              <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id/recipes/new" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />
+              <Route path="/admin/creators/:id/recipes/:recipeId" element={<RequireAuth><RequireAdmin><AdminRecipeForm /></RequireAdmin></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppShell>

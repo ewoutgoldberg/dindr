@@ -4,11 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, ChefHat } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 
 type Profile = Tables<"profiles">;
@@ -17,6 +18,8 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const unread = useUnreadNotifications();
+  const { isAdmin } = useIsAdmin();
+  const [hasCreatorProfile, setHasCreatorProfile] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partner, setPartner] = useState<Profile | null>(null);
   const [partnershipId, setPartnershipId] = useState<string | null>(null);
@@ -32,6 +35,9 @@ const Profile = () => {
     if (!user) return;
     const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setProfile(p);
+
+    const { data: cp } = await supabase.from("food_creators").select("id").eq("user_id", user.id).maybeSingle();
+    setHasCreatorProfile(!!cp);
 
     const { data: partnership } = await supabase
       .from("partnerships")
@@ -213,6 +219,32 @@ const Profile = () => {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
         </button>
+        {hasCreatorProfile && (
+          <>
+            <div className="mx-5 h-px bg-border" />
+            <button
+              onClick={() => navigate("/creator/dashboard")}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+            >
+              <ChefHat className="h-5 w-5 text-primary shrink-0" />
+              <span className="flex-1 font-semibold text-sm">Creator dashboard</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </>
+        )}
+        {isAdmin && (
+          <>
+            <div className="mx-5 h-px bg-border" />
+            <button
+              onClick={() => navigate("/admin/creators")}
+              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+            >
+              <Shield className="h-5 w-5 text-primary shrink-0" />
+              <span className="flex-1 font-semibold text-sm">Admin · Creators</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </>
+        )}
       </section>
 
       {/* Cooking pair — compact */}
