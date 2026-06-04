@@ -172,6 +172,16 @@ const AdminRecipeForm = () => {
           <div><Label>Time (min)</Label><Input type="number" value={form.cooking_time_minutes ?? 0} onChange={(e) => set("cooking_time_minutes", Number(e.target.value))} /></div>
           <div><Label>Servings</Label><Input type="number" value={form.servings ?? 2} onChange={(e) => set("servings", Number(e.target.value))} /></div>
           <div>
+            <Label>Meal type</Label>
+            <select value={form.meal_type ?? "dinner"} onChange={(e) => set("meal_type", e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+              <option value="breakfast">Ontbijt</option>
+              <option value="lunch">Lunch</option>
+              <option value="snack">Snacks</option>
+              <option value="dinner">Diner</option>
+            </select>
+          </div>
+          <div>
             <Label>Source</Label>
             <select value={form.content_source ?? "admin_created"} onChange={(e) => set("content_source", e.target.value)}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
