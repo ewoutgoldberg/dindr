@@ -85,6 +85,7 @@ const Filters = () => {
   useEffect(() => {
     if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
+    setHealthyOnlyState(getHealthyOnly(user.id, today));
     supabase
       .from("meal_plans")
       .select("*")
