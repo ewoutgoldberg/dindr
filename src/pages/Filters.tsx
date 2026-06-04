@@ -72,6 +72,7 @@ const Filters = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
+  const [healthyOnly, setHealthyOnlyState] = useState(false);
 
   const handleConfirmDate = () => {
     if (pickedDate !== dateParam) {
