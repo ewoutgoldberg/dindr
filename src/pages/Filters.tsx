@@ -108,6 +108,7 @@ const Filters = () => {
       categories: plan?.categories ?? [],
       difficulty: plan?.difficulty ?? null,
       creator_id: plan?.creator_id ?? null,
+      allergies: plan?.allergies ?? [],
       ...patch,
     };
     const { data, error } = await supabase
