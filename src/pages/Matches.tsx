@@ -283,7 +283,11 @@ const CollapsibleGroups = ({
     if (!recent.some((g) => g.date === today)) {
       recent.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
     }
-    return recent.sort((a, b) => b.date.localeCompare(a.date));
+    return recent.sort((a, b) => {
+      if (a.date === today) return -1;
+      if (b.date === today) return 1;
+      return b.date.localeCompare(a.date);
+    });
   }, [groups, today]);
 
   return (
