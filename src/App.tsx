@@ -53,6 +53,7 @@ const App = () => (
               <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
               <Route path="/claim/:token" element={<Claim />} />
               <Route path="/creator/dashboard" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
+              <Route path="/creator/profile/edit" element={<RequireAuth><CreatorProfileEdit /></RequireAuth>} />
               <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/import" element={<RequireAuth><RequireAdmin><AdminImportCreators /></RequireAdmin></RequireAuth>} />
