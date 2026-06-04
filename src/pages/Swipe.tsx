@@ -18,6 +18,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
 import { recipeHasAllergen } from "@/lib/allergens";
+import { getHealthyOnly, isHealthyRecipe } from "@/lib/healthy";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
@@ -78,6 +79,11 @@ const Swipe = () => {
         filtered = filtered.filter(
           (r) => !recipeHasAllergen(extractIngredientNames(r.ingredients), allergies),
         );
+      }
+
+      // Healthy-only filter (local preference)
+      if (getHealthyOnly(user.id, date)) {
+        filtered = filtered.filter((r) => isHealthyRecipe(r));
       }
 
 

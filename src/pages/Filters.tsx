@@ -34,6 +34,8 @@ import { Tables } from "@/integrations/supabase/types";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
+import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
+import { Leaf } from "lucide-react";
 
 type MealPlan = {
   id: string;
@@ -70,6 +72,7 @@ const Filters = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [pantry, setPantryState] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
+  const [healthyOnly, setHealthyOnlyState] = useState(false);
 
   const handleConfirmDate = () => {
     if (pickedDate !== dateParam) {
@@ -82,6 +85,7 @@ const Filters = () => {
   useEffect(() => {
     if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
+    setHealthyOnlyState(getHealthyOnly(user.id, today));
     supabase
       .from("meal_plans")
       .select("*")
@@ -156,14 +160,21 @@ const Filters = () => {
     if (plan?.creator_id) n++;
     if (pantry.length > 0) n++;
     if ((plan?.allergies?.length ?? 0) > 0) n++;
+    if (healthyOnly) n++;
     return n;
-  }, [plan, pantry]);
+  }, [plan, pantry, healthyOnly]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
+    setHealthyOnlyState(setHealthyOnly(user.id, today, false));
     await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
     toast.success("Filters cleared");
+  };
+
+  const toggleHealthy = () => {
+    if (!user) return;
+    setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
   };
 
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
@@ -272,6 +283,30 @@ const Filters = () => {
               );
             })}
           </div>
+        </div>
+
+
+        {/* Healthy */}
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Leaf className="h-4 w-4" /> Diet
+          </p>
+          <button
+            onClick={toggleHealthy}
+            className={cn(
+              "w-full py-2.5 rounded-xl text-sm font-semibold border-2 transition-all flex items-center justify-center gap-2",
+              healthyOnly
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-background text-muted-foreground",
+            )}
+            aria-pressed={healthyOnly}
+          >
+            <Leaf className="h-4 w-4" />
+            Healthy only
+          </button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Only show lighter, veggie-forward and healthy dishes.
+          </p>
         </div>
 
         {/* Pantry */}
