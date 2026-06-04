@@ -161,7 +161,7 @@ const Favorites = () => {
   );
 };
 
-const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: string }) => {
+const PlanFavoriteAction = ({ recipeId, recipeTitle, userId }: { recipeId: string; recipeTitle: string; userId?: string }) => {
   const [open, setOpen] = useState(false);
   const [offset, setOffset] = useState(0);
   const today = new Date();
