@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell, Loader2, Trash2, CalendarDays } from "lucide-react";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { isFinalPickMessage, finalPickTitle } from "@/lib/notifyFinalPick";
 
 type Notif = {
   id: string;
