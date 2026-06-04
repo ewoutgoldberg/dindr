@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Bell, CalendarDays } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { isFinalPickMessage, finalPickTitle } from "@/lib/notifyFinalPick";
 
 type Notif = {
   id: string;
