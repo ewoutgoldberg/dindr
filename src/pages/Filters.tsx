@@ -155,13 +155,14 @@ const Filters = () => {
     if ((plan?.categories?.length ?? 0) > 0) n++;
     if (plan?.creator_id) n++;
     if (pantry.length > 0) n++;
+    if ((plan?.allergies?.length ?? 0) > 0) n++;
     return n;
   }, [plan, pantry]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
-    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null });
+    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
     toast.success("Filters cleared");
   };
 
