@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, Heart, Loader2, Sparkles, User as UserIcon, Users, Zap } from "lucide-react";
+import { Archive, Check, ChevronDown, Heart, Loader2, Sparkles, User as UserIcon, Users, Zap } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
