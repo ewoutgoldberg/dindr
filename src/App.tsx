@@ -13,6 +13,7 @@ import Filters from "./pages/Filters";
 import Swipe from "./pages/Swipe";
 import Matches from "./pages/Matches";
 import RecipeDetail from "./pages/RecipeDetail";
+import RecipeCard from "./pages/RecipeCard";
 import Shopping from "./pages/Shopping";
 import Profile from "./pages/Profile";
 import Creator from "./pages/Creator";
