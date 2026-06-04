@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, ChefHat } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
@@ -139,9 +139,9 @@ const Profile = () => {
             setViewMode(viewMode === "creator" ? "consumer" : "creator");
             if (viewMode !== "creator") navigate("/creator/dashboard");
           }}
-          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(env(safe-area-inset-bottom,0px)+5.25rem)] z-30 inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
+          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] z-30 inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
-          <ChefHat className="h-4 w-4" />
+          <Globe className="h-4 w-4" />
           {viewMode === "creator" ? "Switch to cook view" : "Switch to creator view"}
         </button>
       )}
