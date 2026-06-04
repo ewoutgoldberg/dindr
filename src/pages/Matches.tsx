@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, Heart, Loader2, Sparkles, User as UserIcon, Users, Zap } from "lucide-react";
+import { Archive, Check, ChevronDown, Heart, Loader2, Sparkles, User as UserIcon, Users, Zap } from "lucide-react";
 import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -266,34 +266,36 @@ const CollapsibleGroups = ({
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
   const [openDate, setOpenDate] = useState<string | null>(today);
+  const [pastOpen, setPastOpen] = useState(false);
 
   const toggle = (date: string) => setOpenDate((prev) => (prev === date ? null : date));
 
-
-  const displayGroups = useMemo(() => {
-    const cutoff = new Date();
-    cutoff.setHours(0, 0, 0, 0);
-    cutoff.setDate(cutoff.getDate() - 6); // last 7 calendar days incl. today
-    const cutoffStr = format(cutoff, "yyyy-MM-dd");
+  const { currentGroups, pastGroups } = useMemo(() => {
     const horizon = new Date();
     horizon.setHours(0, 0, 0, 0);
-    horizon.setDate(horizon.getDate() + 14); // also include upcoming planned dates
+    horizon.setDate(horizon.getDate() + 14);
     const horizonStr = format(horizon, "yyyy-MM-dd");
-    const recent = groups.filter((g) => g.date >= cutoffStr && g.date <= horizonStr);
-    if (!recent.some((g) => g.date === today)) {
-      recent.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
+
+    const current = groups.filter((g) => g.date >= today && g.date <= horizonStr);
+    if (!current.some((g) => g.date === today)) {
+      current.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
     }
-    return recent.sort((a, b) => {
+    current.sort((a, b) => {
       if (a.date === today) return -1;
       if (b.date === today) return 1;
-      return b.date.localeCompare(a.date);
+      return a.date.localeCompare(b.date);
     });
+
+    const past = groups
+      .filter((g) => g.date < today)
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    return { currentGroups: current, pastGroups: past };
   }, [groups, today]);
 
-  return (
-    <>
-      {displayGroups.map((g) => {
+  const renderGroup = (g: Group) => {
         const isOpen = openDate === g.date;
+
         const isToday = g.date === today;
         const finalRecipe =
           g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
@@ -460,9 +462,34 @@ const CollapsibleGroups = ({
             )}
           </section>
         );
-      })}
+  };
+
+  return (
+    <>
+      {currentGroups.map(renderGroup)}
+
+      {pastGroups.length > 0 && (
+        <section className="mt-6 mb-4 rounded-2xl border border-border bg-muted/30 overflow-hidden">
+          <button
+            onClick={() => setPastOpen((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+            aria-expanded={pastOpen}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
+                <Archive className="h-3.5 w-3.5" />
+              </span>
+              <h2 className="font-display font-bold text-sm text-muted-foreground">Eerdere matches</h2>
+              <span className="text-[11px] text-muted-foreground">({pastGroups.length})</span>
+            </div>
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", pastOpen && "rotate-180")} />
+          </button>
+          {pastOpen && <div className="px-2 pb-2">{pastGroups.map(renderGroup)}</div>}
+        </section>
+      )}
     </>
   );
 };
+
 
 export default Matches;
