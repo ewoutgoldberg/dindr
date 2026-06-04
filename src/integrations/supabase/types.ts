@@ -323,6 +323,7 @@ export type Database = {
       }
       recipes: {
         Row: {
+          card_assets_generated_at: string | null
           category: string
           content_source: string
           cooking_time_minutes: number
@@ -338,11 +339,14 @@ export type Database = {
           ingredients: Json
           instructions: Json
           meal_type: string | null
+          nutrition: Json | null
           published: boolean
           servings: number
+          step_images: Json
           title: string
         }
         Insert: {
+          card_assets_generated_at?: string | null
           category: string
           content_source?: string
           cooking_time_minutes: number
@@ -358,11 +362,14 @@ export type Database = {
           ingredients?: Json
           instructions?: Json
           meal_type?: string | null
+          nutrition?: Json | null
           published?: boolean
           servings?: number
+          step_images?: Json
           title: string
         }
         Update: {
+          card_assets_generated_at?: string | null
           category?: string
           content_source?: string
           cooking_time_minutes?: number
@@ -378,8 +385,10 @@ export type Database = {
           ingredients?: Json
           instructions?: Json
           meal_type?: string | null
+          nutrition?: Json | null
           published?: boolean
           servings?: number
+          step_images?: Json
           title?: string
         }
         Relationships: [
