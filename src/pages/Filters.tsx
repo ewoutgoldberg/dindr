@@ -36,6 +36,7 @@ import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates"
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
 import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
+import { MEAL_TYPES } from "@/lib/mealType";
 import { Leaf } from "lucide-react";
 
 type MealPlan = {
