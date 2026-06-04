@@ -191,6 +191,10 @@ const CreatorDashboard = () => {
           </Button>
         </div>
       </div>
+      <div className="mb-5">
+        <SocialAccountsManager creatorId={creator.id} />
+      </div>
+
 
       <section className="mb-6">
         <h2 className="font-display font-bold mb-3">Suggested recipes</h2>
