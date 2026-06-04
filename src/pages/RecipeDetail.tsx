@@ -102,6 +102,7 @@ const RecipeDetail = () => {
       { user_id: user.id, plan_date: date, final_recipe_id: recipe.id },
       { onConflict: "user_id,plan_date" }
     );
+    await notifyPartnerFinalPick(user.id, date, recipe.title);
     toast.success("Set as your final pick!");
   };
 
