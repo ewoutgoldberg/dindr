@@ -182,7 +182,7 @@ const Swipe = () => {
                   setPickedDate(activeDateKey);
                   setPickerOpen(true);
                 }}
-                className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-background/30 backdrop-blur-md text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-background/40 transition-colors text-left"
+                className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-foreground/40 text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-foreground/50 transition-colors text-left"
               >
                 <CalendarIcon className="h-4 w-4 shrink-0" />
                 <div className="leading-tight">
@@ -259,13 +259,13 @@ const SwipeCard = ({
           <FavoriteToggle recipeId={recipe.id} />
           <motion.div
             style={{ opacity: likeOpacity }}
-            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/30 backdrop-blur-sm"
+            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
           >
             YUM
           </motion.div>
           <motion.div
             style={{ opacity: nopeOpacity }}
-            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/30 backdrop-blur-sm"
+            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
           >
             NOPE
           </motion.div>
@@ -277,7 +277,7 @@ const SwipeCard = ({
             to={`/creator/${recipe.food_creators.id}`}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-2 bg-background/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-background/40 transition-colors"
+            className="inline-flex items-center gap-2 bg-foreground/40 rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-foreground/50 transition-colors"
           >
             <img
               src={recipe.food_creators.avatar_url ?? ""}
@@ -288,8 +288,8 @@ const SwipeCard = ({
           </Link>
         )}
         <div className="flex gap-2 mb-2">
-          <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0">{recipe.category}</Badge>
-          <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
+          <Badge className="bg-foreground/30 text-primary-foreground border-0">{recipe.category}</Badge>
+          <Badge className="bg-foreground/30 text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
         </div>
         <h2 className="text-3xl font-display font-extrabold leading-tight drop-shadow">{recipe.title}</h2>
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
@@ -312,8 +312,8 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
       }}
       onPointerDown={(e) => e.stopPropagation()}
       className={cn(
-        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur-md transition-all active:scale-90 z-10",
-        isFavorite ? "bg-accent text-accent-foreground" : "bg-background/40 text-primary-foreground hover:bg-background/60"
+        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
+        isFavorite ? "bg-accent text-accent-foreground" : "bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
       )}
       aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
     >
