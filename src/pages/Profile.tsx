@@ -206,7 +206,7 @@ const Profile = () => {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
         </button>
-        {isAdmin && <div className="mx-5 h-px bg-border" />}
+        
         {isAdmin && (
           <>
             <div className="mx-5 h-px bg-border" />
