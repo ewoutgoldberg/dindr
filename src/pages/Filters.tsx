@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
+import { ALLERGENS } from "@/lib/allergens";
 
 type MealPlan = {
   id: string;
@@ -42,6 +43,7 @@ type MealPlan = {
   difficulty: string | null;
   final_recipe_id: string | null;
   creator_id: string | null;
+  allergies: string[] | null;
 };
 
 type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
