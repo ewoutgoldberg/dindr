@@ -462,9 +462,34 @@ const CollapsibleGroups = ({
             )}
           </section>
         );
-      })}
+  };
+
+  return (
+    <>
+      {currentGroups.map(renderGroup)}
+
+      {pastGroups.length > 0 && (
+        <section className="mt-6 mb-4 rounded-2xl border border-border bg-muted/30 overflow-hidden">
+          <button
+            onClick={() => setPastOpen((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+            aria-expanded={pastOpen}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
+                <Archive className="h-3.5 w-3.5" />
+              </span>
+              <h2 className="font-display font-bold text-sm text-muted-foreground">Eerdere matches</h2>
+              <span className="text-[11px] text-muted-foreground">({pastGroups.length})</span>
+            </div>
+            <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", pastOpen && "rotate-180")} />
+          </button>
+          {pastOpen && <div className="px-2 pb-2">{pastGroups.map(renderGroup)}</div>}
+        </section>
+      )}
     </>
   );
 };
+
 
 export default Matches;
