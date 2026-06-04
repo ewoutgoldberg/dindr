@@ -259,13 +259,13 @@ const SwipeCard = ({
           <FavoriteToggle recipeId={recipe.id} />
           <motion.div
             style={{ opacity: likeOpacity }}
-            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/30 backdrop-blur-sm"
+            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
           >
             YUM
           </motion.div>
           <motion.div
             style={{ opacity: nopeOpacity }}
-            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/30 backdrop-blur-sm"
+            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
           >
             NOPE
           </motion.div>
