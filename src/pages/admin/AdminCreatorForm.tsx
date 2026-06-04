@@ -312,6 +312,13 @@ const AdminCreatorForm = () => {
               </ul>
             )}
           </div>
+
+          {id && id !== "new" && (
+            <div className="mt-6">
+              <h2 className="font-display font-bold mb-3">Social Sync</h2>
+              <AdminSocialPanel creatorId={id} />
+            </div>
+          )}
         </>
       )}
     </div>
