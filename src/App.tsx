@@ -46,6 +46,7 @@ const App = () => (
               <Route path="/swipe/:date" element={<RequireAuth><Swipe /></RequireAuth>} />
               <Route path="/matches" element={<RequireAuth><Matches /></RequireAuth>} />
               <Route path="/recipe/:id" element={<RequireAuth><RecipeDetail /></RequireAuth>} />
+              <Route path="/recipe/:id/card" element={<RequireAuth><RecipeCard /></RequireAuth>} />
               <Route path="/shopping" element={<RequireAuth><Shopping /></RequireAuth>} />
               <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/creator/:id" element={<RequireAuth><Creator /></RequireAuth>} />
