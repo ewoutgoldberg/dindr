@@ -282,7 +282,9 @@ const Filters = () => {
                 </Badge>
               );
             })}
+          </div>
         </div>
+
 
         {/* Healthy */}
         <div>
