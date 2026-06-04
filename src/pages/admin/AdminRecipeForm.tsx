@@ -17,6 +17,7 @@ const empty: Partial<Recipe> = {
   description: "",
   image_url: "",
   category: "dinner",
+  meal_type: "dinner",
   difficulty: "medium",
   cuisine: "",
   cooking_time_minutes: 30,
