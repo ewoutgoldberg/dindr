@@ -276,6 +276,15 @@ const SwipeCard = ({
       {isTop && (
         <>
           <FavoriteToggle recipeId={recipe.id} />
+          <Link
+            to={`/recipe/${recipe.id}/card`}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute top-4 right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
+            aria-label="Bekijk als kaart"
+          >
+            <CreditCard className="h-5 w-5" />
+          </Link>
           <motion.div
             style={{ opacity: likeOpacity }}
             className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
