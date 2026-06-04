@@ -172,7 +172,7 @@ const Filters = () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
     setHealthyOnlyState(setHealthyOnly(user.id, today, false));
-    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
+    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [], meal_type: null });
     toast.success("Filters cleared");
   };
 
