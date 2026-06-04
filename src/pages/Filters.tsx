@@ -164,6 +164,7 @@ const Filters = () => {
     if (pantry.length > 0) n++;
     if ((plan?.allergies?.length ?? 0) > 0) n++;
     if (healthyOnly) n++;
+    if (plan?.meal_type) n++;
     return n;
   }, [plan, pantry, healthyOnly]);
 
