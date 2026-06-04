@@ -11,6 +11,7 @@ import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
+import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 
 type Recipe = Tables<"recipes">;
 type Group = {
