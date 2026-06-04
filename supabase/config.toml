@@ -1,1 +1,7 @@
 project_id = "wwrsmocfsdcsnucluxht"
+
+[functions.social-oauth-callback]
+verify_jwt = false
+
+[functions.social-sync]
+verify_jwt = false
