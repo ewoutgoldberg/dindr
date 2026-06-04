@@ -129,6 +129,12 @@ const Filters = () => {
     upsert({ categories: next });
   };
 
+  const toggleAllergy = (key: string) => {
+    const cur = plan?.allergies ?? [];
+    const next = cur.includes(key) ? cur.filter((a) => a !== key) : [...cur, key];
+    upsert({ allergies: next });
+  };
+
   const addPantryItem = (raw: string) => {
     if (!user) return;
     const value = normalizeIngredient(raw);
