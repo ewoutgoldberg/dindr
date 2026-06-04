@@ -81,6 +81,11 @@ const Swipe = () => {
         );
       }
 
+      // Healthy-only filter (local preference)
+      if (getHealthyOnly(user.id, date)) {
+        filtered = filtered.filter((r) => isHealthyRecipe(r));
+      }
+
 
       // Pantry-aware ranking: prioritize recipes that use ingredients the user already has
       const pantry = getPantry(user.id, date);
