@@ -66,6 +66,8 @@ export const PingPopup = () => {
   if (!notif) return null;
   const senderName = notif.sender_name || "Your partner";
   const dayLabel = notif.plan_date ? format(parseISO(notif.plan_date), "EEEE, MMM d") : null;
+  const finalPick = isFinalPickMessage(notif.message);
+  const pickedTitle = finalPickTitle(notif.message);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) dismiss(); }}>
@@ -76,10 +78,19 @@ export const PingPopup = () => {
           </div>
           <DialogTitle>{senderName} pinged you 💌</DialogTitle>
           <DialogDescription>
-            {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary font-semibold">{dayLabel}</span></> : ""}.
+            {finalPick ? (
+              <>
+                {senderName} chose <span className="text-primary font-semibold">{pickedTitle}</span> for dinner
+                {dayLabel ? <> on <span className="text-primary font-semibold">{dayLabel}</span></> : ""}.
+              </>
+            ) : (
+              <>
+                {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary font-semibold">{dayLabel}</span></> : ""}.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
-        {notif.message && (
+        {notif.message && !finalPick && (
           <p className="text-sm italic text-muted-foreground">"{notif.message}"</p>
         )}
         <div className="flex gap-2 mt-2">
