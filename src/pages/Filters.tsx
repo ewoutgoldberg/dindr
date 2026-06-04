@@ -160,14 +160,21 @@ const Filters = () => {
     if (plan?.creator_id) n++;
     if (pantry.length > 0) n++;
     if ((plan?.allergies?.length ?? 0) > 0) n++;
+    if (healthyOnly) n++;
     return n;
-  }, [plan, pantry]);
+  }, [plan, pantry, healthyOnly]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
+    setHealthyOnlyState(setHealthyOnly(user.id, today, false));
     await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
     toast.success("Filters cleared");
+  };
+
+  const toggleHealthy = () => {
+    if (!user) return;
+    setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
   };
 
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
