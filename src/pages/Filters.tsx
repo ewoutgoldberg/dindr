@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
+import { ALLERGENS } from "@/lib/allergens";
 
 type MealPlan = {
   id: string;
@@ -42,6 +43,7 @@ type MealPlan = {
   difficulty: string | null;
   final_recipe_id: string | null;
   creator_id: string | null;
+  allergies: string[] | null;
 };
 
 type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
@@ -106,6 +108,7 @@ const Filters = () => {
       categories: plan?.categories ?? [],
       difficulty: plan?.difficulty ?? null,
       creator_id: plan?.creator_id ?? null,
+      allergies: plan?.allergies ?? [],
       ...patch,
     };
     const { data, error } = await supabase
@@ -124,6 +127,12 @@ const Filters = () => {
     const cur = plan?.categories ?? [];
     const next = cur.includes(cat) ? cur.filter((c) => c !== cat) : [...cur, cat];
     upsert({ categories: next });
+  };
+
+  const toggleAllergy = (key: string) => {
+    const cur = plan?.allergies ?? [];
+    const next = cur.includes(key) ? cur.filter((a) => a !== key) : [...cur, key];
+    upsert({ allergies: next });
   };
 
   const addPantryItem = (raw: string) => {
@@ -146,13 +155,14 @@ const Filters = () => {
     if ((plan?.categories?.length ?? 0) > 0) n++;
     if (plan?.creator_id) n++;
     if (pantry.length > 0) n++;
+    if ((plan?.allergies?.length ?? 0) > 0) n++;
     return n;
   }, [plan, pantry]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
-    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null });
+    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
     toast.success("Filters cleared");
   };
 
@@ -315,6 +325,42 @@ const Filters = () => {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Allergies */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold">Allergies &amp; avoid</p>
+            {(plan?.allergies?.length ?? 0) > 0 && (
+              <button
+                onClick={() => upsert({ allergies: [] })}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Recipes containing these ingredients will be hidden.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALLERGENS.map((a) => {
+              const active = plan?.allergies?.includes(a.key);
+              return (
+                <Badge
+                  key={a.key}
+                  variant={active ? "default" : "outline"}
+                  onClick={() => toggleAllergy(a.key)}
+                  className={cn(
+                    "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                    active && "bg-primary text-primary-foreground hover:bg-primary"
+                  )}
+                >
+                  {a.label}
+                </Badge>
+              );
+            })}
+          </div>
         </div>
 
         {/* Food creator */}

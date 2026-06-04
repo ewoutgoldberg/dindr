@@ -1,0 +1,1 @@
+ALTER TABLE public.meal_plans ADD COLUMN IF NOT EXISTS allergies text[] NOT NULL DEFAULT '{}';

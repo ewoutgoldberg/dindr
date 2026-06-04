@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
+import { recipeHasAllergen } from "@/lib/allergens";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
@@ -70,6 +71,15 @@ const Swipe = () => {
       if (error) toast.error(error.message);
 
       let filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
+
+      // Filter out recipes containing selected allergens
+      const allergies = ((plan as { allergies?: string[] } | null)?.allergies) ?? [];
+      if (allergies.length > 0) {
+        filtered = filtered.filter(
+          (r) => !recipeHasAllergen(extractIngredientNames(r.ingredients), allergies),
+        );
+      }
+
 
       // Pantry-aware ranking: prioritize recipes that use ingredients the user already has
       const pantry = getPantry(user.id, date);
