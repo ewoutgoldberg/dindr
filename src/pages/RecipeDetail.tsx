@@ -135,8 +135,19 @@ const RecipeDetail = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="relative max-w-md mx-auto h-[55vh] max-h-[520px] overflow-hidden">
-        <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover" />
+      <div className="relative max-w-md mx-auto h-[55vh] max-h-[520px] overflow-hidden bg-muted">
+        {recipe.image_url ? (
+          <img
+            src={recipe.image_url}
+            alt={recipe.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : (
+          <div className="absolute inset-0 gradient-primary grid place-items-center">
+            <ChefHat className="h-20 w-20 text-primary-foreground/60" />
+          </div>
+        )}
         <div className="absolute inset-0 gradient-card-overlay" />
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute top-4 left-4 bg-background/30 backdrop-blur text-primary-foreground hover:bg-background/40">
           <ArrowLeft className="h-5 w-5" />
