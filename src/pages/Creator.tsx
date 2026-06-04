@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, MapPin, Loader2 } from "lucide-react";
 import { SocialIcons } from "@/components/CreatorCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InspirationFeed } from "@/components/InspirationFeed";
 import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
 
 const RecipeImg = ({ url, alt }: { url: string | null; alt: string }) => {
