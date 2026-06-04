@@ -72,6 +72,15 @@ const Swipe = () => {
 
       let filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
 
+      // Filter out recipes containing selected allergens
+      const allergies = ((plan as { allergies?: string[] } | null)?.allergies) ?? [];
+      if (allergies.length > 0) {
+        filtered = filtered.filter(
+          (r) => !recipeHasAllergen(extractIngredientNames(r.ingredients), allergies),
+        );
+      }
+
+
       // Pantry-aware ranking: prioritize recipes that use ingredients the user already has
       const pantry = getPantry(user.id, date);
       if (pantry.length > 0) {
