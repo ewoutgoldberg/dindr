@@ -393,7 +393,7 @@ const CollapsibleGroups = ({
                   </div>
                 )}
 
-                {hasPartner && (
+                {hasPartner && g.date >= today && (
                   <div className="flex justify-end mt-3">
                     <NotifyPartnerButton
                       planDate={g.date}
