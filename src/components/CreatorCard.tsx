@@ -26,12 +26,19 @@ export const CreatorCard = ({ creator, variant = "full" }: { creator: Creator; v
         to={`/creator/${creator.id}`}
         className="flex items-center gap-3 bg-card rounded-2xl p-3 shadow-soft hover:shadow-card transition-shadow"
       >
-        <img
-          src={creator.avatar_url ?? ""}
-          alt={creator.name}
-          loading="lazy"
-          className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/20"
-        />
+        {creator.avatar_url ? (
+          <img
+            src={creator.avatar_url}
+            alt={creator.name}
+            loading="lazy"
+            className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/20"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : (
+          <div className="h-12 w-12 rounded-full ring-2 ring-primary/20 gradient-primary grid place-items-center text-primary-foreground font-display font-bold">
+            {creator.name?.charAt(0).toUpperCase() ?? "?"}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">Recipe by</p>
           <div className="flex items-center gap-2">
