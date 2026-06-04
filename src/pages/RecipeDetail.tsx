@@ -6,7 +6,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart, CreditCard } from "lucide-react";
 import { CreatorCard } from "@/components/CreatorCard";
 import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
