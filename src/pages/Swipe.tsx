@@ -312,8 +312,8 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
       }}
       onPointerDown={(e) => e.stopPropagation()}
       className={cn(
-        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur-md transition-all active:scale-90 z-10",
-        isFavorite ? "bg-accent text-accent-foreground" : "bg-background/40 text-primary-foreground hover:bg-background/60"
+        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
+        isFavorite ? "bg-accent text-accent-foreground" : "bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
       )}
       aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
     >
