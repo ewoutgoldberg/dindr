@@ -182,6 +182,10 @@ const Filters = () => {
     setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
   };
 
+  const setMealType = (type: string | null) => {
+    upsert({ meal_type: plan?.meal_type === type ? null : type });
+  };
+
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
 
   return (
