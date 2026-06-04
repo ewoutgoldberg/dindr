@@ -11,6 +11,7 @@ import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
+import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 
 type Recipe = Tables<"recipes">;
 type Group = {
@@ -92,6 +93,14 @@ const Matches = () => {
       .upsert({ user_id: user.id, plan_date: date, final_recipe_id: recipeId }, { onConflict: "user_id,plan_date" });
     toast.success("Decision saved!");
     setGroups((prev) => prev.map((g) => (g.date === date ? { ...g, finalId: recipeId } : g)));
+    const group = groups.find((g) => g.date === date);
+    const recipe =
+      group?.mine.find((r) => r.id === recipeId) ||
+      group?.partner.find((r) => r.id === recipeId) ||
+      group?.mutual.find((r) => r.id === recipeId);
+    if (recipe) {
+      await notifyPartnerFinalPick(user.id, date, recipe.title);
+    }
   };
 
   const matchRecipe = async (date: string, recipe: Recipe) => {

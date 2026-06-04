@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell, Loader2, Trash2, CalendarDays } from "lucide-react";
 import { format, parseISO, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { isFinalPickMessage, finalPickTitle } from "@/lib/notifyFinalPick";
 
 type Notif = {
   id: string;
@@ -96,6 +97,8 @@ const Notifications = () => {
           {items.map((n) => {
             const senderName = n.sender?.display_name || "Your partner";
             const dayLabel = n.plan_date ? format(parseISO(n.plan_date), "EEEE, MMM d") : null;
+            const finalPick = isFinalPickMessage(n.message);
+            const pickedTitle = finalPickTitle(n.message);
             return (
               <li key={n.id} className="bg-card rounded-2xl p-4 shadow-soft flex gap-3">
                 <div className="h-10 w-10 rounded-xl bg-accent/15 text-accent-foreground grid place-items-center shrink-0">
@@ -103,9 +106,18 @@ const Notifications = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">
-                    {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary">{dayLabel}</span></> : ""}
+                    {finalPick ? (
+                      <>
+                        {senderName} chose <span className="text-primary">{pickedTitle}</span> for dinner
+                        {dayLabel ? <> on <span className="text-primary">{dayLabel}</span></> : ""}
+                      </>
+                    ) : (
+                      <>
+                        {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary">{dayLabel}</span></> : ""}
+                      </>
+                    )}
                   </p>
-                  {n.message && <p className="text-sm text-muted-foreground mt-0.5 italic">"{n.message}"</p>}
+                  {n.message && !finalPick && <p className="text-sm text-muted-foreground mt-0.5 italic">"{n.message}"</p>}
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatDistanceToNow(parseISO(n.created_at), { addSuffix: true })}
                   </p>

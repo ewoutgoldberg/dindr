@@ -12,6 +12,7 @@ import { ArrowLeft, CalendarPlus, Check, ChevronLeft, ChevronRight, Heart, Loade
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtDateKey } from "@/lib/dates";
+import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 
 type FavoriteRow = Tables<"favorites"> & {
   recipes: (Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "name" | "avatar_url"> | null }) | null;
@@ -143,7 +144,7 @@ const Favorites = () => {
                   </div>
                 </Link>
                 <div className="flex flex-col items-center justify-center px-2 gap-1 border-l border-border">
-                  <PlanFavoriteAction recipeId={f.recipes.id} userId={user?.id} />
+                  <PlanFavoriteAction recipeId={f.recipes.id} recipeTitle={f.recipes.title} userId={user?.id} />
                   <button
                     onClick={() => remove(f.id)}
                     className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
@@ -161,7 +162,7 @@ const Favorites = () => {
   );
 };
 
-const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: string }) => {
+const PlanFavoriteAction = ({ recipeId, recipeTitle, userId }: { recipeId: string; recipeTitle: string; userId?: string }) => {
   const [open, setOpen] = useState(false);
   const [offset, setOffset] = useState(0);
   const today = new Date();
@@ -210,6 +211,7 @@ const PlanFavoriteAction = ({ recipeId, userId }: { recipeId: string; userId?: s
       );
     setBusy(null);
     if (error) return toast.error(error.message);
+    await notifyPartnerFinalPick(userId, planDate, recipeTitle);
     toast.success(`Final pick for ${format(date, "EEE d MMM")}`);
     setOpen(false);
   };

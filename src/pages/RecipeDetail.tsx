@@ -12,6 +12,7 @@ import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
+import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes"> & { food_creators?: Creator | null };
@@ -101,6 +102,7 @@ const RecipeDetail = () => {
       { user_id: user.id, plan_date: date, final_recipe_id: recipe.id },
       { onConflict: "user_id,plan_date" }
     );
+    await notifyPartnerFinalPick(user.id, date, recipe.title);
     toast.success("Set as your final pick!");
   };
 
