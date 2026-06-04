@@ -266,34 +266,36 @@ const CollapsibleGroups = ({
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
   const [openDate, setOpenDate] = useState<string | null>(today);
+  const [pastOpen, setPastOpen] = useState(false);
 
   const toggle = (date: string) => setOpenDate((prev) => (prev === date ? null : date));
 
-
-  const displayGroups = useMemo(() => {
-    const cutoff = new Date();
-    cutoff.setHours(0, 0, 0, 0);
-    cutoff.setDate(cutoff.getDate() - 6); // last 7 calendar days incl. today
-    const cutoffStr = format(cutoff, "yyyy-MM-dd");
+  const { currentGroups, pastGroups } = useMemo(() => {
     const horizon = new Date();
     horizon.setHours(0, 0, 0, 0);
-    horizon.setDate(horizon.getDate() + 14); // also include upcoming planned dates
+    horizon.setDate(horizon.getDate() + 14);
     const horizonStr = format(horizon, "yyyy-MM-dd");
-    const recent = groups.filter((g) => g.date >= cutoffStr && g.date <= horizonStr);
-    if (!recent.some((g) => g.date === today)) {
-      recent.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
+
+    const current = groups.filter((g) => g.date >= today && g.date <= horizonStr);
+    if (!current.some((g) => g.date === today)) {
+      current.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
     }
-    return recent.sort((a, b) => {
+    current.sort((a, b) => {
       if (a.date === today) return -1;
       if (b.date === today) return 1;
-      return b.date.localeCompare(a.date);
+      return a.date.localeCompare(b.date);
     });
+
+    const past = groups
+      .filter((g) => g.date < today)
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    return { currentGroups: current, pastGroups: past };
   }, [groups, today]);
 
-  return (
-    <>
-      {displayGroups.map((g) => {
+  const renderGroup = (g: Group) => {
         const isOpen = openDate === g.date;
+
         const isToday = g.date === today;
         const finalRecipe =
           g.finalId && (g.mine.find((r) => r.id === g.finalId) || g.partner.find((r) => r.id === g.finalId));
