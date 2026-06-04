@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, ArrowLeftRight } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
@@ -141,8 +141,11 @@ const Profile = () => {
           }}
           className="fixed left-1/2 -translate-x-1/2 bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] z-30 inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
-          <ArrowLeftRight className="h-4 w-4" />
-          {viewMode === "creator" ? "Switch to cook view" : "Switch to creator view"}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          {viewMode === "creator" ? "Switch to cook view" : "Switch to Food Influencer"}
         </button>
       )}
       {/* Profile header — compact & centered */}
