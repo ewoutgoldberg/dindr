@@ -47,6 +47,7 @@ type MealPlan = {
   final_recipe_id: string | null;
   creator_id: string | null;
   allergies: string[] | null;
+  meal_type: string | null;
 };
 
 type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
