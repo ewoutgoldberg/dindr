@@ -277,7 +277,7 @@ const SwipeCard = ({
             to={`/creator/${recipe.food_creators.id}`}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-2 bg-background/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-background/40 transition-colors"
+            className="inline-flex items-center gap-2 bg-foreground/40 rounded-full pr-3 pl-1 py-1 mb-3 hover:bg-foreground/50 transition-colors"
           >
             <img
               src={recipe.food_creators.avatar_url ?? ""}
