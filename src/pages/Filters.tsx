@@ -282,7 +282,29 @@ const Filters = () => {
                 </Badge>
               );
             })}
-          </div>
+        </div>
+
+        {/* Healthy */}
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Leaf className="h-4 w-4" /> Diet
+          </p>
+          <button
+            onClick={toggleHealthy}
+            className={cn(
+              "w-full py-2.5 rounded-xl text-sm font-semibold border-2 transition-all flex items-center justify-center gap-2",
+              healthyOnly
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-background text-muted-foreground",
+            )}
+            aria-pressed={healthyOnly}
+          >
+            <Leaf className="h-4 w-4" />
+            Healthy only
+          </button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Only show lighter, veggie-forward and healthy dishes.
+          </p>
         </div>
 
         {/* Pantry */}
