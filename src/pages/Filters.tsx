@@ -34,6 +34,8 @@ import { Tables } from "@/integrations/supabase/types";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
+import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
+import { Leaf } from "lucide-react";
 
 type MealPlan = {
   id: string;
