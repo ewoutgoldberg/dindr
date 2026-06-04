@@ -15,6 +15,31 @@ export const OrientationGate = ({ children }: { children: React.ReactNode }) => 
     return () => mq.removeEventListener("change", handler);
   }, []);
 
+  useEffect(() => {
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (!isTouch) return;
+    const el = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+    const doc = document as Document & {
+      webkitExitFullscreen?: () => Promise<void>;
+      webkitFullscreenElement?: Element | null;
+    };
+    if (isLandscape) {
+      const req = el.requestFullscreen?.bind(el) ?? el.webkitRequestFullscreen?.bind(el);
+      req?.().catch(() => {});
+    } else if (document.fullscreenElement || doc.webkitFullscreenElement) {
+      const exit = document.exitFullscreen?.bind(document) ?? doc.webkitExitFullscreen?.bind(doc);
+      exit?.().catch(() => {});
+    }
+    return () => {
+      if (document.fullscreenElement || doc.webkitFullscreenElement) {
+        const exit = document.exitFullscreen?.bind(document) ?? doc.webkitExitFullscreen?.bind(doc);
+        exit?.().catch(() => {});
+      }
+    };
+  }, [isLandscape]);
+
   // Only show overlay on touch devices in portrait
   const isTouch =
     typeof window !== "undefined" &&
