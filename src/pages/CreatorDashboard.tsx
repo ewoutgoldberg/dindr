@@ -156,10 +156,10 @@ const CreatorDashboard = () => {
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2 mt-4">
-          <div className="bg-muted/50 rounded-xl p-3 text-center">
+          <Link to="/creator/profile/edit" className="bg-muted/50 hover:bg-muted rounded-xl p-3 text-center transition-colors">
             <div className="font-display font-extrabold text-lg">{profileComplete}/4</div>
             <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Profile</div>
-          </div>
+          </Link>
           <div className="bg-muted/50 rounded-xl p-3 text-center">
             <div className="font-display font-extrabold text-lg">{drafts.length}</div>
             <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Drafts</div>
