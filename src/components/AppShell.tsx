@@ -20,9 +20,9 @@ type Tab = {
 };
 
 const consumerTabs: Tab[] = [
+  { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
-  { to: "/filters", label: "Filters", icon: SlidersHorizontal },
   { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
 ];
