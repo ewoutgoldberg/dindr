@@ -185,6 +185,7 @@ export type Database = {
       }
       meal_plans: {
         Row: {
+          allergies: string[]
           categories: string[] | null
           created_at: string
           creator_id: string | null
@@ -197,6 +198,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          allergies?: string[]
           categories?: string[] | null
           created_at?: string
           creator_id?: string | null
@@ -209,6 +211,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          allergies?: string[]
           categories?: string[] | null
           created_at?: string
           creator_id?: string | null
