@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ChefHat, X, Check, Loader2, Heart } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, X, Check, Loader2, Heart, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -165,6 +165,17 @@ const SwipeCard = ({
     >
       <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
+      {isTop && (
+        <Link
+          to={`/recipe/${recipe.id}/card`}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-background/30 backdrop-blur grid place-items-center text-primary-foreground hover:bg-background/50 transition-colors"
+          aria-label="Bekijk als kaart"
+        >
+          <CreditCard className="h-4 w-4" />
+        </Link>
+      )}
       {isTop && (
         <>
           <motion.div

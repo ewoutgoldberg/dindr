@@ -6,7 +6,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart, CreditCard } from "lucide-react";
 import { CreatorCard } from "@/components/CreatorCard";
 import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
@@ -154,6 +154,13 @@ const RecipeDetail = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="absolute top-4 left-4 bg-background/30 backdrop-blur text-primary-foreground hover:bg-background/40">
           <ArrowLeft className="h-5 w-5" />
         </Button>
+        <button
+          onClick={() => navigate(`/recipe/${recipe.id}/card`)}
+          className="absolute top-4 right-16 h-11 w-11 rounded-full grid place-items-center backdrop-blur transition-all active:scale-90 bg-background/30 text-primary-foreground hover:bg-background/40"
+          aria-label="Bekijk als kaart"
+        >
+          <CreditCard className="h-5 w-5" />
+        </button>
         <button
           onClick={toggleFavorite}
           className={cn(
