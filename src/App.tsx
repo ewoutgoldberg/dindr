@@ -21,6 +21,7 @@ import SwipeFavorites from "./pages/SwipeFavorites";
 import Notifications from "./pages/Notifications";
 import Claim from "./pages/Claim";
 import CreatorDashboard from "./pages/CreatorDashboard";
+import CreatorProfileEdit from "./pages/CreatorProfileEdit";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminCreatorForm from "./pages/admin/AdminCreatorForm";
 import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
