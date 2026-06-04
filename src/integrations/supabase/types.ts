@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      creator_social_connections: {
+        Row: {
+          access_token: string | null
+          connected_at: string
+          created_at: string
+          creator_id: string
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          platform: string
+          platform_user_id: string | null
+          platform_username: string | null
+          refresh_token: string | null
+          scope: string | null
+          status: string
+          token_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          connected_at?: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          platform: string
+          platform_user_id?: string | null
+          platform_username?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          connected_at?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          platform?: string
+          platform_user_id?: string | null
+          platform_username?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_social_connections_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "food_creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -393,6 +455,104 @@ export type Database = {
             columns: ["recipe_id"]
             isOneToOne: false
             referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          caption: string | null
+          created_at: string
+          creator_id: string
+          external_id: string
+          id: string
+          media_type: string
+          media_url: string | null
+          platform: string
+          post_url: string | null
+          posted_at: string | null
+          thumbnail_url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          creator_id: string
+          external_id: string
+          id?: string
+          media_type: string
+          media_url?: string | null
+          platform: string
+          post_url?: string | null
+          posted_at?: string | null
+          thumbnail_url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          creator_id?: string
+          external_id?: string
+          id?: string
+          media_type?: string
+          media_url?: string | null
+          platform?: string
+          post_url?: string | null
+          posted_at?: string | null
+          thumbnail_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "food_creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_sync_logs: {
+        Row: {
+          connection_id: string | null
+          created_at: string
+          creator_id: string | null
+          error_message: string | null
+          id: string
+          platform: string | null
+          posts_added: number
+          status: string
+        }
+        Insert: {
+          connection_id?: string | null
+          created_at?: string
+          creator_id?: string | null
+          error_message?: string | null
+          id?: string
+          platform?: string | null
+          posts_added?: number
+          status: string
+        }
+        Update: {
+          connection_id?: string | null
+          created_at?: string
+          creator_id?: string | null
+          error_message?: string | null
+          id?: string
+          platform?: string | null
+          posts_added?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_sync_logs_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "creator_social_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_sync_logs_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "food_creators"
             referencedColumns: ["id"]
           },
         ]
