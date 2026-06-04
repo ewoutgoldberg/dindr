@@ -75,7 +75,7 @@ export const PingPopup = () => {
           </div>
           <DialogTitle>{senderName} pinged you 💌</DialogTitle>
           <DialogDescription>
-            {senderName} has suggestions ready{dayLabel ? <> for <span className="text-primary font-semibold">{dayLabel}</span></> : ""}.
+            {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary font-semibold">{dayLabel}</span></> : ""}.
           </DialogDescription>
         </DialogHeader>
         {notif.message && (

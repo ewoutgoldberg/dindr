@@ -103,7 +103,7 @@ const Notifications = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">
-                    {senderName} has suggestions ready{dayLabel ? <> for <span className="text-primary">{dayLabel}</span></> : ""}
+                    {senderName} has dinner suggestions ready{dayLabel ? <> for <span className="text-primary">{dayLabel}</span></> : ""}
                   </p>
                   {n.message && <p className="text-sm text-muted-foreground mt-0.5 italic">"{n.message}"</p>}
                   <p className="text-xs text-muted-foreground mt-1">
