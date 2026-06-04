@@ -143,7 +143,7 @@ const Favorites = () => {
                   </div>
                 </Link>
                 <div className="flex flex-col items-center justify-center px-2 gap-1 border-l border-border">
-                  <PlanFavoriteAction recipeId={f.recipes.id} userId={user?.id} />
+                  <PlanFavoriteAction recipeId={f.recipes.id} recipeTitle={f.recipes.title} userId={user?.id} />
                   <button
                     onClick={() => remove(f.id)}
                     className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
