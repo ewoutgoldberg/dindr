@@ -288,8 +288,8 @@ const SwipeCard = ({
           </Link>
         )}
         <div className="flex gap-2 mb-2">
-          <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0">{recipe.category}</Badge>
-          <Badge className="bg-background/20 backdrop-blur text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
+          <Badge className="bg-foreground/30 text-primary-foreground border-0">{recipe.category}</Badge>
+          <Badge className="bg-foreground/30 text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
         </div>
         <h2 className="text-3xl font-display font-extrabold leading-tight drop-shadow">{recipe.title}</h2>
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
