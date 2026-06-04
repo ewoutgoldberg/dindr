@@ -211,6 +211,7 @@ const PlanFavoriteAction = ({ recipeId, recipeTitle, userId }: { recipeId: strin
       );
     setBusy(null);
     if (error) return toast.error(error.message);
+    await notifyPartnerFinalPick(userId, planDate, recipeTitle);
     toast.success(`Final pick for ${format(date, "EEE d MMM")}`);
     setOpen(false);
   };
