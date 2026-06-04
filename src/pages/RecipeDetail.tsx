@@ -12,6 +12,7 @@ import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
+import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes"> & { food_creators?: Creator | null };
