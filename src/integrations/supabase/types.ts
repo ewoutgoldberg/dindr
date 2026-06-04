@@ -193,6 +193,7 @@ export type Database = {
           final_recipe_id: string | null
           id: string
           max_time_minutes: number | null
+          meal_type: string | null
           plan_date: string
           updated_at: string
           user_id: string
@@ -206,6 +207,7 @@ export type Database = {
           final_recipe_id?: string | null
           id?: string
           max_time_minutes?: number | null
+          meal_type?: string | null
           plan_date: string
           updated_at?: string
           user_id: string
@@ -219,6 +221,7 @@ export type Database = {
           final_recipe_id?: string | null
           id?: string
           max_time_minutes?: number | null
+          meal_type?: string | null
           plan_date?: string
           updated_at?: string
           user_id?: string
@@ -334,6 +337,7 @@ export type Database = {
           image_url: string | null
           ingredients: Json
           instructions: Json
+          meal_type: string | null
           published: boolean
           servings: number
           title: string
@@ -353,6 +357,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json
           instructions?: Json
+          meal_type?: string | null
           published?: boolean
           servings?: number
           title: string
@@ -372,6 +377,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json
           instructions?: Json
+          meal_type?: string | null
           published?: boolean
           servings?: number
           title?: string

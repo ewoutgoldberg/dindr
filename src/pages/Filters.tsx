@@ -27,6 +27,7 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  Utensils,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates"
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
 import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
+import { MEAL_TYPES } from "@/lib/mealType";
 import { Leaf } from "lucide-react";
 
 type MealPlan = {
@@ -46,6 +48,7 @@ type MealPlan = {
   final_recipe_id: string | null;
   creator_id: string | null;
   allergies: string[] | null;
+  meal_type: string | null;
 };
 
 type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "specialty" | "handle">;
@@ -113,6 +116,7 @@ const Filters = () => {
       difficulty: plan?.difficulty ?? null,
       creator_id: plan?.creator_id ?? null,
       allergies: plan?.allergies ?? [],
+      meal_type: plan?.meal_type ?? null,
       ...patch,
     };
     const { data, error } = await supabase
@@ -161,6 +165,7 @@ const Filters = () => {
     if (pantry.length > 0) n++;
     if ((plan?.allergies?.length ?? 0) > 0) n++;
     if (healthyOnly) n++;
+    if (plan?.meal_type) n++;
     return n;
   }, [plan, pantry, healthyOnly]);
 
@@ -168,13 +173,17 @@ const Filters = () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
     setHealthyOnlyState(setHealthyOnly(user.id, today, false));
-    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [] });
+    await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [], meal_type: null });
     toast.success("Filters cleared");
   };
 
   const toggleHealthy = () => {
     if (!user) return;
     setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
+  };
+
+  const setMealType = (type: string | null) => {
+    upsert({ meal_type: plan?.meal_type === type ? null : type });
   };
 
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
@@ -285,6 +294,28 @@ const Filters = () => {
           </div>
         </div>
 
+        {/* Meal type */}
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Utensils className="h-4 w-4" /> Meal type
+          </p>
+          <div className="flex gap-2">
+            {MEAL_TYPES.map((mt) => (
+              <button
+                key={mt.key}
+                onClick={() => setMealType(mt.key)}
+                className={cn(
+                  "flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all",
+                  plan?.meal_type === mt.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground"
+                )}
+              >
+                {mt.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Healthy */}
         <div>

@@ -67,6 +67,9 @@ const Swipe = () => {
       if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
       if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
       if (plan?.creator_id) q = q.eq("creator_id", plan.creator_id);
+      if ((plan as { meal_type?: string | null } | null)?.meal_type) {
+        q = q.eq("meal_type", (plan as { meal_type?: string | null } | null)?.meal_type);
+      }
 
       const { data, error } = await q.limit(50);
       if (error) toast.error(error.message);
