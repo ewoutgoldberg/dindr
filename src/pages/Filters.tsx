@@ -294,6 +294,28 @@ const Filters = () => {
           </div>
         </div>
 
+        {/* Meal type */}
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Utensils className="h-4 w-4" /> Meal type
+          </p>
+          <div className="flex gap-2">
+            {MEAL_TYPES.map((mt) => (
+              <button
+                key={mt.key}
+                onClick={() => setMealType(mt.key)}
+                className={cn(
+                  "flex-1 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all",
+                  plan?.meal_type === mt.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground"
+                )}
+              >
+                {mt.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Healthy */}
         <div>
