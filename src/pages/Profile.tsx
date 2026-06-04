@@ -132,7 +132,19 @@ const Profile = () => {
 
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
+    <div className="max-w-md mx-auto w-full px-5 pt-6 pb-28 animate-fade-in relative">
+      {hasCreatorProfile && (
+        <button
+          onClick={() => {
+            setViewMode(viewMode === "creator" ? "consumer" : "creator");
+            if (viewMode !== "creator") navigate("/creator/dashboard");
+          }}
+          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(env(safe-area-inset-bottom,0px)+5.25rem)] z-30 inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
+        >
+          <ChefHat className="h-4 w-4" />
+          {viewMode === "creator" ? "Switch to cook view" : "Switch to creator view"}
+        </button>
+      )}
       {/* Profile header — compact & centered */}
       <section className="flex flex-col items-center mb-8">
         <div className="relative h-20 w-20 shrink-0 mb-3">
