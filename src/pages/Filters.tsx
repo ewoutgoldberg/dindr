@@ -327,6 +327,42 @@ const Filters = () => {
           )}
         </div>
 
+        {/* Allergies */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold">Allergies &amp; avoid</p>
+            {(plan?.allergies?.length ?? 0) > 0 && (
+              <button
+                onClick={() => upsert({ allergies: [] })}
+                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Recipes containing these ingredients will be hidden.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALLERGENS.map((a) => {
+              const active = plan?.allergies?.includes(a.key);
+              return (
+                <Badge
+                  key={a.key}
+                  variant={active ? "default" : "outline"}
+                  onClick={() => toggleAllergy(a.key)}
+                  className={cn(
+                    "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                    active && "bg-primary text-primary-foreground hover:bg-primary"
+                  )}
+                >
+                  {a.label}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Food creator */}
         <div>
           <div className="flex items-center justify-between mb-2">
