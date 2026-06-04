@@ -9,6 +9,7 @@ import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
 
 import { Loader2, CheckCircle2, Pencil, Sparkles, ImageIcon, Link2 } from "lucide-react";
 import { toast } from "sonner";
+import { SocialAccountsManager } from "@/components/SocialAccountsManager";
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes">;
@@ -190,6 +191,10 @@ const CreatorDashboard = () => {
           </Button>
         </div>
       </div>
+      <div className="mb-5">
+        <SocialAccountsManager creatorId={creator.id} />
+      </div>
+
 
       <section className="mb-6">
         <h2 className="font-display font-bold mb-3">Suggested recipes</h2>

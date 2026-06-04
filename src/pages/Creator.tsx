@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ChefHat, MapPin, Loader2 } from "lucide-react";
 import { SocialIcons } from "@/components/CreatorCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InspirationFeed } from "@/components/InspirationFeed";
 import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
 
 const RecipeImg = ({ url, alt }: { url: string | null; alt: string }) => {
@@ -106,42 +108,58 @@ const Creator = () => {
           <p className="text-center text-foreground mt-6 italic">"{creator.bio}"</p>
         )}
 
-        {creator.story && (
-          <section className="mt-6 bg-card rounded-3xl p-5 shadow-soft">
-            <h2 className="font-display font-bold text-lg mb-2">My story</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{creator.story}</p>
-          </section>
-        )}
+        <Tabs defaultValue="recipes" className="mt-8">
+          <TabsList className="grid grid-cols-3 w-full">
+            <TabsTrigger value="recipes">Recepten</TabsTrigger>
+            <TabsTrigger value="about">Over</TabsTrigger>
+            <TabsTrigger value="inspiration">Inspiratie</TabsTrigger>
+          </TabsList>
 
-        <section className="mt-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display font-bold text-xl">Recipes</h2>
-            <Badge variant="outline" className="rounded-full">{recipes.length}</Badge>
-          </div>
-          {recipes.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No recipes yet.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {recipes.map((r) => (
-                <Link
-                  key={r.id}
-                  to={`/recipe/${r.id}`}
-                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-shadow"
-                >
-                  <RecipeImg url={r.image_url} alt={r.title} />
-                  <div className="absolute inset-0 gradient-card-overlay" />
-                  <div className="absolute inset-x-0 bottom-0 p-3 text-primary-foreground">
-                    <h3 className="font-display font-bold text-sm leading-tight line-clamp-2 drop-shadow">{r.title}</h3>
-                    <div className="flex items-center gap-2 mt-1.5 text-[10px] font-semibold opacity-90">
-                      <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{r.cooking_time_minutes}m</span>
-                      <span className="flex items-center gap-1 capitalize"><ChefHat className="h-3 w-3" />{r.difficulty}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+          <TabsContent value="recipes" className="mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display font-bold text-xl">Recepten</h2>
+              <Badge variant="outline" className="rounded-full">{recipes.length}</Badge>
             </div>
-          )}
-        </section>
+            {recipes.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Nog geen recepten.</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {recipes.map((r) => (
+                  <Link
+                    key={r.id}
+                    to={`/recipe/${r.id}`}
+                    className="group relative aspect-[3/4] rounded-2xl overflow-hidden shadow-soft hover:shadow-card transition-shadow"
+                  >
+                    <RecipeImg url={r.image_url} alt={r.title} />
+                    <div className="absolute inset-0 gradient-card-overlay" />
+                    <div className="absolute inset-x-0 bottom-0 p-3 text-primary-foreground">
+                      <h3 className="font-display font-bold text-sm leading-tight line-clamp-2 drop-shadow">{r.title}</h3>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] font-semibold opacity-90">
+                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{r.cooking_time_minutes}m</span>
+                        <span className="flex items-center gap-1 capitalize"><ChefHat className="h-3 w-3" />{r.difficulty}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="about" className="mt-4">
+            {creator.story ? (
+              <section className="bg-card rounded-3xl p-5 shadow-soft">
+                <h2 className="font-display font-bold text-lg mb-2">Mijn verhaal</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{creator.story}</p>
+              </section>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">Geen biografie beschikbaar.</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="inspiration" className="mt-4">
+            <InspirationFeed creatorId={creator.id} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
