@@ -155,6 +155,13 @@ const RecipeDetail = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <button
+          onClick={() => navigate(`/recipe/${recipe.id}/card`)}
+          className="absolute top-4 right-16 h-11 w-11 rounded-full grid place-items-center backdrop-blur transition-all active:scale-90 bg-background/30 text-primary-foreground hover:bg-background/40"
+          aria-label="Bekijk als kaart"
+        >
+          <CreditCard className="h-5 w-5" />
+        </button>
+        <button
           onClick={toggleFavorite}
           className={cn(
             "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center backdrop-blur transition-all active:scale-90",
