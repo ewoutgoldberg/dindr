@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
+import { recipeHasAllergen } from "@/lib/allergens";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
