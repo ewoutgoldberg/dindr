@@ -23,6 +23,9 @@ import Notifications from "./pages/Notifications";
 import Claim from "./pages/Claim";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import CreatorProfileEdit from "./pages/CreatorProfileEdit";
+import CreatorRecipes from "./pages/creator/Recipes";
+import CreatorInspiration from "./pages/creator/Inspiration";
+import CreatorInsights from "./pages/creator/Insights";
 import AdminCreators from "./pages/admin/AdminCreators";
 import AdminCreatorForm from "./pages/admin/AdminCreatorForm";
 import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
@@ -55,7 +58,12 @@ const App = () => (
               <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
               <Route path="/claim/:token" element={<Claim />} />
               <Route path="/creator/dashboard" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
+              <Route path="/creator/recipes" element={<RequireAuth><CreatorRecipes /></RequireAuth>} />
+              <Route path="/creator/inspiration" element={<RequireAuth><CreatorInspiration /></RequireAuth>} />
+              <Route path="/creator/insights" element={<RequireAuth><CreatorInsights /></RequireAuth>} />
               <Route path="/creator/profile/edit" element={<RequireAuth><CreatorProfileEdit /></RequireAuth>} />
+              <Route path="/creator/:id/recipes/new" element={<RequireAuth><AdminRecipeForm /></RequireAuth>} />
+              <Route path="/creator/:id/recipes/:recipeId" element={<RequireAuth><AdminRecipeForm /></RequireAuth>} />
               <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/import" element={<RequireAuth><RequireAdmin><AdminImportCreators /></RequireAdmin></RequireAuth>} />

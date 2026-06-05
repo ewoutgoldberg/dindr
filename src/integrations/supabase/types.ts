@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      creator_followers: {
+        Row: {
+          created_at: string
+          creator_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       creator_social_connections: {
         Row: {
           access_token: string | null
@@ -321,8 +342,54 @@ export type Database = {
         }
         Relationships: []
       }
+      recipe_shares: {
+        Row: {
+          channel: string | null
+          created_at: string
+          id: string
+          recipe_id: string
+          user_id: string | null
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          id?: string
+          recipe_id: string
+          user_id?: string | null
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          id?: string
+          recipe_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      recipe_views: {
+        Row: {
+          created_at: string
+          id: string
+          recipe_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipe_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipe_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       recipes: {
         Row: {
+          archived: boolean
           card_assets_generated_at: string | null
           category: string
           content_source: string
@@ -343,9 +410,11 @@ export type Database = {
           published: boolean
           servings: number
           step_images: Json
+          subtitle: string | null
           title: string
         }
         Insert: {
+          archived?: boolean
           card_assets_generated_at?: string | null
           category: string
           content_source?: string
@@ -366,9 +435,11 @@ export type Database = {
           published?: boolean
           servings?: number
           step_images?: Json
+          subtitle?: string | null
           title: string
         }
         Update: {
+          archived?: boolean
           card_assets_generated_at?: string | null
           category?: string
           content_source?: string
@@ -389,6 +460,7 @@ export type Database = {
           published?: boolean
           servings?: number
           step_images?: Json
+          subtitle?: string | null
           title?: string
         }
         Relationships: [
