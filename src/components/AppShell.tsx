@@ -36,7 +36,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
     { to: "/creator/recipes", match: "/creator/recipes", label: "Recepten", icon: BookOpen },
     { to: "/creator/inspiration", match: "/creator/inspiration", label: "Inspiratie", icon: Sparkles },
     { to: "/creator/insights", match: "/creator/insights", label: "Inzichten", icon: BarChart3 },
-    { to: creatorId ? `/creator/${creatorId}` : "/profile", match: creatorId ? `/creator/${creatorId}` : "/profile", label: "MyKitchen", icon: User },
+    { to: "/profile", match: "/profile", label: "MyKitchen", icon: User, showBadge: true },
   ];
 
   const tabs = isCreator ? creatorTabs : consumerTabs;
