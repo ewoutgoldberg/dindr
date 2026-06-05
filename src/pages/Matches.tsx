@@ -27,6 +27,8 @@ const PLACEHOLDER = "/placeholder.svg";
 const Matches = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialDate = searchParams.get("date");
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPartner, setHasPartner] = useState(false);
