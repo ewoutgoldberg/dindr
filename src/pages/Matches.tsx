@@ -266,6 +266,7 @@ type CollapsibleGroupsProps = {
   handleImgErr: (e: React.SyntheticEvent<HTMLImageElement>) => void;
   RecipeTile: React.FC<{ recipe: Recipe; date: string; tone: "mine" | "partner" | "match"; isFinal?: boolean }>;
   SectionHeader: React.FC<{ icon: React.ReactNode; label: string; count: number; tint: string }>;
+  initialDate?: string | null;
 };
 
 const CollapsibleGroups = ({
@@ -275,10 +276,11 @@ const CollapsibleGroups = ({
   handleImgErr,
   RecipeTile,
   SectionHeader,
+  initialDate,
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
-  const [openDate, setOpenDate] = useState<string | null>(today);
-  const [pastOpen, setPastOpen] = useState(false);
+  const [openDate, setOpenDate] = useState<string | null>(initialDate ?? today);
+  const [pastOpen, setPastOpen] = useState(initialDate ? initialDate < today : false);
 
   const toggle = (date: string) => setOpenDate((prev) => (prev === date ? null : date));
 
