@@ -53,6 +53,14 @@ const Swipe = () => {
     setPickerOpen(false);
   };
 
+  const openRecipeFromSwipe = (recipeId: string) => {
+    if (date) {
+      sessionStorage.setItem("swipeDateConfirmed", date);
+      sessionStorage.setItem(`swipeTopRecipe:${date}`, recipeId);
+    }
+    navigate(`/recipe/${recipeId}`);
+  };
+
   useEffect(() => {
     const load = async () => {
       if (!user || !date) return;
@@ -209,7 +217,7 @@ const Swipe = () => {
                       isTop={isTop}
                       depth={arr.length - 1 - stackIdx}
                       onSwipe={isTop ? handleSwipe : undefined}
-                      onTap={() => navigate(`/recipe/${r.id}`)}
+                      onTap={() => openRecipeFromSwipe(r.id)}
                     />
                   );
                 })}
