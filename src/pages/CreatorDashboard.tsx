@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,26 +6,18 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import fallbackRecipeImage from "@/assets/hero-pasta.jpg";
-
-import { Loader2, CheckCircle2, Pencil, Sparkles, ImageIcon, Link2 } from "lucide-react";
+import { Loader2, Sparkles, Plus, Link2, Share2, Eye, BookOpen, Heart, Bookmark, Users, FileText, TrendingUp, Activity } from "lucide-react";
 import { toast } from "sonner";
-import { SocialAccountsManager } from "@/components/SocialAccountsManager";
+import { subDays, formatDistanceToNow } from "date-fns";
+import { nl } from "date-fns/locale";
 
 type Creator = Tables<"food_creators">;
 type Recipe = Tables<"recipes">;
 
-const RecipeThumb = ({ url, alt, size = 56 }: { url: string | null; alt: string; size?: number }) => {
+const Thumb = ({ url, alt, size = 40 }: { url: string | null; alt: string; size?: number }) => {
   const [broken, setBroken] = useState(false);
   const px = `${size}px`;
   const src = url && !broken ? url : fallbackRecipeImage;
-
-  if (!src) {
-    return (
-      <div className="rounded-xl bg-muted shrink-0 grid place-items-center text-muted-foreground" style={{ width: px, height: px }}>
-        <ImageIcon className="h-5 w-5" />
-      </div>
-    );
-  }
   return (
     <img
       src={src}
@@ -42,6 +34,9 @@ const CreatorDashboard = () => {
   const navigate = useNavigate();
   const [creator, setCreator] = useState<Creator | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [stats, setStats] = useState({ views: 0, viewsPrev: 0, likes: 0, saves: 0, followers: 0 });
+  const [perRecipeViews, setPerRecipeViews] = useState<Record<string, { recent: number; prev: number }>>({});
+  const [activity, setActivity] = useState<{ kind: string; recipeTitle: string; at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
@@ -49,54 +44,32 @@ const CreatorDashboard = () => {
   const importRecipe = async () => {
     if (!creator) return;
     const u = importUrl.trim();
-    if (!u) return toast.error("Paste a recipe URL first");
+    if (!u) return toast.error("Plak eerst een recept-URL");
     setImporting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("import-recipe", {
-        body: { url: u },
-      });
-      // Try to read structured error body when the function returned non-2xx
+      const { data, error } = await supabase.functions.invoke("import-recipe", { body: { url: u } });
       let payload: any = data;
       if (error && (error as any).context?.json) {
         try { payload = await (error as any).context.json(); } catch { /* ignore */ }
-      } else if (error && (error as any).context?.text) {
-        try { payload = JSON.parse(await (error as any).context.text()); } catch { /* ignore */ }
       }
-      if (payload?.error === "not_a_recipe") {
-        toast.error("That page doesn't look like a recipe. Try a direct recipe link.");
-        return;
-      }
-      if (payload?.error === "rate_limited") {
-        toast.error("Too many imports right now — try again in a minute.");
-        return;
-      }
+      if (payload?.error === "not_a_recipe") { toast.error("Dit lijkt geen recept te zijn."); return; }
       if (error) throw error;
-      if (payload?.error) throw new Error(payload.error);
       const r = payload?.recipe;
-      if (!r) throw new Error("No recipe data returned");
+      if (!r) throw new Error("Geen recept-data ontvangen");
       const { error: insErr } = await supabase.from("recipes").insert({
         creator_id: creator.id,
-        title: r.title,
-        description: r.description ?? null,
-        image_url: r.image_url ?? null,
-        category: r.category ?? "dinner",
-        cuisine: r.cuisine ?? null,
-        difficulty: r.difficulty ?? "medium",
-        cooking_time_minutes: r.cooking_time_minutes ?? 30,
-        servings: r.servings ?? 2,
-        ingredients: r.ingredients ?? [],
-        instructions: r.instructions ?? [],
-        content_source: "imported",
-        creator_approved: false,
-        published: false,
+        title: r.title, description: r.description ?? null, image_url: r.image_url ?? null,
+        category: r.category ?? "dinner", cuisine: r.cuisine ?? null,
+        difficulty: r.difficulty ?? "medium", cooking_time_minutes: r.cooking_time_minutes ?? 30,
+        servings: r.servings ?? 2, ingredients: r.ingredients ?? [], instructions: r.instructions ?? [],
+        content_source: "imported", creator_approved: false, published: false,
       });
       if (insErr) throw insErr;
-      toast.success("Recipe imported — review it under drafts");
+      toast.success("Recept geïmporteerd");
       setImportUrl("");
       load();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      toast.error(`Import failed: ${msg}`);
+      toast.error(`Import mislukt: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setImporting(false);
     }
@@ -106,137 +79,198 @@ const CreatorDashboard = () => {
     if (!user) return;
     const { data: c } = await supabase.from("food_creators").select("*").eq("user_id", user.id).maybeSingle();
     setCreator(c);
-    if (c) {
-      const { data: r } = await supabase.from("recipes").select("*").eq("creator_id", c.id).order("created_at", { ascending: false });
-      setRecipes(r ?? []);
+    if (!c) { setLoading(false); return; }
+    const { data: r } = await supabase.from("recipes").select("*").eq("creator_id", c.id).order("created_at", { ascending: false });
+    const list = (r ?? []) as Recipe[];
+    setRecipes(list);
+    const ids = list.map((x) => x.id);
+
+    if (ids.length) {
+      const sevenAgo = subDays(new Date(), 7).toISOString();
+      const fourteenAgo = subDays(new Date(), 14).toISOString();
+      const [{ data: views }, { data: likes }, { data: saves }, { data: followers }] = await Promise.all([
+        supabase.from("recipe_views").select("recipe_id, created_at").in("recipe_id", ids).gte("created_at", fourteenAgo),
+        supabase.from("swipes").select("recipe_id, created_at, liked").in("recipe_id", ids).eq("liked", true).order("created_at", { ascending: false }).limit(50),
+        supabase.from("favorites").select("recipe_id, created_at").in("recipe_id", ids).order("created_at", { ascending: false }).limit(50),
+        supabase.from("creator_followers").select("id").eq("creator_id", c.id),
+      ]);
+      const viewsRecent = (views ?? []).filter((v) => v.created_at >= sevenAgo);
+      const viewsPrev = (views ?? []).filter((v) => v.created_at < sevenAgo);
+      setStats({
+        views: viewsRecent.length,
+        viewsPrev: viewsPrev.length,
+        likes: likes?.length ?? 0,
+        saves: saves?.length ?? 0,
+        followers: followers?.length ?? 0,
+      });
+      const perR: Record<string, { recent: number; prev: number }> = {};
+      ids.forEach((id) => (perR[id] = { recent: 0, prev: 0 }));
+      viewsRecent.forEach((v) => perR[v.recipe_id] && perR[v.recipe_id].recent++);
+      viewsPrev.forEach((v) => perR[v.recipe_id] && perR[v.recipe_id].prev++);
+      setPerRecipeViews(perR);
+
+      const titleMap = Object.fromEntries(list.map((x) => [x.id, x.title]));
+      const acts: { kind: string; recipeTitle: string; at: string }[] = [
+        ...(likes ?? []).slice(0, 5).map((l) => ({ kind: "Like", recipeTitle: titleMap[l.recipe_id] ?? "?", at: l.created_at })),
+        ...(saves ?? []).slice(0, 5).map((s) => ({ kind: "Save", recipeTitle: titleMap[s.recipe_id] ?? "?", at: s.created_at })),
+      ].sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 8);
+      setActivity(acts);
     }
     setLoading(false);
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [user]);
 
-  const approve = async (id: string) => {
-    const { error } = await supabase.from("recipes").update({ creator_approved: true, published: true }).eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Recipe published");
-    load();
-  };
+  const totalPublished = recipes.filter((r) => r.published && r.creator_approved).length;
+  const totalDrafts = recipes.filter((r) => !r.published || !r.creator_approved).length;
 
-  const togglePublish = async (r: Recipe) => {
-    const { error } = await supabase.from("recipes").update({ published: !r.published }).eq("id", r.id);
-    if (error) return toast.error(error.message);
-    load();
-  };
+  const topPerforming = useMemo(() => {
+    return [...recipes]
+      .map((r) => ({ r, views: perRecipeViews[r.id]?.recent ?? 0 }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 3);
+  }, [recipes, perRecipeViews]);
+
+  const fastestGrowing = useMemo(() => {
+    return [...recipes]
+      .map((r) => {
+        const s = perRecipeViews[r.id];
+        const growth = s ? s.recent - s.prev : 0;
+        return { r, growth, recent: s?.recent ?? 0 };
+      })
+      .filter((x) => x.growth > 0)
+      .sort((a, b) => b.growth - a.growth)
+      .slice(0, 3);
+  }, [recipes, perRecipeViews]);
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!creator) {
     return (
       <div className="max-w-md mx-auto px-5 py-10 text-center">
-        <p className="text-muted-foreground mb-4">You don't have a creator profile yet.</p>
-        <Button onClick={() => navigate("/")}>Back home</Button>
+        <p className="text-muted-foreground mb-4">Je hebt nog geen creator-profiel.</p>
+        <Button onClick={() => navigate("/")}>Terug</Button>
       </div>
     );
   }
 
-  const drafts = recipes.filter((r) => !r.creator_approved || !r.published);
-  const published = recipes.filter((r) => r.published && r.creator_approved);
-
-  const profileComplete = [creator.name, creator.bio, creator.avatar_url, creator.specialty].filter(Boolean).length;
+  const statTiles = [
+    { label: "Recepten", value: recipes.length, icon: BookOpen },
+    { label: "Gepubliceerd", value: totalPublished, icon: Eye },
+    { label: "Concepten", value: totalDrafts, icon: FileText },
+    { label: "Views 7d", value: stats.views, icon: TrendingUp },
+    { label: "Likes", value: stats.likes, icon: Heart },
+    { label: "Saves", value: stats.saves, icon: Bookmark },
+    { label: "Volgers", value: stats.followers, icon: Users },
+  ];
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-24 animate-fade-in">
-      <div className="bg-card rounded-3xl p-5 shadow-card mb-5">
+      <div className="bg-gradient-to-br from-primary/10 via-card to-card rounded-3xl p-5 shadow-card mb-5">
         <div className="flex items-start gap-3">
           <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-          <div>
-            <h1 className="font-display font-extrabold text-xl">Welkom op Dindr, {creator.name} 👋</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              We hebben alvast een profiel en recepten voor je voorbereid. Bekijk, pas aan of publiceer ze hieronder.
-            </p>
+          <div className="flex-1">
+            <h1 className="font-display font-extrabold text-xl">Hi {creator.name} 👋</h1>
+            <p className="text-sm text-muted-foreground mt-1">Welkom in je Chef workspace.</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 mt-4">
-          <Link to="/creator/profile/edit" className="bg-muted/50 hover:bg-muted rounded-xl p-3 text-center transition-colors">
-            <div className="font-display font-extrabold text-lg">{profileComplete}/4</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Profile</div>
-          </Link>
-          <div className="bg-muted/50 rounded-xl p-3 text-center">
-            <div className="font-display font-extrabold text-lg">{drafts.length}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Drafts</div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 mb-5">
+        {statTiles.map(({ label, value, icon: Icon }) => (
+          <div key={label} className="bg-card rounded-2xl p-3 shadow-soft text-center">
+            <Icon className="h-4 w-4 text-primary mx-auto mb-1" />
+            <div className="font-display font-extrabold text-lg leading-none">{value}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mt-1">{label}</div>
           </div>
-          <div className="bg-muted/50 rounded-xl p-3 text-center">
-            <div className="font-display font-extrabold text-lg">{published.length}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wide">Published</div>
-          </div>
-        </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 mb-5">
+        <Button variant="hero" onClick={() => navigate(`/creator/${creator.id}/recipes/new`)} className="h-auto py-3 flex-col gap-1">
+          <Plus className="h-4 w-4" /> <span className="text-xs">Nieuw recept</span>
+        </Button>
+        <Button variant="outline" onClick={() => navigate("/creator/inspiration")} className="h-auto py-3 flex-col gap-1">
+          <Share2 className="h-4 w-4" /> <span className="text-xs">Social koppelen</span>
+        </Button>
+        <Button variant="outline" onClick={() => navigate("/creator/recipes")} className="h-auto py-3 flex-col gap-1">
+          <BookOpen className="h-4 w-4" /> <span className="text-xs">Mijn recepten</span>
+        </Button>
+        <Button variant="outline" onClick={() => navigate(`/creator/${creator.id}`)} className="h-auto py-3 flex-col gap-1">
+          <Eye className="h-4 w-4" /> <span className="text-xs">Bekijk MyKitchen</span>
+        </Button>
       </div>
 
       <div className="bg-card rounded-2xl p-4 shadow-soft mb-5">
         <div className="flex items-center gap-2 mb-2">
           <Link2 className="h-4 w-4 text-primary" />
-          <h2 className="font-display font-bold text-sm">Import a recipe from a link</h2>
+          <h2 className="font-display font-bold text-sm">Importeer een recept via link</h2>
         </div>
-        <p className="text-xs text-muted-foreground mb-2">
-          Paste a link to one of your recipes (blog, Instagram, TikTok, YouTube) and we'll add it as a draft.
-        </p>
         <div className="flex gap-2">
-          <Input
-            placeholder="https://..."
-            value={importUrl}
-            onChange={(e) => setImportUrl(e.target.value)}
-            disabled={importing}
-          />
+          <Input placeholder="https://..." value={importUrl} onChange={(e) => setImportUrl(e.target.value)} disabled={importing} />
           <Button onClick={importRecipe} disabled={importing} variant="hero">
-            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Import"}
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Importeer"}
           </Button>
         </div>
       </div>
-      <div className="mb-5">
-        <SocialAccountsManager creatorId={creator.id} />
-      </div>
 
-
-      <section className="mb-6">
-        <h2 className="font-display font-bold mb-3">Suggested recipes</h2>
-        {drafts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing waiting for review.</p>
-        ) : (
+      {topPerforming.some((x) => x.views > 0) && (
+        <section className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <h2 className="font-display font-bold">Top prestaties (7d)</h2>
+          </div>
           <ul className="space-y-2">
-            {drafts.map((r) => (
+            {topPerforming.filter((x) => x.views > 0).map(({ r, views }) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                <RecipeThumb url={r.image_url} alt={r.title} size={56} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{r.title}</p>
-                  <p className="text-xs text-muted-foreground">{r.content_source}</p>
-                </div>
-                <Button asChild size="icon" variant="ghost"><Link to={`/recipe/${r.id}`}><Pencil className="h-4 w-4" /></Link></Button>
-                <Button size="sm" variant="hero" onClick={() => approve(r.id)}>
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Approve
-                </Button>
+                <Thumb url={r.image_url} alt={r.title} />
+                <Link to={`/recipe/${r.id}`} className="flex-1 min-w-0 font-semibold text-sm truncate hover:text-primary">{r.title}</Link>
+                <span className="text-xs font-bold text-primary">{views} views</span>
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
 
-      <section>
-        <h2 className="font-display font-bold mb-3">Published</h2>
-        {published.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No published recipes yet.</p>
-        ) : (
+      {fastestGrowing.length > 0 && (
+        <section className="mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-4 w-4 text-accent" />
+            <h2 className="font-display font-bold">Snelst groeiend</h2>
+          </div>
           <ul className="space-y-2">
-            {published.map((r) => (
+            {fastestGrowing.map(({ r, growth, recent }) => (
               <li key={r.id} className="bg-card rounded-2xl p-3 shadow-soft flex items-center gap-3">
-                <RecipeThumb url={r.image_url} alt={r.title} size={48} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{r.title}</p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => togglePublish(r)}>Unpublish</Button>
+                <Thumb url={r.image_url} alt={r.title} />
+                <Link to={`/recipe/${r.id}`} className="flex-1 min-w-0 font-semibold text-sm truncate hover:text-primary">{r.title}</Link>
+                <span className="text-xs font-bold text-accent">+{growth}</span>
+                <span className="text-[10px] text-muted-foreground">{recent} views</span>
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
+
+      {activity.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Activity className="h-4 w-4 text-primary" />
+            <h2 className="font-display font-bold">Recente activiteit</h2>
+          </div>
+          <ul className="bg-card rounded-2xl shadow-soft overflow-hidden">
+            {activity.map((a, idx) => (
+              <li key={idx} className={`p-3 flex items-center gap-3 text-sm ${idx > 0 ? "border-t border-border" : ""}`}>
+                {a.kind === "Like" ? <Heart className="h-4 w-4 text-primary" /> : <Bookmark className="h-4 w-4 text-accent" />}
+                <span className="flex-1 truncate">
+                  <span className="font-semibold">{a.kind}</span> op <span className="text-muted-foreground">{a.recipeTitle}</span>
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {formatDistanceToNow(new Date(a.at), { addSuffix: true, locale: nl })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 };
