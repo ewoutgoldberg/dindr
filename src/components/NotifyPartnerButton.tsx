@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Loader2, CheckCircle2, CalendarDays, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Send, Loader2, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,14 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePartner } from "@/hooks/usePartner";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   planDate?: string; // YYYY-MM-DD; omit for "general" ping
@@ -38,9 +36,14 @@ export const NotifyPartnerButton = ({
 }: Props) => {
   const { user } = useAuth();
   const { partner, loading } = usePartner();
-  const navigate = useNavigate();
   const [sending, setSending] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    if (!confirmOpen) return;
+    const timer = setTimeout(() => setConfirmOpen(false), 2500);
+    return () => clearTimeout(timer);
+  }, [confirmOpen]);
 
   if (loading) return null;
   if (!partner) return null;
@@ -80,16 +83,16 @@ export const NotifyPartnerButton = ({
       </Button>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-sm overflow-hidden p-0">
-          <div className="relative bg-gradient-to-br from-primary/15 via-accent/10 to-background px-6 pt-6 pb-4">
-            <div className="h-14 w-14 rounded-2xl bg-success text-success-foreground grid place-items-center shadow-soft mb-3">
-              <CheckCircle2 className="h-7 w-7" />
+        <DialogContent className="max-w-[280px] overflow-hidden p-0 text-center">
+          <div className="bg-gradient-to-br from-primary/15 via-accent/10 to-background px-5 pt-5 pb-3">
+            <div className="mx-auto h-12 w-12 rounded-full bg-success text-success-foreground grid place-items-center shadow-soft mb-3">
+              <CheckCircle2 className="h-6 w-6" />
             </div>
-            <DialogHeader className="text-left space-y-1">
-              <DialogTitle className="text-xl font-display font-extrabold">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-base font-display font-bold">
                 {partnerName} is op de hoogte 💌
               </DialogTitle>
-              <DialogDescription className="text-sm leading-relaxed">
+              <DialogDescription className="text-xs leading-relaxed">
                 We hebben {partnerName} laten weten dat jouw eetsuggesties
                 {dayLabel ? (
                   <> voor <span className="text-primary font-semibold">{dayLabel}</span> </>
@@ -101,35 +104,12 @@ export const NotifyPartnerButton = ({
             </DialogHeader>
           </div>
 
-          <div className="px-6 pb-2 space-y-3">
-            <div className="rounded-xl border border-border bg-muted/40 p-3 flex gap-3">
-              <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Wacht nu tot {partnerName} een <span className="font-semibold text-foreground">final pick</span> maakt.
-                Daarna zie je het gekozen gerecht terug onder <span className="font-semibold text-foreground">Plan</span>.
-              </p>
-            </div>
+          <div className="px-5 pb-5">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Nu afwachten of {partnerName} een <span className="font-semibold text-foreground">final pick</span> maakt
+              of zelf met <span className="font-semibold text-foreground">suggesties</span> komt.
+            </p>
           </div>
-
-          <DialogFooter className="px-6 pb-6 pt-2 flex-row gap-2 sm:justify-stretch">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setConfirmOpen(false)}
-            >
-              Sluiten
-            </Button>
-            <Button
-              variant="hero"
-              className="flex-1"
-              onClick={() => {
-                setConfirmOpen(false);
-                navigate("/plan");
-              }}
-            >
-              <CalendarDays className="h-4 w-4 mr-1.5" /> Naar Plan
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
