@@ -145,7 +145,7 @@ const Profile = () => {
             <path d="M7 16V4m0 0L3 8m4-4l4 4" />
             <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
           </svg>
-          {viewMode === "creator" ? "Switch to consumer mode" : "Switch to Chef's mode"}
+          {viewMode === "creator" ? "Switch to Chef mode" : "Switch to Creator mode"}
         </button>
       )}
       {/* Profile header — compact & centered */}

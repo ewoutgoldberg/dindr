@@ -100,7 +100,7 @@ const CreatorProfileEdit = () => {
   if (!creator) {
     return (
       <div className="max-w-md mx-auto px-5 py-10 text-center">
-        <p className="text-muted-foreground mb-4">Je hebt nog geen chef-profiel.</p>
+        <p className="text-muted-foreground mb-4">Je hebt nog geen creator-profiel.</p>
         <Button onClick={() => navigate("/")}>Terug naar home</Button>
       </div>
     );

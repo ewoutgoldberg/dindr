@@ -170,7 +170,7 @@ const CreatorDashboard = () => {
           <Sparkles className="h-5 w-5 text-primary mt-0.5" />
           <div className="flex-1">
             <h1 className="font-display font-extrabold text-xl">Hi {creator.name} 👋</h1>
-            <p className="text-sm text-muted-foreground mt-1">Welkom in je Chef workspace.</p>
+            <p className="text-sm text-muted-foreground mt-1">Welkom in je Creator workspace.</p>
           </div>
         </div>
       </div>
