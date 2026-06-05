@@ -294,6 +294,9 @@ const CollapsibleGroups = ({
     if (!current.some((g) => g.date === today)) {
       current.push({ date: today, mine: [], partner: [], mutual: [], finalId: null });
     }
+    if (initialDate && initialDate >= today && initialDate <= horizonStr && !current.some((g) => g.date === initialDate)) {
+      current.push({ date: initialDate, mine: [], partner: [], mutual: [], finalId: null });
+    }
     current.sort((a, b) => {
       if (a.date === today) return -1;
       if (b.date === today) return 1;
@@ -304,8 +307,13 @@ const CollapsibleGroups = ({
       .filter((g) => g.date < today)
       .sort((a, b) => b.date.localeCompare(a.date));
 
+    if (initialDate && initialDate < today && !past.some((g) => g.date === initialDate)) {
+      past.push({ date: initialDate, mine: [], partner: [], mutual: [], finalId: null });
+      past.sort((a, b) => b.date.localeCompare(a.date));
+    }
+
     return { currentGroups: current, pastGroups: past };
-  }, [groups, today]);
+  }, [groups, today, initialDate]);
 
   const renderGroup = (g: Group) => {
         const isOpen = openDate === g.date;
