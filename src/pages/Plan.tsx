@@ -121,6 +121,24 @@ const Plan = () => {
 
   const startSwiping = () => navigate(`/swipe/${fmtDateKey(selected)}`);
 
+  const handleSwap = async () => {
+    if (!user) {
+      startSwiping();
+      return;
+    }
+    const dateKey = fmtDateKey(selected);
+    const { count } = await supabase
+      .from("swipes")
+      .select("id", { count: "exact", head: true })
+      .eq("plan_date", dateKey)
+      .eq("liked", true);
+    if ((count ?? 0) > 0) {
+      navigate(`/matches?date=${dateKey}`);
+    } else {
+      startSwiping();
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
       {/* Header */}
@@ -207,7 +225,7 @@ const Plan = () => {
           <PlannedRecipeCard
             recipe={finalRecipe}
             onView={() => navigate(`/recipe/${finalRecipe.id}`)}
-            onSwap={startSwiping}
+            onSwap={handleSwap}
           />
         ) : (
           <EmptyDayCard
