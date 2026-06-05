@@ -33,8 +33,9 @@ const Swipe = () => {
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [matchInfo, setMatchInfo] = useState<Recipe | null>(null);
-  const [dateConfirmed, setDateConfirmed] = useState(preConfirmed);
-  const [pickerOpen, setPickerOpen] = useState(!preConfirmed);
+  const alreadyConfirmed = preConfirmed || (date && sessionStorage.getItem("swipeDateConfirmed") === date);
+  const [dateConfirmed, setDateConfirmed] = useState(alreadyConfirmed);
+  const [pickerOpen, setPickerOpen] = useState(!alreadyConfirmed);
   const [pickedDate, setPickedDate] = useState<string>(date ?? fmtDateKey(new Date()));
 
   const upcomingDates = useMemo(() => {
