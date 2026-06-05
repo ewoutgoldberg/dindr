@@ -28,7 +28,7 @@ const Matches = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialDate = searchParams.get("date");
+  const initialDate = searchParams.get("date") ?? sessionStorage.getItem("activeSwipeDate");
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPartner, setHasPartner] = useState(false);
