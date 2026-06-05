@@ -225,7 +225,7 @@ const Plan = () => {
           <PlannedRecipeCard
             recipe={finalRecipe}
             onView={() => navigate(`/recipe/${finalRecipe.id}`)}
-            onSwap={startSwiping}
+            onSwap={handleSwap}
           />
         ) : (
           <EmptyDayCard
