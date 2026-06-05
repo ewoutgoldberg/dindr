@@ -221,21 +221,20 @@ const Profile = () => {
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
         </button>
-        
-        {isAdmin && (
-          <>
-            <div className="mx-5 h-px bg-border" />
-            <button
-              onClick={() => navigate("/admin/creators")}
-              className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
-            >
-              <Shield className="h-5 w-5 text-primary shrink-0" />
-              <span className="flex-1 font-semibold text-sm">Admin · Creators</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </button>
-          </>
-        )}
       </section>
+
+      {isAdmin && (
+        <section className="bg-card rounded-3xl shadow-soft overflow-hidden mb-5">
+          <button
+            onClick={() => navigate("/admin/creators")}
+            className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+          >
+            <Shield className="h-5 w-5 text-primary shrink-0" />
+            <span className="flex-1 font-semibold text-sm">Admin</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </section>
+      )}
 
       {/* Cooking pair — compact */}
       <section className="bg-card rounded-3xl p-4 shadow-soft mb-5">
