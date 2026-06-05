@@ -78,7 +78,11 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                   </button>
                 );
               }
-              const target = typeof to === "function" ? to() : (to as string);
+              let target = typeof to === "function" ? to() : (to as string);
+              if (label === "Matches" && pathname.startsWith("/swipe/")) {
+                const swipeDate = pathname.split("/")[2];
+                if (swipeDate) target = `/matches?date=${swipeDate}`;
+              }
               return (
                 <NavLink
                   key={matchPath || `${label}-${idx}`}
