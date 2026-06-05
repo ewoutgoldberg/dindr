@@ -1,0 +1,1 @@
+UPDATE public.recipes SET image_url = 'https://wwrsmocfsdcsnucluxht.supabase.co/storage/v1/object/public/lovable-uploads/recipes/pasta-pomodoro.jpg' WHERE id = 'f348be74-d41c-4c87-8d67-355f5f294ae6';
