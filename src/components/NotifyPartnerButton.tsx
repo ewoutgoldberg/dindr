@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Send, Loader2, CheckCircle2, CalendarDays, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Send, Loader2, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,14 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePartner } from "@/hooks/usePartner";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   planDate?: string; // YYYY-MM-DD; omit for "general" ping
