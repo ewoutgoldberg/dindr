@@ -45,6 +45,7 @@ const Swipe = () => {
 
   const handleConfirmDate = () => {
     sessionStorage.setItem("swipeDateConfirmed", pickedDate);
+    sessionStorage.setItem("activeSwipeDate", pickedDate);
     setDateConfirmed(true);
     setPickerOpen(false);
     if (pickedDate !== date) {
@@ -63,6 +64,7 @@ const Swipe = () => {
   useEffect(() => {
     const load = async () => {
       if (!user || !date) return;
+      sessionStorage.setItem("activeSwipeDate", date);
       setLoading(true);
 
       // load plan filters
