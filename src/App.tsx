@@ -64,8 +64,6 @@ const App = () => (
               <Route path="/creator/profile/edit" element={<RequireAuth><CreatorProfileEdit /></RequireAuth>} />
               <Route path="/creator/:id/recipes/new" element={<RequireAuth><AdminRecipeForm /></RequireAuth>} />
               <Route path="/creator/:id/recipes/:recipeId" element={<RequireAuth><AdminRecipeForm /></RequireAuth>} />
-              <Route path="/creator/dashboard-old" element={<RequireAuth><CreatorDashboard /></RequireAuth>} />
-              <Route path="/creator/profile/edit-old" element={<RequireAuth><CreatorProfileEdit /></RequireAuth>} />
               <Route path="/admin/creators" element={<RequireAuth><RequireAdmin><AdminCreators /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/new" element={<RequireAuth><RequireAdmin><AdminCreatorForm /></RequireAdmin></RequireAuth>} />
               <Route path="/admin/creators/import" element={<RequireAuth><RequireAdmin><AdminImportCreators /></RequireAdmin></RequireAuth>} />
