@@ -115,6 +115,16 @@ const Swipe = () => {
         filtered.sort(() => Math.random() - 0.5);
       }
 
+      // Restore the previously shown top card (e.g. after navigating to recipe detail and back)
+      const storedTopId = sessionStorage.getItem(`swipeTopRecipe:${date}`);
+      if (storedTopId) {
+        const topIdx = filtered.findIndex((r) => r.id === storedTopId);
+        if (topIdx > 0) {
+          const [top] = filtered.splice(topIdx, 1);
+          filtered.unshift(top);
+        }
+      }
+
       setRecipes(filtered);
       setIndex(0);
       setLoading(false);
@@ -125,7 +135,15 @@ const Swipe = () => {
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
     if (!recipe || !user || !date) return;
-    setIndex((i) => i + 1);
+    const nextIndex = index + 1;
+    setIndex(nextIndex);
+    const nextTop = recipes[nextIndex];
+    if (nextTop) {
+      sessionStorage.setItem(`swipeTopRecipe:${date}`, nextTop.id);
+    } else {
+      sessionStorage.removeItem(`swipeTopRecipe:${date}`);
+    }
+
 
     await supabase.from("swipes").upsert(
       { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
