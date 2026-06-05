@@ -44,8 +44,10 @@ const Swipe = () => {
   }, []);
 
   const handleConfirmDate = () => {
+    sessionStorage.setItem("swipeDateConfirmed", pickedDate);
     if (pickedDate !== date) {
       navigate(`/swipe/${pickedDate}`, { replace: true });
+      return;
     }
     setDateConfirmed(true);
     setPickerOpen(false);
