@@ -2,13 +2,6 @@ import { useEffect, useState } from "react";
 import { Send, Loader2, CheckCircle2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePartner } from "@/hooks/usePartner";
@@ -41,7 +34,7 @@ export const NotifyPartnerButton = ({
 
   useEffect(() => {
     if (!confirmOpen) return;
-    const timer = setTimeout(() => setConfirmOpen(false), 2500);
+    const timer = setTimeout(() => setConfirmOpen(false), 7000);
     return () => clearTimeout(timer);
   }, [confirmOpen]);
 
@@ -82,36 +75,34 @@ export const NotifyPartnerButton = ({
         {buttonLabel}
       </Button>
 
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-[280px] overflow-hidden p-0 text-center">
-          <div className="bg-gradient-to-br from-primary/15 via-accent/10 to-background px-5 pt-5 pb-3">
-            <div className="mx-auto h-12 w-12 rounded-full bg-success text-success-foreground grid place-items-center shadow-soft mb-3">
-              <CheckCircle2 className="h-6 w-6" />
+      {confirmOpen && (
+        <div
+          className="fixed inset-x-0 top-4 z-[100] flex justify-center px-4 pointer-events-none animate-in fade-in slide-in-from-top-4 duration-300"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="pointer-events-auto w-full max-w-sm rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
+            <div className="flex items-start gap-3 p-4">
+              <div className="shrink-0 h-10 w-10 rounded-full bg-success/15 text-success grid place-items-center">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-display font-bold text-foreground">
+                  {partnerName} is op de hoogte 💌
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Je eetsuggesties{dayLabel ? <> voor <span className="font-semibold text-foreground">{dayLabel}</span></> : null} zijn gedeeld.
+                  Nu is het afwachten of {partnerName} een <span className="font-semibold text-foreground">final pick</span> maakt of zelf met <span className="font-semibold text-foreground">suggesties</span> komt.
+                </p>
+              </div>
             </div>
-            <DialogHeader className="space-y-1">
-              <DialogTitle className="text-base font-display font-bold">
-                {partnerName} is op de hoogte 💌
-              </DialogTitle>
-              <DialogDescription className="text-xs leading-relaxed">
-                We hebben {partnerName} laten weten dat jouw eetsuggesties
-                {dayLabel ? (
-                  <> voor <span className="text-primary font-semibold">{dayLabel}</span> </>
-                ) : (
-                  " "
-                )}
-                klaarstaan.
-              </DialogDescription>
-            </DialogHeader>
+            <div className="h-1 bg-primary/15 overflow-hidden">
+              <div className="h-full bg-primary animate-[shrink_7s_linear_forwards] origin-left" style={{ transform: "scaleX(1)", animation: "notify-shrink 7s linear forwards" }} />
+            </div>
           </div>
-
-          <div className="px-5 pb-5">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Nu afwachten of {partnerName} een <span className="font-semibold text-foreground">final pick</span> maakt
-              of zelf met <span className="font-semibold text-foreground">suggesties</span> komt.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
+          <style>{`@keyframes notify-shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }`}</style>
+        </div>
+      )}
     </>
   );
 };
