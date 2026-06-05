@@ -51,6 +51,8 @@ const RecipeDetail = () => {
       if (r) {
         setRecipe(r as Recipe);
         setServings(r.servings);
+        // Fire-and-forget view tracking
+        supabase.from("recipe_views").insert({ recipe_id: r.id, user_id: user.id }).then(() => {});
       }
       setReviews((rev as Review[]) ?? []);
       setCanReview((liked?.length ?? 0) > 0);
