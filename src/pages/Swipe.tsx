@@ -206,7 +206,7 @@ const Swipe = () => {
             {remaining === 0 ? (
               <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate("/matches")} date={date!} />
             ) : (
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout" initial={false}>
                 {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
                   const isTop = stackIdx === arr.length - 1;
                   return (
