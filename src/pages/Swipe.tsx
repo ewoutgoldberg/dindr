@@ -45,12 +45,11 @@ const Swipe = () => {
 
   const handleConfirmDate = () => {
     sessionStorage.setItem("swipeDateConfirmed", pickedDate);
-    if (pickedDate !== date) {
-      navigate(`/swipe/${pickedDate}`, { replace: true });
-      return;
-    }
     setDateConfirmed(true);
     setPickerOpen(false);
+    if (pickedDate !== date) {
+      navigate(`/swipe/${pickedDate}`, { replace: true, state: { dateConfirmed: true } });
+    }
   };
 
   const openRecipeFromSwipe = (recipeId: string) => {
