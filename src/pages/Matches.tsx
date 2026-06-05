@@ -253,6 +253,7 @@ const Matches = () => {
         handleImgErr={handleImgErr}
         RecipeTile={RecipeTile}
         SectionHeader={SectionHeader}
+        initialDate={initialDate}
       />
     </div>
   );
