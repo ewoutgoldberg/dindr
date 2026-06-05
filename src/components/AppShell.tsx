@@ -1,11 +1,10 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, Bell, Eye, Utensils } from "lucide-react";
+import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, BookOpen, Sparkles, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
-import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
+import { useIsCreator } from "@/hooks/useIsCreator";
 import { PingPopup } from "@/components/PingPopup";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
@@ -29,23 +28,15 @@ const consumerTabs: Tab[] = [
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const unread = useUnreadNotifications();
   const { isCreator, creatorId } = useIsCreator();
 
   const creatorTabs: Tab[] = [
     { to: "/creator/dashboard", match: "/creator/dashboard", label: "Dashboard", icon: ChefHat },
-    { to: creatorId ? `/creator/${creatorId}` : "/creator/dashboard", match: "/creator/", label: "Public", icon: Eye },
-    {
-      label: "Cook mode",
-      icon: Utensils,
-      onClick: () => {
-        setViewMode("consumer");
-        navigate(`/swipe/${today()}`);
-      },
-    },
-    { to: "/notifications", label: "Inbox", icon: Bell, showBadge: true },
-    { to: "/profile", label: "MyKitchen", icon: User },
+    { to: "/creator/recipes", match: "/creator/recipes", label: "Recepten", icon: BookOpen },
+    { to: "/creator/inspiration", match: "/creator/inspiration", label: "Inspiratie", icon: Sparkles },
+    { to: "/creator/insights", match: "/creator/insights", label: "Inzichten", icon: BarChart3 },
+    { to: creatorId ? `/creator/${creatorId}` : "/profile", match: creatorId ? `/creator/${creatorId}` : "/profile", label: "MyKitchen", icon: User },
   ];
 
   const tabs = isCreator ? creatorTabs : consumerTabs;
