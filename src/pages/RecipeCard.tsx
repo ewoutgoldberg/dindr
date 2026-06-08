@@ -114,12 +114,13 @@ const RecipeCard = () => {
             animate={{ rotateY: flipped ? 180 : 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
           >
-            <CardFront recipe={recipe} />
+            <CardFront recipe={recipe} creatorName={creatorName} />
             <CardBack
               recipe={recipe}
               stepImages={stepImages}
               nutrition={nutrition}
               generating={generating}
+              creatorName={creatorName}
             />
           </motion.div>
         </div>
