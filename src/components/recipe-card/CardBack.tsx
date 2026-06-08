@@ -1,4 +1,4 @@
-import { Clock, ChefHat, Users, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type Recipe = Tables<"recipes">;
@@ -29,143 +29,134 @@ const normalizeIngredients = (raw: unknown): Array<{ name: string; quantity: str
   });
 };
 
+const deriveStepTitle = (step: string, i: number): { title: string; body: string } => {
+  // Try to use the first short sentence as a title; otherwise fall back to "Stap N".
+  const firstSentence = step.split(/[.!?]/)[0]?.trim() ?? "";
+  if (firstSentence && firstSentence.length <= 28) {
+    return { title: firstSentence, body: step.slice(firstSentence.length + 1).trim() };
+  }
+  return { title: `Stap ${i + 1}`, body: step };
+};
+
 export const CardBack = ({
   recipe,
   stepImages,
   nutrition,
   generating,
+  creatorName,
 }: {
   recipe: Recipe;
   stepImages: string[];
   nutrition: Nutrition;
   generating: boolean;
+  creatorName: string;
 }) => {
   const ingredients = normalizeIngredients(recipe.ingredients);
   const steps = (recipe.instructions as string[]) ?? [];
 
   return (
     <div
-      className="absolute inset-0 rounded-2xl overflow-hidden bg-card shadow-2xl [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col"
+      className="absolute inset-0 rounded-2xl overflow-hidden bg-white shadow-2xl [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Header */}
-      <div className="shrink-0 px-6 pt-5 pb-4 border-b border-border bg-card">
-        <div className="flex items-start justify-between gap-6">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary mb-1">
-              Dindr · Receptkaart
-            </p>
-            <h2 className="font-display font-extrabold text-xl leading-tight truncate">
-              {recipe.title}
-            </h2>
-          </div>
-          <div className="flex items-center gap-4 text-xs font-semibold shrink-0">
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-primary" />
-              {recipe.cooking_time_minutes}m
-            </span>
-            <span className="flex items-center gap-1.5 capitalize">
-              <ChefHat className="h-3.5 w-3.5 text-primary" />
-              {recipe.difficulty}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-primary" />
-              {recipe.servings}
-            </span>
-          </div>
-        </div>
+      <div className="flex-1 grid grid-cols-[230px_1fr] min-h-0 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="bg-neutral-100 m-3 rounded-lg p-4 overflow-y-auto">
+          <Section title="Wat je van ons krijgt">
+            <ul className="space-y-1 text-[11.5px] text-neutral-800">
+              {ingredients.map((ing, i) => (
+                <li key={i} className="flex gap-1.5">
+                  <span className="text-neutral-500">•</span>
+                  <span className="leading-snug">
+                    {ing.quantity && (
+                      <span className="text-neutral-700">{ing.quantity} </span>
+                    )}
+                    {ing.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Section>
 
-        {/* Nutrition strip */}
-        {nutrition && (
-          <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-            <NutItem label="kcal" value={nutrition.calories} />
-            <NutItem label="eiwit" value={nutrition.protein_g} suffix="g" />
-            <NutItem label="vet" value={nutrition.fat_g} suffix="g" />
-            <NutItem label="koolh." value={nutrition.carbs_g} suffix="g" />
-          </div>
-        )}
-      </div>
+          <Section title="Wat je thuis nodig hebt">
+            <ul className="space-y-1 text-[11.5px] text-neutral-700">
+              <li className="flex gap-1.5"><span className="text-neutral-500">•</span> peper en zout</li>
+              <li className="flex gap-1.5"><span className="text-neutral-500">•</span> olijfolie</li>
+            </ul>
+          </Section>
 
-      {/* Body: ingredients + steps */}
-      <div className="flex-1 grid grid-cols-[220px_1fr] min-h-0 overflow-hidden">
-        {/* Ingredients */}
-        <aside className="bg-muted/40 border-r border-border overflow-y-auto p-5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-3">
-            Ingrediënten
-          </p>
-          <ul className="space-y-2 text-sm">
-            {ingredients.map((ing, i) => (
-              <li key={i} className="flex justify-between gap-2 border-b border-border/50 pb-1.5">
-                <span className="font-medium leading-snug">{ing.name}</span>
-                <span className="text-muted-foreground font-mono text-xs shrink-0">
-                  {ing.quantity}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {nutrition && (
+            <Section title="Voedingswaarde per portie">
+              <p className="text-[11px] leading-relaxed text-neutral-700">
+                {nutrition.calories != null && <>calorieën {Math.round(nutrition.calories)}kcal, </>}
+                {nutrition.fat_g != null && <>vet {Math.round(nutrition.fat_g)}g, </>}
+                {nutrition.carbs_g != null && <>koolhydraten {Math.round(nutrition.carbs_g)}g, </>}
+                {nutrition.protein_g != null && <>eiwit {Math.round(nutrition.protein_g)}g</>}
+              </p>
+            </Section>
+          )}
         </aside>
 
-        {/* Steps */}
-        <section className="overflow-y-auto p-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              Bereiding · {steps.length} stappen
-            </p>
-            {generating && (
-              <span className="text-[10px] text-primary flex items-center gap-1 font-semibold">
-                <Loader2 className="h-3 w-3 animate-spin" /> foto's worden gemaakt…
-              </span>
-            )}
-          </div>
-          <ol className="space-y-3">
+        {/* Steps grid */}
+        <section className="overflow-y-auto p-4 pl-1">
+          {generating && (
+            <div className="mb-2 flex items-center gap-1.5 text-[10px] text-neutral-500 font-semibold">
+              <Loader2 className="h-3 w-3 animate-spin" /> foto's worden gemaakt…
+            </div>
+          )}
+          <div className="grid grid-cols-3 gap-x-4 gap-y-4">
             {steps.map((step, i) => {
               const img = stepImages[i];
+              const { title, body } = deriveStepTitle(step, i);
               return (
-                <li
-                  key={i}
-                  className="grid grid-cols-[80px_1fr] gap-3 items-start bg-background rounded-xl p-2 shadow-soft"
-                >
-                  <div className="h-20 w-20 rounded-lg overflow-hidden bg-muted relative grid place-items-center">
+                <div key={i} className="flex flex-col">
+                  <div className="aspect-[4/3] rounded bg-neutral-100 overflow-hidden grid place-items-center">
                     {img ? (
-                      <img src={img} alt={`Stap ${i + 1}`} className="w-full h-full object-cover" />
+                      <img src={img} alt={title} className="w-full h-full object-cover" />
                     ) : generating ? (
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
                     ) : (
-                      <span className="text-2xl font-display font-extrabold text-muted-foreground">
-                        {i + 1}
-                      </span>
-                    )}
-                    {img && (
-                      <span className="absolute top-1 left-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold grid place-items-center">
+                      <span className="text-neutral-300 font-display font-extrabold text-3xl">
                         {i + 1}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed pt-1">{step}</p>
-                </li>
+                  <p
+                    className="mt-2 text-[12px] font-bold leading-snug"
+                    style={{ color: "#1a2540" }}
+                  >
+                    {i + 1}. {title}
+                  </p>
+                  {body && (
+                    <p className="mt-1 text-[11px] leading-snug text-neutral-700">
+                      {body}
+                    </p>
+                  )}
+                </div>
               );
             })}
-          </ol>
+          </div>
         </section>
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 px-5 pb-2 pt-1 text-center">
+        <p className="text-[10px] text-neutral-500">
+          Receptkaart van <span className="font-semibold" style={{ color: "#1a2540" }}>{creatorName}</span> · gemaakt met Dindr
+        </p>
       </div>
     </div>
   );
 };
 
-const NutItem = ({
-  label,
-  value,
-  suffix,
-}: {
-  label: string;
-  value?: number;
-  suffix?: string;
-}) => (
-  <div className="bg-muted/60 rounded-lg py-1.5">
-    <p className="text-sm font-display font-extrabold leading-none">
-      {value != null ? Math.round(value) : "—"}
-      {suffix && value != null ? <span className="text-[10px] font-semibold ml-0.5">{suffix}</span> : null}
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="mb-4 last:mb-0">
+    <p
+      className="text-[12px] font-bold mb-1.5"
+      style={{ color: "#1a2540" }}
+    >
+      {title}
     </p>
-    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{label}</p>
+    {children}
   </div>
 );
