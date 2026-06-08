@@ -1,70 +1,46 @@
-# Chef Mode — Implementatieplan
+## Waarom het nu zo traag is
 
-Veel onderdelen bestaan al (claim flow, social posts, recipe import, admin). Ik bouw uit en vervang creator-navigatie. Consumer-ervaring blijft ongemoeid.
+Als je een receptkaart voor het eerst opent, blokkeert de kaart op één edge function call (`generate-recipe-card-assets`) die:
 
-## Fase 1 — Database-fundering (1 migratie)
+1. De voedingswaarde berekent (1 AI-call, ~2–5s).
+2. **Voor elke kookstap één foto genereert — sequentieel, dus één voor één.** Bij 6 stappen × ~10s = al snel een minuut wachten.
+3. Pas dán uploadt naar storage, opslaat op het recept, en de respons teruggeeft.
 
-Nieuwe kolommen / tabellen:
-- `recipes.archived boolean default false`
-- `recipes.subtitle text` (optioneel veld uit jouw lijst)
-- `recipe_views` — anonieme + ingelogde view-tracking per recept (user_id nullable, recipe_id, created_at)
-- `recipe_shares` — share-events (user_id nullable, recipe_id, channel text, created_at)
-- `creator_followers` — (creator_id, user_id, created_at, unique)
-- `recipe_status` afgeleid via view: draft / review / published / archived (combinatie van bestaande `published` + `creator_approved` + nieuwe `archived`)
+Pas wanneer dat hele proces klaar is, krijgt de frontend antwoord en kun je de kaart kantelen. Bij de tweede keer openen is het wél snel, want dan staan de assets al in de database.
 
-Saves = bestaande `favorites`. Likes = bestaande `swipes.liked=true`. Volgers = nieuwe tabel.
+## Plan: kaart opent direct, foto's komen erbij
 
-RLS:
-- views/shares: iedereen mag inserten (ook anon), alleen creator-eigenaar + admin mag lezen voor eigen recepten
-- followers: ingelogde users mogen volgen/ontvolgen zichzelf, creator mag eigen volgers zien, iedereen mag aantal zien
+### 1. Kaart meteen tonen (frontend)
+- `RecipeCard.tsx` laat de kaart en kantel-interactie meteen toe zodra het recept zelf geladen is — niet wachten op de edge function.
+- Op de achterkant (`CardBack`) tonen we voor elke stap eerst het nummer in een placeholder, met de tekst van de stap er al naast. De foto schuift erin zodra hij klaar is.
+- De `Loader2 “foto's worden gemaakt…”` indicator blijft, maar je kunt al lezen, scrollen en kantelen terwijl het genereren draait.
 
-Consumer-side tracking (minimale aanpassing):
-- `RecipeDetail.tsx`: insert in `recipe_views` bij mount
-- Bestaande share-knoppen → insert in `recipe_shares`
+### 2. Parallelle generatie (edge function)
+- In `generate-recipe-card-assets` alle stapfoto's met `Promise.all` tegelijk laten genereren in plaats van met een `for`-loop. Eén trage stap blokkeert dan niet de andere zes.
+- Voedingswaarde en de stapfoto's draaien ook parallel.
 
-## Fase 2 — Navigatie + Recepten-tab
+### 3. Live updates terwijl je kijkt (realtime)
+- De edge function schrijft per voltooide stap meteen zijn url weg in `recipes.step_images` (in plaats van pas aan het einde alles in één keer).
+- De frontend abonneert zich op `recipes` updates voor dit ene recept-id via Lovable Cloud realtime, en vervangt placeholders door foto's zodra ze binnenkomen.
+- Resultaat: je ziet de stapfoto's één voor één verschijnen, zonder ooit op een witte loader te kijken.
 
-`AppShell.tsx` creatorTabs vervangen door: Dashboard / Recepten / Inspiratie / Inzichten / MyKitchen.
+### 4. (Optioneel) Vooraf genereren bij een match
+- Wanneer twee partners een recept matchen (`auto_favorite_on_match` trigger), starten we de edge function alvast in de achtergrond, zodat de assets meestal al klaarstaan tegen de tijd dat iemand de kaart opent.
+- Dit is een extra winst, geen vereiste; we kunnen 'm in een tweede ronde toevoegen.
 
-Nieuwe pagina `src/pages/creator/Recipes.tsx`:
-- Filter-pills: Alles / Concepten / Review / Gepubliceerd / Gearchiveerd
-- Lijst met thumbnail, titel, status-badge, stats (views/likes/saves)
-- Acties per rij (overflow menu): Bewerken, Dupliceren, Publiceren/Unpublish, Archiveren, Verwijderen
-- "Nieuw recept" CTA → `/admin/creators/:id/recipes/new` hergebruiken (creator-versie zonder admin-vereisten, of doorlinken naar bestaande form met creator-mode)
+## Verwacht resultaat
 
-`AdminRecipeForm` is al uitgebreid; deze hergebruiken/aanpassen zodat creator hem ook kan openen zonder admin-rol (RLS staat creator al toe eigen recepten te beheren). Realtime preview = rechterpaneel met `CardFront` component.
+- **Eerste open ooit**: kaart en kantelen werken binnen <1s, foto's druppelen er in ~5–15s in (parallel i.p.v. ~60s sequentieel).
+- **Tweede keer**: net zo snel als nu (cached).
+- **Met optie 4**: bijna altijd al cached vóór je opent.
 
-## Fase 3 — Dashboard + Inspiratie
+## Wijzigingen technisch
 
-`CreatorDashboard.tsx` uitbreiden:
-- Stat-tegels: totaal / gepubliceerd / concepten / views / likes / saves / volgers (queries aggregeren over eigen recepten)
-- Quick actions: Nieuw recept, Importeren (bestaat), Social koppelen (scroll naar SocialAccountsManager), Bekijk MyKitchen
-- Secties: Nieuwste prestaties (recepten met grootste view-groei laatste 7d), Snelst groeiende recepten, Recente activiteit (laatste likes/saves/follows)
+- `supabase/functions/generate-recipe-card-assets/index.ts` — `for`-loop vervangen door `Promise.all`; per geslaagde upload meteen `update recipes set step_images = ...`; nutrition parallel.
+- `src/pages/RecipeCard.tsx` — niet meer wachten op `functions.invoke` voor het tonen van de kaart; abonneren op realtime updates van dit recept; `generating` afleiden uit `card_assets_generated_at`.
+- `src/components/recipe-card/CardBack.tsx` — placeholder gedrag verfijnen zodat foto's smooth inschuiven (al grotendeels aanwezig).
+- (Optioneel, fase 2) edge function `pregenerate-on-match` aanroepen vanuit de match-flow.
 
-Nieuwe pagina `src/pages/creator/Inspiration.tsx`:
-- Combineerde feed uit `social_posts` (Instagram + TikTok) van eigen creator
-- Platform-badge, caption, datum, thumbnail/video
-- Sectie "Koppel accounts" → bestaande `SocialAccountsManager`
+## Vraag
 
-## Fase 4 — Inzichten
-
-Nieuwe pagina `src/pages/creator/Insights.tsx`:
-- Periode-toggle (7/30/90d)
-- Per-recept tabel: views, likes, saves, shares, swipe-right %, swipe-left %
-- Lijngrafiek (recharts) voor views + engagement over tijd
-- Insight cards (regelgebaseerd, client-side berekend uit data — voorbeelden: "Recepten <20min worden X% vaker opgeslagen")
-- Trending sectie: top tags / cuisines uit aggregate van alle recepten (admin-level data, beperk tot eigen creator + globale trends)
-
-## Technische details
-
-- Alle creator-pagina's onder route `/creator/...` beschermd door `RequireAuth` + check op `useIsCreator().isCreator`
-- Bestaande consumer routes blijven onaangeroerd
-- RLS doet de echte access control; UI-checks zijn ondersteunend
-- Mobile-first, hergebruik bestaande tokens (`bg-card`, `rounded-2xl`, `shadow-soft/card`, `font-display`)
-- Grafieken: `recharts` (al in shadcn/ui via `chart.tsx`)
-
-## Volgorde van uitvoer
-
-Ik start met **Fase 1 (migratie)** in deze beurt. Na jouw goedkeuring van de migratie ga ik door naar Fase 2 in een volgende beurt, dan 3, dan 4. Zo blijft elke stap reviewbaar en kunnen we onderweg bijsturen.
-
-Akkoord met deze fasering? Of wil je iets anders eerst?
+Wil je dat ik fase 4 (vooraf genereren bij een match) meteen meeneem, of eerst alleen 1–3 bouwen en kijken hoe snel het al voelt?

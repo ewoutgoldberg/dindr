@@ -9,7 +9,6 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { OrientationGate } from "@/components/recipe-card/OrientationGate";
 import { CardFront } from "@/components/recipe-card/CardFront";
 import { CardBack } from "@/components/recipe-card/CardBack";
-import { toast } from "sonner";
 
 type Recipe = Tables<"recipes">;
 
@@ -20,46 +19,65 @@ const RecipeCard = () => {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [flipped, setFlipped] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [stepImages, setStepImages] = useState<string[]>([]);
   const [nutrition, setNutrition] = useState<Record<string, number> | null>(null);
+  const [assetsReady, setAssetsReady] = useState(false);
 
+  // Load recipe and kick off (non-blocking) asset generation
   useEffect(() => {
-    const load = async () => {
-      if (!id || !user) return;
+    if (!id || !user) return;
+    let cancelled = false;
+
+    (async () => {
       setLoading(true);
       const { data } = await supabase.from("recipes").select("*").eq("id", id).maybeSingle();
-      if (data) {
-        setRecipe(data as Recipe);
-        const existing = (data.step_images as string[] | null) ?? [];
-        const hasImages = existing.length > 0 && existing.some((u) => u);
-        setStepImages(existing);
-        setNutrition((data.nutrition as Record<string, number> | null) ?? null);
-
-        if (!data.card_assets_generated_at && !hasImages) {
-          setGenerating(true);
-          try {
-            const { data: res, error } = await supabase.functions.invoke(
-              "generate-recipe-card-assets",
-              { body: { recipe_id: id } }
-            );
-            if (error) throw error;
-            if (res) {
-              setStepImages(res.step_images ?? []);
-              setNutrition(res.nutrition ?? null);
-            }
-          } catch (e) {
-            console.error(e);
-            toast.error("Kon stapfoto's niet genereren");
-          } finally {
-            setGenerating(false);
-          }
-        }
+      if (cancelled || !data) {
+        setLoading(false);
+        return;
       }
+      const rec = data as Recipe;
+      setRecipe(rec);
+      const existing = (rec.step_images as string[] | null) ?? [];
+      setStepImages(existing);
+      setNutrition((rec.nutrition as Record<string, number> | null) ?? null);
+      setAssetsReady(!!rec.card_assets_generated_at);
       setLoading(false);
+
+      // Fire-and-forget generation if needed; realtime updates feed the UI.
+      if (!rec.card_assets_generated_at) {
+        supabase.functions
+          .invoke("generate-recipe-card-assets", { body: { recipe_id: id } })
+          .catch((e) => console.error("generation invoke failed", e));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
     };
-    load();
   }, [id, user]);
+
+  // Realtime: subscribe to updates of this recipe and patch step_images / nutrition live
+  useEffect(() => {
+    if (!id) return;
+    const channel = supabase
+      .channel(`recipe-card-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "recipes", filter: `id=eq.${id}` },
+        (payload) => {
+          const next = payload.new as Recipe;
+          const imgs = (next.step_images as string[] | null) ?? [];
+          setStepImages(imgs);
+          setNutrition((next.nutrition as Record<string, number> | null) ?? null);
+          if (next.card_assets_generated_at) setAssetsReady(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id]);
 
   if (loading || !recipe) {
     return (
@@ -68,6 +86,10 @@ const RecipeCard = () => {
       </div>
     );
   }
+
+  const steps = (recipe.instructions as string[]) ?? [];
+  const hasAllImages = steps.length > 0 && stepImages.length >= steps.length && stepImages.every((u) => !!u);
+  const generating = !assetsReady && !hasAllImages;
 
   return (
     <OrientationGate>
