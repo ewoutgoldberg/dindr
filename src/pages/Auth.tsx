@@ -65,13 +65,31 @@ const Auth = () => {
   const google = async () => {
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/plan` });
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${from}` });
       if (result.error) throw result.error;
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
     } finally {
       setBusy(false);
     }
+  };
+
+  const forgotPassword = async () => {
+    const parsed = z.string().trim().email().safeParse(email);
+    if (!parsed.success) {
+      toast.error("Enter your email above first, then tap Forgot password.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Check your inbox for a reset link.");
   };
 
   return (
@@ -113,6 +131,16 @@ const Auth = () => {
             <Button type="submit" disabled={busy} variant="hero" size="lg" className="w-full">
               {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : mode === "signin" ? "Log in" : "Create account"}
             </Button>
+            {mode === "signin" && (
+              <button
+                type="button"
+                onClick={forgotPassword}
+                disabled={busy}
+                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Forgot password?
+              </button>
+            )}
           </form>
 
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">

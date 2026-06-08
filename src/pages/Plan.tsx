@@ -119,7 +119,7 @@ const Plan = () => {
     toast.success("Whole week planned!");
   };
 
-  const startSwiping = () => navigate(`/swipe/${fmtDateKey(selected)}`);
+  const startSwiping = () => navigate(`/swipe/${fmtDateKey(selected)}`, { state: { dateConfirmed: true } });
 
   const handleSwap = async () => {
     if (!user) {
@@ -135,7 +135,7 @@ const Plan = () => {
     if ((count ?? 0) > 0) {
       navigate(`/matches?date=${dateKey}`);
     } else {
-      startSwiping();
+      navigate(`/swipe/${dateKey}`, { state: { dateConfirmed: true } });
     }
   };
 
@@ -143,7 +143,6 @@ const Plan = () => {
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
       {/* Header */}
       <header className="mb-6">
-        
         <h1 className="text-3xl font-display font-extrabold mt-1">What&apos;s cooking?</h1>
       </header>
 

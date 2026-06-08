@@ -65,8 +65,8 @@ const Filters = () => {
   }, []);
 
   const [pickedDate, setPickedDate] = useState<string>(dateParam ?? fmtDateKey(new Date()));
-  const [dateConfirmed, setDateConfirmed] = useState(false);
-  const [pickerOpen, setPickerOpen] = useState(true);
+  const [dateConfirmed, setDateConfirmed] = useState<boolean>(!!dateParam);
+  const [pickerOpen, setPickerOpen] = useState<boolean>(!dateParam);
 
   const today = pickedDate;
   const dateLabel = format(parseISO(today), "EEEE, MMM d");

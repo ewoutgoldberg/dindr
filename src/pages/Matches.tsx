@@ -93,6 +93,17 @@ const Matches = () => {
     await supabase
       .from("meal_plans")
       .upsert({ user_id: user.id, plan_date: date, final_recipe_id: recipeId }, { onConflict: "user_id,plan_date" });
+    // Also mirror to partner's meal_plan so both see the same final pick on Plan
+    const { data: partnerIdData } = await supabase.rpc("get_partner", { _user_id: user.id });
+    const partnerId = (partnerIdData as string | null) ?? null;
+    if (partnerId) {
+      await supabase
+        .from("meal_plans")
+        .upsert(
+          { user_id: partnerId, plan_date: date, final_recipe_id: recipeId },
+          { onConflict: "user_id,plan_date" },
+        );
+    }
     toast.success("Decision saved!");
     setGroups((prev) => prev.map((g) => (g.date === date ? { ...g, finalId: recipeId } : g)));
     const group = groups.find((g) => g.date === date);
@@ -375,7 +386,7 @@ const CollapsibleGroups = ({
                         ? "Start swiping to create a match with your partner."
                         : "Start swiping to build your shortlist."}
                     </p>
-                    <Button variant="hero" size="sm" onClick={() => navigate(`/swipe?date=${g.date}`)}>
+                    <Button variant="hero" size="sm" onClick={() => navigate(`/swipe/${g.date}`, { state: { dateConfirmed: true } })}>
                       <Sparkles className="h-3.5 w-3.5" /> Start swiping
                     </Button>
                   </div>

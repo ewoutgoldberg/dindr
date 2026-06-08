@@ -144,6 +144,17 @@ const Swipe = () => {
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
     if (!recipe || !user || !date) return;
+
+    // Persist FIRST so a network failure doesn't silently skip the card.
+    const { error } = await supabase.from("swipes").upsert(
+      { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
+      { onConflict: "user_id,recipe_id,plan_date" }
+    );
+    if (error) {
+      toast.error("Could not save your swipe. Try again.");
+      return;
+    }
+
     const nextIndex = index + 1;
     setIndex(nextIndex);
     const nextTop = recipes[nextIndex];
@@ -152,12 +163,6 @@ const Swipe = () => {
     } else {
       sessionStorage.removeItem(`swipeTopRecipe:${date}`);
     }
-
-
-    await supabase.from("swipes").upsert(
-      { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
-      { onConflict: "user_id,recipe_id,plan_date" }
-    );
 
     if (liked) {
       // check if partner also liked → match
@@ -212,6 +217,7 @@ const Swipe = () => {
                 onAdjustFilters={() => navigate(`/filters?date=${date}`)}
                 date={date!}
                 noRecipes={recipes.length === 0}
+                alreadyDone={recipes.length > 0}
               />
             ) : (
               <AnimatePresence mode="popLayout" initial={false}>
@@ -391,11 +397,13 @@ const EmptyState = ({
   onMatches,
   onAdjustFilters,
   noRecipes,
+  alreadyDone,
 }: {
   date: string;
   onMatches: () => void;
   onAdjustFilters: () => void;
   noRecipes: boolean;
+  alreadyDone?: boolean;
 }) => (
   <div className="absolute inset-0 grid place-items-center text-center px-6">
     <div>
@@ -412,6 +420,22 @@ const EmptyState = ({
             <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
               Adjust filters
             </Button>
+          </div>
+        </>
+      ) : alreadyDone ? (
+        <>
+          <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
+            <Sparkles className="h-10 w-10 text-primary-foreground" />
+          </div>
+          <h2 className="text-2xl font-display font-extrabold">You've seen them all</h2>
+          <p className="text-muted-foreground mt-2">
+            You've gone through every recipe that matches this day's filters. Loosen them up to see more dishes, or jump to your likes.
+          </p>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
+              Adjust filters
+            </Button>
+            <Button variant="outline" onClick={onMatches}>See my likes</Button>
           </div>
         </>
       ) : (
