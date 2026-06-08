@@ -12,6 +12,17 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 type Recipe = Tables<"recipes">;
 type Group = {
@@ -321,9 +332,32 @@ const Matches = () => {
         SectionHeader={SectionHeader}
         initialDate={initialDate}
       />
+
+      <AlertDialog open={!!confirmMatch} onOpenChange={(o) => { if (!o) setConfirmMatch(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Like this recipe too?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmMatch ? `"${confirmMatch.recipe.title}" will be added to your likes for this day. If your partner still likes it, it becomes a match.` : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmMatch) matchRecipe(confirmMatch.date, confirmMatch.recipe);
+                setConfirmMatch(null);
+              }}
+            >
+              Like it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
+
 
 type CollapsibleGroupsProps = {
   groups: Group[];
