@@ -141,6 +141,8 @@ const Swipe = () => {
     load();
   }, [user, date]);
 
+  const [lastSwipe, setLastSwipe] = useState<{ recipeId: string; index: number } | null>(null);
+
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
     if (!recipe || !user || !date) return;
@@ -155,6 +157,7 @@ const Swipe = () => {
       return;
     }
 
+    setLastSwipe({ recipeId: recipe.id, index });
     const nextIndex = index + 1;
     setIndex(nextIndex);
     const nextTop = recipes[nextIndex];
@@ -186,6 +189,25 @@ const Swipe = () => {
       }
     }
   };
+
+  const handleUndo = async () => {
+    if (!lastSwipe || !user || !date) return;
+    const { error } = await supabase
+      .from("swipes")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("recipe_id", lastSwipe.recipeId)
+      .eq("plan_date", date);
+    if (error) {
+      toast.error("Couldn't undo. Try again.");
+      return;
+    }
+    setIndex(lastSwipe.index);
+    sessionStorage.setItem(`swipeTopRecipe:${date}`, lastSwipe.recipeId);
+    setLastSwipe(null);
+    toast.success("Undone");
+  };
+
 
 
   const remaining = recipes.length - index;
