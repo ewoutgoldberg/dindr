@@ -32,60 +32,85 @@ const Matches = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPartner, setHasPartner] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmMatch, setConfirmMatch] = useState<{ date: string; recipe: Recipe } | null>(null);
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    const { data: partnership, error: pErr } = await supabase
+      .from("partnerships")
+      .select("user_a, user_b")
+      .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
+      .maybeSingle();
+    if (pErr) {
+      setError(pErr.message);
+      setLoading(false);
+      return;
+    }
+    const partnerId = partnership ? (partnership.user_a === user.id ? partnership.user_b : partnership.user_a) : null;
+    setHasPartner(!!partnerId);
+
+    // Bound query: last 90 days through today + 60 days ahead.
+    const from = new Date();
+    from.setDate(from.getDate() - 90);
+    const to = new Date();
+    to.setDate(to.getDate() + 60);
+    const fromStr = format(from, "yyyy-MM-dd");
+    const toStr = format(to, "yyyy-MM-dd");
+
+    const userIds = partnerId ? [user.id, partnerId] : [user.id];
+    const { data: swipes, error: sErr } = await supabase
+      .from("swipes")
+      .select("user_id, plan_date, liked, recipe_id, recipes(*)")
+      .in("user_id", userIds)
+      .eq("liked", true)
+      .gte("plan_date", fromStr)
+      .lte("plan_date", toStr)
+      .order("plan_date", { ascending: true });
+    if (sErr) {
+      setError(sErr.message);
+      setLoading(false);
+      return;
+    }
+
+    const { data: plans } = await supabase
+      .from("meal_plans")
+      .select("plan_date, final_recipe_id")
+      .eq("user_id", user.id);
+    const finalMap = new Map(plans?.map((p) => [p.plan_date, p.final_recipe_id]));
+
+    const map = new Map<string, Group>();
+    swipes?.forEach((s) => {
+      const recipe = s.recipes as Recipe;
+      if (!recipe) return;
+      if (!map.has(s.plan_date))
+        map.set(s.plan_date, {
+          date: s.plan_date,
+          mine: [],
+          partner: [],
+          mutual: [],
+          finalId: finalMap.get(s.plan_date) ?? null,
+        });
+      const g = map.get(s.plan_date)!;
+      if (s.user_id === user.id) {
+        if (!g.mine.some((r) => r.id === recipe.id)) g.mine.push(recipe);
+      } else {
+        if (!g.partner.some((r) => r.id === recipe.id)) g.partner.push(recipe);
+      }
+    });
+    map.forEach((g) => {
+      const partnerIds = new Set(g.partner.map((r) => r.id));
+      g.mutual = g.mine.filter((r) => partnerIds.has(r.id));
+    });
+    setGroups(Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date)));
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const load = async () => {
-      if (!user) return;
-      setLoading(true);
-      const { data: partnership } = await supabase
-        .from("partnerships")
-        .select("user_a, user_b")
-        .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
-        .maybeSingle();
-      const partnerId = partnership ? (partnership.user_a === user.id ? partnership.user_b : partnership.user_a) : null;
-      setHasPartner(!!partnerId);
-
-      const userIds = partnerId ? [user.id, partnerId] : [user.id];
-      const { data: swipes } = await supabase
-        .from("swipes")
-        .select("user_id, plan_date, liked, recipe_id, recipes(*)")
-        .in("user_id", userIds)
-        .eq("liked", true)
-        .order("plan_date", { ascending: true });
-
-      const { data: plans } = await supabase
-        .from("meal_plans")
-        .select("plan_date, final_recipe_id")
-        .eq("user_id", user.id);
-      const finalMap = new Map(plans?.map((p) => [p.plan_date, p.final_recipe_id]));
-
-      const map = new Map<string, Group>();
-      swipes?.forEach((s) => {
-        const recipe = s.recipes as Recipe;
-        if (!recipe) return;
-        if (!map.has(s.plan_date))
-          map.set(s.plan_date, {
-            date: s.plan_date,
-            mine: [],
-            partner: [],
-            mutual: [],
-            finalId: finalMap.get(s.plan_date) ?? null,
-          });
-        const g = map.get(s.plan_date)!;
-        if (s.user_id === user.id) {
-          if (!g.mine.some((r) => r.id === recipe.id)) g.mine.push(recipe);
-        } else {
-          if (!g.partner.some((r) => r.id === recipe.id)) g.partner.push(recipe);
-        }
-      });
-      map.forEach((g) => {
-        const partnerIds = new Set(g.partner.map((r) => r.id));
-        g.mutual = g.mine.filter((r) => partnerIds.has(r.id));
-      });
-      setGroups(Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date)));
-      setLoading(false);
-    };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const setFinal = async (date: string, recipeId: string) => {
@@ -116,8 +141,24 @@ const Matches = () => {
     }
   };
 
+  const requestMatch = (date: string, recipe: Recipe) => setConfirmMatch({ date, recipe });
+
   const matchRecipe = async (date: string, recipe: Recipe) => {
     if (!user) return;
+    // Re-check partner still likes it (they might have unliked since the page loaded).
+    const { data: partnerIdData } = await supabase.rpc("get_partner", { _user_id: user.id });
+    const partnerId = (partnerIdData as string | null) ?? null;
+    let stillLiked = true;
+    if (partnerId) {
+      const { data: ps } = await supabase
+        .from("swipes")
+        .select("liked")
+        .eq("user_id", partnerId)
+        .eq("recipe_id", recipe.id)
+        .eq("plan_date", date)
+        .maybeSingle();
+      stillLiked = ps?.liked === true;
+    }
     const { error } = await supabase
       .from("swipes")
       .upsert(
@@ -128,16 +169,17 @@ const Matches = () => {
       toast.error(error.message);
       return;
     }
-    toast.success("It's a match! 🎉");
+    toast.success(stillLiked ? "It's a match! 🎉" : "Saved your like — partner can confirm later.");
     setGroups((prev) =>
       prev.map((g) => {
         if (g.date !== date) return g;
         const mine = g.mine.some((r) => r.id === recipe.id) ? g.mine : [...g.mine, recipe];
-        const mutual = g.mutual.some((r) => r.id === recipe.id) ? g.mutual : [...g.mutual, recipe];
+        const mutual = stillLiked && !g.mutual.some((r) => r.id === recipe.id) ? [...g.mutual, recipe] : g.mutual;
         return { ...g, mine, mutual };
       }),
     );
   };
+
 
   const handleImgErr = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.src.endsWith(PLACEHOLDER)) return;
