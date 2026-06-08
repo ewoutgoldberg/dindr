@@ -8,6 +8,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { RequireAdmin } from "@/components/RequireAdmin";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Plan from "./pages/Plan";
 import Filters from "./pages/Filters";
 import Swipe from "./pages/Swipe";
@@ -44,6 +45,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/plan" element={<RequireAuth><Plan /></RequireAuth>} />
               <Route path="/filters" element={<RequireAuth><Filters /></RequireAuth>} />
               <Route path="/swipe/:date" element={<RequireAuth><Swipe /></RequireAuth>} />
