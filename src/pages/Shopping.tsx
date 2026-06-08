@@ -4,7 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, ShoppingCart, Trash2, Plus } from "lucide-react";
+import { Loader2, ShoppingCart, Trash2, Plus, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -145,6 +147,15 @@ const Shopping = () => {
                   <p className="font-semibold truncate">{i.name}</p>
                   {i.quantity && <p className="text-xs text-muted-foreground">{i.quantity}</p>}
                 </div>
+                {i.recipe_id && (
+                  <Link
+                    to={`/recipe/${i.recipe_id}`}
+                    className="h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground"
+                    aria-label="Open recipe"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Link>
+                )}
                 {i.user_id === user?.id && (
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => remove(i.id)}>
                     <Trash2 className="h-4 w-4" />
@@ -152,6 +163,7 @@ const Shopping = () => {
                 )}
               </li>
             ))}
+
           </ul>
 
           {done.length > 0 && (
