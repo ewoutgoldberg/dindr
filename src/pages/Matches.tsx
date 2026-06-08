@@ -194,6 +194,18 @@ const Matches = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen grid place-items-center px-6 text-center">
+        <div>
+          <p className="text-sm text-muted-foreground mb-3">Couldn't load your matches.</p>
+          <Button variant="outline" onClick={load}>Try again</Button>
+        </div>
+      </div>
+    );
+  }
+
+
   const RecipeTile = ({
     recipe,
     date,
