@@ -238,8 +238,9 @@ const Matches = () => {
                 className="shadow-glow animate-pop"
                 onClick={(e) => {
                   e.stopPropagation();
-                  matchRecipe(date, recipe);
+                  requestMatch(date, recipe);
                 }}
+
               >
                 <Zap className="h-3.5 w-3.5" /> Match this
               </Button>
