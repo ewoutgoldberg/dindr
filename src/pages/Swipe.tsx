@@ -182,6 +182,36 @@ const Swipe = () => {
     }
   };
 
+  const handleStartOver = async () => {
+    if (!user || !date) return;
+    setLoading(true);
+    await supabase.from("swipes").delete().eq("user_id", user.id).eq("plan_date", date);
+    sessionStorage.removeItem(`swipeTopRecipe:${date}`);
+
+    let q = supabase.from("recipes").select("*, food_creators(id, name, avatar_url, handle)");
+    const { data: plan } = await supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("plan_date", date).maybeSingle();
+    if (plan?.max_time_minutes) q = q.lte("cooking_time_minutes", plan.max_time_minutes);
+    if (plan?.difficulty) q = q.eq("difficulty", plan.difficulty);
+    if (plan?.categories && plan.categories.length > 0) q = q.in("category", plan.categories);
+    if (plan?.creator_id) q = q.eq("creator_id", plan.creator_id);
+    if ((plan as { meal_type?: string | null } | null)?.meal_type) {
+      q = q.eq("meal_type", (plan as { meal_type?: string | null } | null)?.meal_type);
+    }
+    const { data } = await q.limit(50);
+    let filtered = ((data ?? []) as Recipe[]);
+    const allergies = ((plan as { allergies?: string[] } | null)?.allergies) ?? [];
+    if (allergies.length > 0) {
+      filtered = filtered.filter((r) => !recipeHasAllergen(extractIngredientNames(r.ingredients), allergies));
+    }
+    if (getHealthyOnly(user.id, date)) {
+      filtered = filtered.filter((r) => isHealthyRecipe(r));
+    }
+    filtered.sort(() => Math.random() - 0.5);
+    setRecipes(filtered);
+    setIndex(0);
+    setLoading(false);
+  };
+
   const remaining = recipes.length - index;
   const activeDateKey = dateConfirmed ? (date ?? pickedDate) : pickedDate;
   const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
@@ -206,7 +236,7 @@ const Swipe = () => {
         <div className="flex-1 flex px-5 pb-3 relative min-h-0">
           <div className="relative w-full max-w-md mx-auto flex-1 min-h-0">
             {remaining === 0 ? (
-              <EmptyState onBack={() => navigate("/plan")} onMatches={() => navigate(`/matches?date=${date}`)} date={date!} />
+              <EmptyState onBack={handleStartOver} onMatches={() => navigate(`/matches?date=${date}`)} date={date!} />
             ) : (
               <AnimatePresence mode="popLayout" initial={false}>
                 {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
