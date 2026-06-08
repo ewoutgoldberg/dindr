@@ -4,7 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, ShoppingCart, Trash2, Plus } from "lucide-react";
+import { Loader2, ShoppingCart, Trash2, Plus, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -14,18 +16,36 @@ const Shopping = () => {
   const { user } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
+  const [partnerId, setPartnerId] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
-    const { data: partnership } = await supabase
+    setError(null);
+    const { data: partnership, error: pErr } = await supabase
       .from("partnerships")
       .select("user_a, user_b")
       .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
       .maybeSingle();
-    const partnerId = partnership ? (partnership.user_a === user.id ? partnership.user_b : partnership.user_a) : null;
-    const ids = partnerId ? [user.id, partnerId] : [user.id];
-    const { data } = await supabase.from("shopping_list_items").select("*").in("user_id", ids).order("created_at", { ascending: true });
+    if (pErr) {
+      setError(pErr.message);
+      setLoading(false);
+      return;
+    }
+    const pId = partnership ? (partnership.user_a === user.id ? partnership.user_b : partnership.user_a) : null;
+    setPartnerId(pId);
+    const ids = pId ? [user.id, pId] : [user.id];
+    const { data, error: lErr } = await supabase
+      .from("shopping_list_items")
+      .select("*")
+      .in("user_id", ids)
+      .order("created_at", { ascending: true });
+    if (lErr) {
+      setError(lErr.message);
+      setLoading(false);
+      return;
+    }
     setItems(data ?? []);
     setLoading(false);
   };
@@ -35,11 +55,15 @@ const Shopping = () => {
     if (!user) return;
     const channel = supabase
       .channel("shopping_changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "shopping_list_items" }, () => load())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "shopping_list_items", filter: `user_id=in.(${[user.id, partnerId].filter(Boolean).join(",")})` },
+        () => load(),
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, partnerId]);
 
   const toggle = async (item: Item) => {
     setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked: !i.checked } : i)));
@@ -54,23 +78,43 @@ const Shopping = () => {
   const add = async () => {
     if (!user || !newName.trim()) return;
     const name = newName.trim().slice(0, 80);
+    // Dedupe: if same name exists unchecked, do nothing.
+    const dupe = items.find((i) => !i.checked && i.name.toLowerCase() === name.toLowerCase());
+    if (dupe) {
+      toast.info(`"${name}" is already on the list.`);
+      setNewName("");
+      return;
+    }
     setNewName("");
     const { error } = await supabase.from("shopping_list_items").insert({ user_id: user.id, name });
     if (error) toast.error(error.message);
   };
 
   const clearChecked = async () => {
-    if (!user) return;
-    const ids = items.filter((i) => i.checked && i.user_id === user.id).map((i) => i.id);
+    const ids = items.filter((i) => i.checked).map((i) => i.id);
     if (ids.length === 0) return;
-    await supabase.from("shopping_list_items").delete().in("id", ids);
-    toast.success(`Removed ${ids.length} items`);
+    // RLS will only delete rows the user is allowed to touch (own + partner if policy allows).
+    const { error } = await supabase.from("shopping_list_items").delete().in("id", ids);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Removed ${ids.length} item${ids.length === 1 ? "" : "s"}`);
   };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (error) return (
+    <div className="min-h-screen grid place-items-center px-6 text-center">
+      <div>
+        <p className="text-sm text-muted-foreground mb-3">Couldn't load your list.</p>
+        <Button variant="outline" onClick={() => { setLoading(true); load(); }}>Try again</Button>
+      </div>
+    </div>
+  );
 
   const active = items.filter((i) => !i.checked);
   const done = items.filter((i) => i.checked);
+
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
@@ -103,6 +147,15 @@ const Shopping = () => {
                   <p className="font-semibold truncate">{i.name}</p>
                   {i.quantity && <p className="text-xs text-muted-foreground">{i.quantity}</p>}
                 </div>
+                {i.recipe_id && (
+                  <Link
+                    to={`/recipe/${i.recipe_id}`}
+                    className="h-8 w-8 grid place-items-center rounded-full text-muted-foreground hover:text-foreground"
+                    aria-label="Open recipe"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Link>
+                )}
                 {i.user_id === user?.id && (
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => remove(i.id)}>
                     <Trash2 className="h-4 w-4" />
@@ -110,6 +163,7 @@ const Shopping = () => {
                 )}
               </li>
             ))}
+
           </ul>
 
           {done.length > 0 && (

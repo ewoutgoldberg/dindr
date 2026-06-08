@@ -26,7 +26,8 @@ const reviewSchema = z.object({
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const date = searchParams.get("date");
+  // Fall back to the active swipe date so "Make it my pick" works when navigated from Swipe.
+  const date = searchParams.get("date") ?? (typeof window !== "undefined" ? sessionStorage.getItem("activeSwipeDate") : null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -51,8 +52,12 @@ const RecipeDetail = () => {
       if (r) {
         setRecipe(r as Recipe);
         setServings(r.servings);
-        // Fire-and-forget view tracking
-        supabase.from("recipe_views").insert({ recipe_id: r.id, user_id: user.id }).then(() => {});
+        // Fire-and-forget view tracking, deduped per session.
+        const viewKey = `viewed:${r.id}`;
+        if (typeof window !== "undefined" && !sessionStorage.getItem(viewKey)) {
+          sessionStorage.setItem(viewKey, "1");
+          supabase.from("recipe_views").insert({ recipe_id: r.id, user_id: user.id }).then(() => {});
+        }
       }
       setReviews((rev as Review[]) ?? []);
       setCanReview((liked?.length ?? 0) > 0);
@@ -65,6 +70,7 @@ const RecipeDetail = () => {
     };
     load();
   }, [id, user]);
+
 
   const normalizeIngredients = (raw: unknown): Array<{ name: string; quantity: string }> => {
     if (!Array.isArray(raw)) return [];
@@ -93,10 +99,24 @@ const RecipeDetail = () => {
       quantity: ing.quantity,
       recipe_id: recipe.id,
     }));
-    const { error } = await supabase.from("shopping_list_items").insert(items);
+    // Dedupe against existing unchecked items for this user
+    const { data: existing } = await supabase
+      .from("shopping_list_items")
+      .select("name, checked")
+      .eq("user_id", user.id);
+    const have = new Set(
+      (existing ?? []).filter((i) => !i.checked).map((i) => i.name.toLowerCase().trim()),
+    );
+    const fresh = items.filter((i) => i.name && !have.has(i.name.toLowerCase().trim()));
+    if (fresh.length === 0) {
+      toast.info("All ingredients are already on your list.");
+      return;
+    }
+    const { error } = await supabase.from("shopping_list_items").insert(fresh);
     if (error) toast.error(error.message);
-    else toast.success(`Added ${items.length} ingredients to shopping list`);
+    else toast.success(`Added ${fresh.length} ingredient${fresh.length === 1 ? "" : "s"} to shopping list`);
   };
+
 
   const makeFinal = async () => {
     if (!recipe || !user || !date) return;
@@ -286,13 +306,20 @@ const RecipeDetail = () => {
 
 function scaleQty(q: string | null | undefined, scale: number): string {
   if (!q) return "";
-  const m = q.match(/^([\d.,/]+)\s*(.*)$/);
+  const m = q.match(/^([\d.,/\s]+)\s*(.*)$/);
   if (!m) return q;
-  const numStr = m[1].replace(",", ".");
-  const n = parseFloat(numStr);
+  const raw = m[1].trim();
+  // Mixed number "1 1/2" or pure fraction "1/2"
+  let n = NaN;
+  const mixed = raw.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  const frac = raw.match(/^(\d+)\/(\d+)$/);
+  if (mixed) n = parseInt(mixed[1], 10) + parseInt(mixed[2], 10) / parseInt(mixed[3], 10);
+  else if (frac) n = parseInt(frac[1], 10) / parseInt(frac[2], 10);
+  else n = parseFloat(raw.replace(",", "."));
   if (isNaN(n)) return q;
   const out = +(n * scale).toFixed(2);
   return `${out} ${m[2]}`.trim();
 }
+
 
 export default RecipeDetail;

@@ -141,6 +141,8 @@ const Swipe = () => {
     load();
   }, [user, date]);
 
+  const [lastSwipe, setLastSwipe] = useState<{ recipeId: string; index: number } | null>(null);
+
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
     if (!recipe || !user || !date) return;
@@ -155,6 +157,7 @@ const Swipe = () => {
       return;
     }
 
+    setLastSwipe({ recipeId: recipe.id, index });
     const nextIndex = index + 1;
     setIndex(nextIndex);
     const nextTop = recipes[nextIndex];
@@ -186,6 +189,25 @@ const Swipe = () => {
       }
     }
   };
+
+  const handleUndo = async () => {
+    if (!lastSwipe || !user || !date) return;
+    const { error } = await supabase
+      .from("swipes")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("recipe_id", lastSwipe.recipeId)
+      .eq("plan_date", date);
+    if (error) {
+      toast.error("Couldn't undo. Try again.");
+      return;
+    }
+    setIndex(lastSwipe.index);
+    sessionStorage.setItem(`swipeTopRecipe:${date}`, lastSwipe.recipeId);
+    setLastSwipe(null);
+    toast.success("Undone");
+  };
+
 
 
   const remaining = recipes.length - index;
@@ -252,6 +274,19 @@ const Swipe = () => {
                 </div>
               </button>
             )}
+            {remaining > 0 && lastSwipe && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                className="absolute top-[4.25rem] left-4 z-20 flex items-center gap-1.5 bg-foreground/40 text-primary-foreground rounded-full px-3 py-1.5 hover:bg-foreground/50 transition-colors text-xs font-semibold"
+                aria-label="Undo last swipe"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+                Undo last swipe
+              </button>
+            )}
+
+
           </div>
         </div>
       )}
@@ -313,7 +348,7 @@ const SwipeCard = ({
       animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
       exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.3 } }}
     >
-      <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover" />
+      <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
       {isTop && (
         <>

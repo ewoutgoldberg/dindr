@@ -11,6 +11,18 @@ import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 
 type Profile = Tables<"profiles">;
@@ -255,9 +267,26 @@ const Profile = () => {
               <p className="text-sm font-semibold truncate">{partner.display_name}</p>
               <p className="text-xs text-muted-foreground">Connected</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={disconnect} className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
-              <X className="h-3.5 w-3.5" /> Disconnect
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
+                  <X className="h-3.5 w-3.5" /> Disconnect
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Disconnect from {partner.display_name ?? "your partner"}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You'll stop sharing swipes, matches and your shopping list. You can reconnect later with an invite code.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep connected</AlertDialogCancel>
+                  <AlertDialogAction onClick={disconnect}>Disconnect</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
           </div>
         ) : (
           <>
@@ -275,12 +304,30 @@ const Profile = () => {
       </section>
 
       {/* Sign out — subtle */}
-      <button
-        onClick={signOut}
-        className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
-      >
-        <LogOut className="h-4 w-4" /> Sign out
-      </button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out of Dinder?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll need to log in again to see your plan, matches and shopping list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay signed in</AlertDialogCancel>
+            <AlertDialogAction onClick={() => signOut().then(() => navigate("/auth", { replace: true }))}>
+              Sign out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <AvatarCropDialog
         open={!!cropSrc}

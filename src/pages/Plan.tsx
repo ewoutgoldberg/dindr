@@ -109,35 +109,29 @@ const Plan = () => {
 
   const planAllWeek = async () => {
     if (!user) return;
-    const tasks = days.map((d) => {
-      const k = fmtDateKey(d);
-      if (plans[k]) return null;
-      return supabase.from("meal_plans").upsert({ user_id: user.id, plan_date: k }, { onConflict: "user_id,plan_date" });
-    });
-    await Promise.all(tasks.filter(Boolean));
+    const missing = days.map((d) => fmtDateKey(d)).filter((k) => !plans[k]);
+    if (missing.length === 0) {
+      toast.info("Every day this week is already set up.");
+      return;
+    }
+    const results = await Promise.all(
+      missing.map((k) =>
+        supabase.from("meal_plans").upsert({ user_id: user.id, plan_date: k }, { onConflict: "user_id,plan_date" }),
+      ),
+    );
+    const failed = results.filter((r) => r.error).length;
     await loadWeek();
-    toast.success("Whole week planned!");
+    if (failed > 0) toast.error(`Planned ${missing.length - failed}/${missing.length} days. Try again.`);
+    else toast.success(`Planned ${missing.length} day${missing.length === 1 ? "" : "s"}!`);
   };
 
   const startSwiping = () => navigate(`/swipe/${fmtDateKey(selected)}`, { state: { dateConfirmed: true } });
 
-  const handleSwap = async () => {
-    if (!user) {
-      startSwiping();
-      return;
-    }
-    const dateKey = fmtDateKey(selected);
-    const { count } = await supabase
-      .from("swipes")
-      .select("id", { count: "exact", head: true })
-      .eq("plan_date", dateKey)
-      .eq("liked", true);
-    if ((count ?? 0) > 0) {
-      navigate(`/matches?date=${dateKey}`);
-    } else {
-      navigate(`/swipe/${dateKey}`, { state: { dateConfirmed: true } });
-    }
+  const handleSwap = () => {
+    // Always go back to swiping for a fresh pick. Use Matches tab to review existing likes.
+    navigate(`/swipe/${fmtDateKey(selected)}`, { state: { dateConfirmed: true } });
   };
+
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
