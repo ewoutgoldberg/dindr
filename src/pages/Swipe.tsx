@@ -274,6 +274,18 @@ const Swipe = () => {
                 </div>
               </button>
             )}
+            {remaining > 0 && lastSwipe && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-foreground/40 text-primary-foreground rounded-full px-3 py-2 hover:bg-foreground/50 transition-colors text-xs font-semibold"
+                aria-label="Undo last swipe"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+                Undo
+              </button>
+            )}
+
           </div>
         </div>
       )}
@@ -335,7 +347,7 @@ const SwipeCard = ({
       animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
       exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.3 } }}
     >
-      <img src={recipe.image_url ?? ""} alt={recipe.title} className="absolute inset-0 w-full h-full object-cover" />
+      <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
       {isTop && (
         <>
