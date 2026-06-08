@@ -93,7 +93,7 @@ const Shopping = () => {
   const clearChecked = async () => {
     const ids = items.filter((i) => i.checked).map((i) => i.id);
     if (ids.length === 0) return;
-    // RLS will only delete rows the user is allowed to touch (own + partner if policy allows).
+    // RLS allows deleting own + partner items.
     const { error } = await supabase.from("shopping_list_items").delete().in("id", ids);
     if (error) {
       toast.error(error.message);
