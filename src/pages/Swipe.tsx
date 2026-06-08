@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
+import { ArrowLeft, Clock, ChefHat, X, Heart, Loader2, Sparkles, Bookmark, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CreditCard, SlidersHorizontal } from "lucide-react";
 import { useFavorite } from "@/hooks/useFavorite";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
@@ -236,7 +236,13 @@ const Swipe = () => {
         <div className="flex-1 flex px-5 pb-3 relative min-h-0">
           <div className="relative w-full max-w-md mx-auto flex-1 min-h-0">
             {remaining === 0 ? (
-              <EmptyState onBack={handleStartOver} onMatches={() => navigate(`/matches?date=${date}`)} date={date!} />
+              <EmptyState
+                onBack={handleStartOver}
+                onMatches={() => navigate(`/matches?date=${date}`)}
+                onAdjustFilters={() => navigate(`/filters?date=${date}`)}
+                date={date!}
+                noRecipes={recipes.length === 0}
+              />
             ) : (
               <AnimatePresence mode="popLayout" initial={false}>
                 {recipes.slice(index, index + 3).reverse().map((r, stackIdx, arr) => {
@@ -410,27 +416,59 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
   );
 };
 
-const EmptyState = ({ date, onBack, onMatches }: { date: string; onBack: () => void; onMatches: () => void }) => (
+const EmptyState = ({
+  date,
+  onBack,
+  onMatches,
+  onAdjustFilters,
+  noRecipes,
+}: {
+  date: string;
+  onBack: () => void;
+  onMatches: () => void;
+  onAdjustFilters: () => void;
+  noRecipes: boolean;
+}) => (
   <div className="absolute inset-0 grid place-items-center text-center px-6">
     <div>
-      <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
-        <Sparkles className="h-10 w-10 text-primary-foreground" />
-      </div>
-      <h2 className="text-2xl font-display font-extrabold">You're done swiping!</h2>
-      <p className="text-muted-foreground mt-2">
-        Let your partner know your suggestions are ready, or jump to your matches.
-      </p>
-      <div className="flex flex-col gap-2 mt-6">
-        <NotifyPartnerButton
-          planDate={date}
-          variant="hero"
-          size="lg"
-          label="Notify partner my picks are ready"
-          className="w-full"
-        />
-        <Button variant="outline" onClick={onMatches}>See my likes</Button>
-        <Button variant="ghost" onClick={onBack}>Start over</Button>
-      </div>
+      {noRecipes ? (
+        <>
+          <div className="h-20 w-20 rounded-full bg-muted grid place-items-center mx-auto mb-4">
+            <SlidersHorizontal className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h2 className="text-2xl font-display font-extrabold">No recipes match your filters</h2>
+          <p className="text-muted-foreground mt-2">
+            Try loosening your filters to see more dishes.
+          </p>
+          <div className="flex flex-col gap-2 mt-6">
+            <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
+              Adjust filters
+            </Button>
+            <Button variant="ghost" onClick={onBack}>Start over</Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
+            <Sparkles className="h-10 w-10 text-primary-foreground" />
+          </div>
+          <h2 className="text-2xl font-display font-extrabold">You're done swiping!</h2>
+          <p className="text-muted-foreground mt-2">
+            Let your partner know your suggestions are ready, or jump to your matches.
+          </p>
+          <div className="flex flex-col gap-2 mt-6">
+            <NotifyPartnerButton
+              planDate={date}
+              variant="hero"
+              size="lg"
+              label="Notify partner my picks are ready"
+              className="w-full"
+            />
+            <Button variant="outline" onClick={onMatches}>See my likes</Button>
+            <Button variant="ghost" onClick={onBack}>Start over</Button>
+          </div>
+        </>
+      )}
     </div>
   </div>
 );
