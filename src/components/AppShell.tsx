@@ -18,13 +18,19 @@ type Tab = {
   onClick?: () => void;
 };
 
+const activeSwipeDate = () => {
+  if (typeof window === "undefined") return today();
+  return sessionStorage.getItem("activeSwipeDate") || today();
+};
+
 const consumerTabs: Tab[] = [
   { to: "/filters", label: "Filters", icon: SlidersHorizontal },
-  { to: () => `/swipe/${today()}`, match: "/swipe", label: "Swipe", icon: Flame },
+  { to: () => `/swipe/${activeSwipeDate()}`, match: "/swipe", label: "Swipe", icon: Flame },
   { to: "/matches", label: "Matches", icon: Heart },
   { to: "/plan", label: "Plan", icon: CalendarDays },
   { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
 ];
+
 
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();

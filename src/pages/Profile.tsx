@@ -11,6 +11,18 @@ import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 
 type Profile = Tables<"profiles">;
@@ -255,9 +267,26 @@ const Profile = () => {
               <p className="text-sm font-semibold truncate">{partner.display_name}</p>
               <p className="text-xs text-muted-foreground">Connected</p>
             </div>
-            <Button variant="ghost" size="sm" onClick={disconnect} className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
-              <X className="h-3.5 w-3.5" /> Disconnect
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
+                  <X className="h-3.5 w-3.5" /> Disconnect
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Disconnect from {partner.display_name ?? "your partner"}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You'll stop sharing swipes, matches and your shopping list. You can reconnect later with an invite code.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep connected</AlertDialogCancel>
+                  <AlertDialogAction onClick={disconnect}>Disconnect</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
           </div>
         ) : (
           <>
