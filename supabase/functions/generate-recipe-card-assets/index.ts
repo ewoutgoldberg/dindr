@@ -15,9 +15,7 @@ Deno.serve(async (req) => {
 
   try {
     const { recipe_id } = (await req.json()) as ReqBody;
-    if (!recipe_id) {
-      return json({ error: "recipe_id required" }, 400);
-    }
+    if (!recipe_id) return json({ error: "recipe_id required" }, 400);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -33,7 +31,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (rErr || !recipe) return json({ error: "Recipe not found" }, 404);
 
-    // If already generated, return cached
     if (recipe.card_assets_generated_at) {
       return json({ step_images: recipe.step_images, nutrition: recipe.nutrition, cached: true });
     }
@@ -41,81 +38,85 @@ Deno.serve(async (req) => {
     const steps = (recipe.instructions as string[]) ?? [];
     const ingredients = recipe.ingredients as unknown[];
 
-    // 1. Generate nutrition via text model
-    let nutrition: Record<string, number> | null = null;
-    try {
-      const nutRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: "Schat de voedingswaarde per portie van een recept. Geef alleen JSON terug." },
-            {
-              role: "user",
-              content: `Recept: ${recipe.title}\nIngrediënten: ${JSON.stringify(ingredients)}\nGeef JSON: {\"calories\":number,\"protein_g\":number,\"fat_g\":number,\"carbs_g\":number}`,
-            },
-          ],
-          response_format: { type: "json_object" },
-        }),
-      });
-      if (nutRes.ok) {
-        const j = await nutRes.json();
-        const txt = j.choices?.[0]?.message?.content ?? "{}";
-        nutrition = JSON.parse(txt);
-      }
-    } catch (e) {
-      console.error("nutrition failed", e);
-    }
+    // Initialise empty placeholder array immediately so the frontend sees the right length
+    const initialImages: string[] = steps.map(() => "");
+    await admin.from("recipes").update({ step_images: initialImages }).eq("id", recipe.id);
 
-    // 2. Generate one image per step (sequential to be gentle on rate limit)
-    const stepImages: string[] = [];
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
+    // Kick off nutrition + all step images in parallel
+    const nutritionPromise = (async (): Promise<Record<string, number> | null> => {
       try {
-        const prompt = `Overhead food photography style step-by-step cooking image showing: ${step}. Clean kitchen, natural light, recipe card illustration style, no text, no watermark.`;
-        const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-3.1-flash-image-preview",
-            messages: [{ role: "user", content: prompt }],
-            modalities: ["image", "text"],
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: "Schat de voedingswaarde per portie van een recept. Geef alleen JSON terug." },
+              {
+                role: "user",
+                content: `Recept: ${recipe.title}\nIngrediënten: ${JSON.stringify(ingredients)}\nGeef JSON: {\"calories\":number,\"protein_g\":number,\"fat_g\":number,\"carbs_g\":number}`,
+              },
+            ],
+            response_format: { type: "json_object" },
           }),
         });
-        if (!imgRes.ok) {
-          const t = await imgRes.text();
-          console.error(`step ${i} image failed`, imgRes.status, t);
-          stepImages.push("");
-          continue;
-        }
-        const j = await imgRes.json();
-        const b64 = j.data?.[0]?.b64_json;
-        if (!b64) {
-          stepImages.push("");
-          continue;
-        }
-        // upload to storage
-        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-        const path = `recipe-cards/${recipe.id}/step-${i}-${Date.now()}.png`;
-        const { error: upErr } = await admin.storage
-          .from("lovable-uploads")
-          .upload(path, bytes, { contentType: "image/png", upsert: true });
-        if (upErr) {
-          console.error("upload failed", upErr);
-          stepImages.push("");
-          continue;
-        }
-        const { data: pub } = admin.storage.from("lovable-uploads").getPublicUrl(path);
-        stepImages.push(pub.publicUrl);
+        if (!res.ok) return null;
+        const j = await res.json();
+        const txt = j.choices?.[0]?.message?.content ?? "{}";
+        const nut = JSON.parse(txt);
+        await admin.from("recipes").update({ nutrition: nut }).eq("id", recipe.id);
+        return nut;
       } catch (e) {
-        console.error(`step ${i} error`, e);
-        stepImages.push("");
+        console.error("nutrition failed", e);
+        return null;
       }
-    }
+    })();
 
-    // 3. Save back to recipe
-    const { error: updErr } = await admin
+    // Shared running array we mutate as steps finish; each write replaces step_images entirely
+    const stepImages: string[] = [...initialImages];
+
+    const stepPromises = steps.map((step, i) =>
+      (async () => {
+        try {
+          const prompt = `Overhead food photography style step-by-step cooking image showing: ${step}. Clean kitchen, natural light, recipe card illustration style, no text, no watermark.`;
+          const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "google/gemini-3.1-flash-image-preview",
+              messages: [{ role: "user", content: prompt }],
+              modalities: ["image", "text"],
+            }),
+          });
+          if (!imgRes.ok) {
+            console.error(`step ${i} image failed`, imgRes.status, await imgRes.text());
+            return;
+          }
+          const j = await imgRes.json();
+          const b64 = j.data?.[0]?.b64_json;
+          if (!b64) return;
+          const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+          const path = `recipe-cards/${recipe.id}/step-${i}-${Date.now()}.png`;
+          const { error: upErr } = await admin.storage
+            .from("lovable-uploads")
+            .upload(path, bytes, { contentType: "image/png", upsert: true });
+          if (upErr) {
+            console.error("upload failed", upErr);
+            return;
+          }
+          const { data: pub } = admin.storage.from("lovable-uploads").getPublicUrl(path);
+          stepImages[i] = pub.publicUrl;
+          // Push progressive update so the client sees it via realtime
+          await admin.from("recipes").update({ step_images: [...stepImages] }).eq("id", recipe.id);
+        } catch (e) {
+          console.error(`step ${i} error`, e);
+        }
+      })()
+    );
+
+    const [nutrition] = await Promise.all([nutritionPromise, Promise.all(stepPromises)]);
+
+    await admin
       .from("recipes")
       .update({
         step_images: stepImages,
@@ -123,7 +124,6 @@ Deno.serve(async (req) => {
         card_assets_generated_at: new Date().toISOString(),
       })
       .eq("id", recipe.id);
-    if (updErr) console.error("update failed", updErr);
 
     return json({ step_images: stepImages, nutrition, cached: false });
   } catch (e) {
