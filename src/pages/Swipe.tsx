@@ -399,7 +399,7 @@ const EmptyState = ({ date, onBack, onMatches }: { date: string; onBack: () => v
           className="w-full"
         />
         <Button variant="outline" onClick={onMatches}>See my likes</Button>
-        <Button variant="ghost" onClick={onBack}>Back to plan</Button>
+        <Button variant="ghost" onClick={onBack}>Start over</Button>
       </div>
     </div>
   </div>
