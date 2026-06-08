@@ -304,12 +304,30 @@ const Profile = () => {
       </section>
 
       {/* Sign out — subtle */}
-      <button
-        onClick={signOut}
-        className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
-      >
-        <LogOut className="h-4 w-4" /> Sign out
-      </button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out of Dinder?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You'll need to log in again to see your plan, matches and shopping list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay signed in</AlertDialogCancel>
+            <AlertDialogAction onClick={() => signOut().then(() => navigate("/auth", { replace: true }))}>
+              Sign out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <AvatarCropDialog
         open={!!cropSrc}
