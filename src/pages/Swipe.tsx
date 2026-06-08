@@ -353,7 +353,7 @@ const SwipeCard = ({
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
         <div className="flex items-center gap-4 mt-3 text-sm font-semibold">
           <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {recipe.cooking_time_minutes} min</span>
-          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.category}</span>
+          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.servings} pers.</span>
         </div>
       </div>
     </motion.div>
