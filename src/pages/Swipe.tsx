@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -300,19 +300,15 @@ const Swipe = () => {
   );
 };
 
-const SwipeCard = ({
-  recipe,
-  isTop,
-  depth,
-  onSwipe,
-  onTap,
-}: {
+type SwipeCardProps = {
   recipe: Recipe;
   isTop: boolean;
   depth: number;
   onSwipe?: (liked: boolean) => void;
   onTap: () => void;
-}) => {
+};
+
+const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
@@ -328,6 +324,7 @@ const SwipeCard = ({
 
   return (
     <motion.div
+      ref={ref}
       className="swipe-card"
       style={{
         x: isTop ? x : 0,
@@ -405,7 +402,8 @@ const SwipeCard = ({
       </div>
     </motion.div>
   );
-};
+});
+SwipeCard.displayName = "SwipeCard";
 
 const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
   const { isFavorite, toggle } = useFavorite(recipeId);

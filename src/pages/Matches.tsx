@@ -237,8 +237,9 @@ const Matches = () => {
       )}
     >
       <button
+        type="button"
         onClick={() => navigate(`/recipe/${recipe.id}?date=${date}`)}
-        className="text-left w-full active:scale-[0.98] transition-transform"
+        className="text-left w-full active:scale-[0.98] transition-transform block"
       >
         <div className="aspect-square relative">
           <img
@@ -254,19 +255,18 @@ const Matches = () => {
             </span>
           )}
           {tone === "partner" && (
-            <div className="absolute inset-0 grid place-items-center bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                variant="hero"
-                size="sm"
-                className="shadow-glow animate-pop"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  requestMatch(date, recipe);
-                }}
-
-              >
+            <div
+              className="absolute inset-0 grid place-items-center bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+              role="presentation"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                requestMatch(date, recipe);
+              }}
+            >
+              <span className="inline-flex items-center gap-1 rounded-md bg-primary text-primary-foreground shadow-glow animate-pop px-3 py-1.5 text-sm font-semibold">
                 <Zap className="h-3.5 w-3.5" /> Match this
-              </Button>
+              </span>
             </div>
           )}
         </div>
@@ -275,21 +275,20 @@ const Matches = () => {
           <p className="text-xs text-muted-foreground mt-1">
             {recipe.cooking_time_minutes} min · {recipe.category}
           </p>
-          {tone !== "partner" && (
-            <Button
-              variant={isFinal ? "secondary" : "outline"}
-              size="sm"
-              className="w-full mt-2 h-8 text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                setFinal(date, recipe.id);
-              }}
-            >
-              {isFinal ? "Final pick ✓" : "Make it final"}
-            </Button>
-          )}
         </div>
       </button>
+      {tone !== "partner" && (
+        <div className="px-3 pb-3">
+          <Button
+            variant={isFinal ? "secondary" : "outline"}
+            size="sm"
+            className="w-full h-8 text-xs"
+            onClick={() => setFinal(date, recipe.id)}
+          >
+            {isFinal ? "Final pick ✓" : "Make it final"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 
