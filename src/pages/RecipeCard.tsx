@@ -44,15 +44,15 @@ const RecipeCard = () => {
       setAssetsReady(!!rec.card_assets_generated_at);
       setLoading(false);
 
-      // Resolve creator name: prefer linked food_creators.display_name, fall back to recipe.creator text.
+      // Resolve creator name: prefer linked food_creators.name, fall back to recipe.creator text.
       if (rec.creator_id) {
         const { data: c } = await supabase
           .from("food_creators")
-          .select("display_name")
+          .select("name")
           .eq("id", rec.creator_id)
           .maybeSingle();
-        if (!cancelled && c?.display_name) {
-          setCreatorName(c.display_name.toUpperCase());
+        if (!cancelled && c?.name) {
+          setCreatorName(c.name.toUpperCase());
         } else if (!cancelled && rec.creator) {
           setCreatorName(rec.creator.toUpperCase());
         }
