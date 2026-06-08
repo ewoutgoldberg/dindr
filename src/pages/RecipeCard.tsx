@@ -22,6 +22,7 @@ const RecipeCard = () => {
   const [stepImages, setStepImages] = useState<string[]>([]);
   const [nutrition, setNutrition] = useState<Record<string, number> | null>(null);
   const [assetsReady, setAssetsReady] = useState(false);
+  const [creatorName, setCreatorName] = useState<string>("Dindr");
 
   // Load recipe and kick off (non-blocking) asset generation
   useEffect(() => {
@@ -42,6 +43,22 @@ const RecipeCard = () => {
       setNutrition((rec.nutrition as Record<string, number> | null) ?? null);
       setAssetsReady(!!rec.card_assets_generated_at);
       setLoading(false);
+
+      // Resolve creator name: prefer linked food_creators.name, fall back to recipe.creator text.
+      if (rec.creator_id) {
+        const { data: c } = await supabase
+          .from("food_creators")
+          .select("name")
+          .eq("id", rec.creator_id)
+          .maybeSingle();
+        if (!cancelled && c?.name) {
+          setCreatorName(c.name.toUpperCase());
+        } else if (!cancelled && rec.creator) {
+          setCreatorName(rec.creator.toUpperCase());
+        }
+      } else if (rec.creator) {
+        setCreatorName(rec.creator.toUpperCase());
+      }
 
       // Fire-and-forget generation if needed; realtime updates feed the UI.
       if (!rec.card_assets_generated_at) {
@@ -114,12 +131,13 @@ const RecipeCard = () => {
             animate={{ rotateY: flipped ? 180 : 0 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
           >
-            <CardFront recipe={recipe} />
+            <CardFront recipe={recipe} creatorName={creatorName} />
             <CardBack
               recipe={recipe}
               stepImages={stepImages}
               nutrition={nutrition}
               generating={generating}
+              creatorName={creatorName}
             />
           </motion.div>
         </div>
