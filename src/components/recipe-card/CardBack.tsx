@@ -62,7 +62,7 @@ export const CardBack = ({
       <div className="flex-1 grid grid-cols-[230px_1fr] min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside className="bg-neutral-100 m-3 rounded-lg p-4 overflow-y-auto">
-          <Section title="Wat je van ons krijgt">
+          <Section title="Wat je moet kopen">
             <ul className="space-y-1 text-[11.5px] text-neutral-800">
               {ingredients.map((ing, i) => (
                 <li key={i} className="flex gap-1.5">
@@ -78,7 +78,7 @@ export const CardBack = ({
             </ul>
           </Section>
 
-          <Section title="Wat je thuis nodig hebt">
+          <Section title="Wat je thuis waarschijnlijk al in huis hebt">
             <ul className="space-y-1 text-[11.5px] text-neutral-700">
               <li className="flex gap-1.5"><span className="text-neutral-500">•</span> peper en zout</li>
               <li className="flex gap-1.5"><span className="text-neutral-500">•</span> olijfolie</li>
