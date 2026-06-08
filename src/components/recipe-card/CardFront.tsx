@@ -47,11 +47,13 @@ export const CardFront = ({
           >
             {recipe.title}
           </h1>
-          {recipe.subtitle && (
-            <p className="italic text-[13px] text-neutral-600 mt-0.5">
-              {recipe.subtitle}
-            </p>
-          )}
+          {recipe.subtitle &&
+            !recipe.title?.toLowerCase().includes(recipe.subtitle.toLowerCase()) &&
+            !recipe.subtitle.toLowerCase().includes(recipe.title?.toLowerCase() ?? "") && (
+              <p className="italic text-[13px] text-neutral-600 mt-0.5">
+                {recipe.subtitle}
+              </p>
+            )}
           <div className="flex items-center gap-5 mt-3 text-[12px] text-neutral-700">
             <span className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" strokeWidth={1.5} />
