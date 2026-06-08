@@ -244,7 +244,6 @@ const Plan = () => {
           planDate={fmtDateKey(selected)}
           variant="outline"
           className="w-full"
-          disabled={!finalRecipe}
           label={`Notify partner about ${isToday(selected) ? "today" : fmtDayLong(selected)}`}
         />
       </div>
