@@ -145,7 +145,7 @@ const Auth = () => {
             )}
           </form>
 
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="my-3 flex items-center gap-3 text-xs text-muted-foreground">
             <div className="h-px bg-border flex-1" />
             <span>or</span>
             <div className="h-px bg-border flex-1" />
@@ -156,7 +156,7 @@ const Auth = () => {
             Continue with Google
           </Button>
 
-          <p className="mt-5 text-xs text-center text-muted-foreground">
+          <p className="mt-3 text-[11px] text-center text-muted-foreground">
             By continuing you agree to Dinder's terms & privacy policy.
           </p>
         </div>
