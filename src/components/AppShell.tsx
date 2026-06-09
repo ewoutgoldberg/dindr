@@ -48,7 +48,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const tabs = isCreator ? creatorTabs : consumerTabs;
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
       {!hideNav && (
         <div
           aria-hidden
@@ -57,10 +57,10 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
         />
       )}
       {!hideNav && <PingPopup />}
-      <main className={cn("flex-1 flex flex-col safe-top", !hideNav && "pb-24")}>{children}</main>
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain safe-top">{children}</main>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
+        <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
           <div className={cn("max-w-md mx-auto grid px-2 pt-2", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
