@@ -92,6 +92,7 @@
 @layer base {
   * { @apply border-border; }
   html, body, #root { @apply h-full; }
+  #root { display: flex; flex-direction: column; overflow: hidden; }
   html { @apply bg-background; }
   body {
     @apply bg-background text-foreground antialiased;
