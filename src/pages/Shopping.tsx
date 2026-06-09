@@ -188,8 +188,11 @@ const Shopping = () => {
           )}
         </>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 export default Shopping;
