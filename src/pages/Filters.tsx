@@ -501,9 +501,12 @@ const Filters = () => {
       </Button>
         </>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 const DatePickerDialog = ({
   open,
