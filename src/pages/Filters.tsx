@@ -189,7 +189,7 @@ const Filters = () => {
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
+    <div className="h-full flex flex-col animate-fade-in">
       <DatePickerDialog
         open={pickerOpen}
         dates={upcomingDates}
@@ -199,7 +199,7 @@ const Filters = () => {
         onCancel={dateConfirmed ? () => setPickerOpen(false) : () => navigate("/plan")}
       />
 
-      <header className="mb-6 flex items-start justify-between gap-3">
+      <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4 flex items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-display font-extrabold">Tune your inspiration</h1>
           {dateConfirmed && (
@@ -219,6 +219,10 @@ const Filters = () => {
           </Button>
         )}
       </header>
+
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-md mx-auto w-full px-5 pb-8">
+
 
       {!dateConfirmed ? (
         <div className="grid place-items-center text-muted-foreground text-sm py-20 text-center">
