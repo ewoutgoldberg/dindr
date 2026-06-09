@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,57 @@ const Auth = () => {
   useEffect(() => {
     if (user) navigate(from, { replace: true });
   }, [user, navigate, from]);
+
+  // iOS keyboard handling: keep the auth screen pinned to the visual viewport so it
+  // doesn't shift/scroll when the on-screen keyboard appears. Uses visualViewport
+  // (works in Safari + WKWebView/Capacitor) and locks body scroll while mounted.
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const setH = () => {
+      const h = vv?.height ?? window.innerHeight;
+      const top = vv?.offsetTop ?? 0;
+      if (containerRef.current) {
+        containerRef.current.style.height = `${h}px`;
+        containerRef.current.style.transform = `translateY(${top}px)`;
+      }
+      // Cancel any stray scroll the browser tried to apply on focus
+      window.scrollTo(0, 0);
+    };
+    setH();
+    vv?.addEventListener("resize", setH);
+    vv?.addEventListener("scroll", setH);
+    window.addEventListener("resize", setH);
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const onFocusIn = (e: FocusEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t || !(t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement)) return;
+      // Defer so the keyboard has time to resize the visual viewport
+      setTimeout(() => {
+        setH();
+        t.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 250);
+    };
+    document.addEventListener("focusin", onFocusIn);
+
+    return () => {
+      vv?.removeEventListener("resize", setH);
+      vv?.removeEventListener("scroll", setH);
+      window.removeEventListener("resize", setH);
+      document.removeEventListener("focusin", onFocusIn);
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      if (containerRef.current) {
+        containerRef.current.style.height = "";
+        containerRef.current.style.transform = "";
+      }
+    };
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +146,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
+    <div ref={containerRef} className="fixed inset-x-0 top-0 flex flex-col overflow-hidden bg-background" style={{ height: "100dvh" }}>
       <div className="relative h-[34vh] min-h-[180px] overflow-hidden shrink-0">
         <img src={hero} alt="Delicious pasta" className="absolute inset-0 w-full h-full object-cover" width={1024} height={1280} />
         <div className="absolute inset-0 gradient-hero" />
