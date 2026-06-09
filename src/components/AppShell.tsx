@@ -57,7 +57,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
         />
       )}
       {!hideNav && <PingPopup />}
-      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain safe-top">{children}</main>
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain safe-top flex flex-col">{children}</main>
 
       {!hideNav && (
         <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
