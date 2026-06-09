@@ -60,8 +60,8 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain safe-top flex flex-col">{children}</main>
 
       {!hideNav && (
-        <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
-          <div className={cn("max-w-md mx-auto grid h-[4.25rem] px-2 py-1", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
+        <nav className="app-bottom-nav safe-bottom">
+          <div className={cn("app-bottom-nav-grid", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
               const showBadge = "showBadge" in rest && rest.showBadge && unread > 0;
@@ -86,6 +86,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                     key={`${label}-${idx}`}
                     type="button"
                     onClick={onClick}
+                    data-label={label}
                     className={cn(baseClass, "text-muted-foreground hover:text-foreground")}
                   >
                     {content}
@@ -101,6 +102,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                 <NavLink
                   key={matchPath || `${label}-${idx}`}
                   to={target}
+                  data-label={label}
                   className={cn(baseClass, active ? "text-primary" : "text-muted-foreground hover:text-foreground")}
                 >
                   {content}
