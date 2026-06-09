@@ -65,7 +65,9 @@ const Auth = () => {
   const google = async () => {
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${from}` });
+      const isNative = window.location.protocol === "capacitor:";
+      const origin = isNative ? "https://dindr.lovable.app" : window.location.origin;
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${origin}${from}` });
       if (result.error) throw result.error;
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
