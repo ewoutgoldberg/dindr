@@ -91,7 +91,7 @@
 
 @layer base {
   * { @apply border-border; }
-  html, body, #root { @apply h-full; }
+  html, body, #root { @apply h-full overflow-x-hidden; }
   #root { display: flex; flex-direction: column; }
   #root > * { min-height: 0; }
   main { flex: 1; min-height: 0; overflow-y: auto; }
