@@ -117,12 +117,14 @@ const Shopping = () => {
 
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
-      <header className="mb-6">
-        
+    <div className="h-full flex flex-col animate-fade-in">
+      <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4">
         <h1 className="text-3xl font-display font-extrabold mt-1">Shopping</h1>
         <p className="text-muted-foreground mt-1">Tap to check off. Synced live with your partner.</p>
       </header>
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-md mx-auto w-full px-5 pb-8">
+
 
       <div className="flex gap-2 mb-5">
         <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Add item…" onKeyDown={(e) => e.key === "Enter" && add()} className="rounded-full h-12" maxLength={80} />
@@ -186,8 +188,11 @@ const Shopping = () => {
           )}
         </>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 export default Shopping;
