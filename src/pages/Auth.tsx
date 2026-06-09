@@ -95,19 +95,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="relative h-[42vh] overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
+      <div className="relative h-[34vh] min-h-[180px] overflow-hidden shrink-0">
         <img src={hero} alt="Delicious pasta" className="absolute inset-0 w-full h-full object-cover" width={1024} height={1280} />
         <div className="absolute inset-0 gradient-hero" />
-        <div className="relative h-full flex flex-col items-center justify-center px-6 text-center text-primary-foreground">
-          <img src={logo} alt="Dinder logo" className="h-16 w-16 mb-4 drop-shadow-lg" width={64} height={64} />
-          <h1 className="text-4xl font-display font-extrabold tracking-tight">Dinder</h1>
-          <p className="mt-2 text-base font-medium opacity-95 max-w-xs">Tinder for Dinner. Swipe. Match. Cook.</p>
+        <div className="relative h-full flex flex-col items-center justify-center px-6 text-center text-primary-foreground safe-top">
+          <img src={logo} alt="Dinder logo" className="h-14 w-14 mb-3 drop-shadow-lg" width={56} height={56} />
+          <h1 className="text-3xl font-display font-extrabold tracking-tight">Dinder</h1>
+          <p className="mt-1 text-sm font-medium opacity-95 max-w-xs">Tinder for Dinner. Swipe. Match. Cook.</p>
         </div>
       </div>
 
-      <div className="flex-1 max-w-md w-full mx-auto px-6 -mt-8 z-10">
-        <div className="bg-card rounded-3xl shadow-card p-6 animate-scale-in">
+      <div className="flex-1 min-h-0 max-w-md w-full mx-auto px-5 -mt-8 z-10 pb-[max(env(safe-area-inset-bottom),0.75rem)] overflow-hidden">
+        <div className="bg-card rounded-3xl shadow-card p-5 animate-scale-in">
           <div className="flex bg-muted rounded-full p-1 mb-6">
             {(["signin", "signup"] as const).map((m) => (
               <button
