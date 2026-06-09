@@ -108,7 +108,7 @@ const Auth = () => {
 
       <div className="flex-1 min-h-0 max-w-md w-full mx-auto px-5 -mt-8 z-10 pb-[max(env(safe-area-inset-bottom),0.75rem)] overflow-hidden">
         <div className="bg-card rounded-3xl shadow-card p-5 animate-scale-in">
-          <div className="flex bg-muted rounded-full p-1 mb-6">
+          <div className="flex bg-muted rounded-full p-1 mb-4">
             {(["signin", "signup"] as const).map((m) => (
               <button
                 key={m}
