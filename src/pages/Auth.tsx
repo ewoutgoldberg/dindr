@@ -146,7 +146,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
+    <div ref={containerRef} className="fixed inset-x-0 top-0 flex flex-col overflow-hidden bg-background" style={{ height: "100dvh" }}>
       <div className="relative h-[34vh] min-h-[180px] overflow-hidden shrink-0">
         <img src={hero} alt="Delicious pasta" className="absolute inset-0 w-full h-full object-cover" width={1024} height={1280} />
         <div className="absolute inset-0 gradient-hero" />
