@@ -147,7 +147,7 @@ const Auth = () => {
 
   return (
     <div ref={containerRef} className="fixed inset-x-0 top-0 flex flex-col overflow-hidden bg-background" style={{ height: "100dvh" }}>
-      <div className="relative h-[34vh] min-h-[180px] overflow-hidden shrink-0">
+      <div className="relative h-[34vh] min-h-[160px] max-h-[280px] overflow-hidden shrink-0">
         <img src={hero} alt="Delicious pasta" className="absolute inset-0 w-full h-full object-cover" width={1024} height={1280} />
         <div className="absolute inset-0 gradient-hero" />
         <div className="relative h-full flex flex-col items-center justify-center px-6 text-center text-primary-foreground safe-top">
@@ -157,7 +157,8 @@ const Auth = () => {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 max-w-md w-full mx-auto px-5 -mt-8 z-10 pb-[max(env(safe-area-inset-bottom),0.75rem)] overflow-hidden">
+      <div className="flex-1 min-h-0 max-w-md w-full mx-auto px-5 -mt-8 z-10 pb-[max(env(safe-area-inset-bottom),0.75rem)] overflow-y-auto overscroll-contain">
+
         <div className="bg-card rounded-3xl shadow-card p-5 animate-scale-in">
           <div className="flex bg-muted rounded-full p-1 mb-4">
             {(["signin", "signup"] as const).map((m) => (
