@@ -33,6 +33,57 @@ const Auth = () => {
     if (user) navigate(from, { replace: true });
   }, [user, navigate, from]);
 
+  // iOS keyboard handling: keep the auth screen pinned to the visual viewport so it
+  // doesn't shift/scroll when the on-screen keyboard appears. Uses visualViewport
+  // (works in Safari + WKWebView/Capacitor) and locks body scroll while mounted.
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const setH = () => {
+      const h = vv?.height ?? window.innerHeight;
+      const top = vv?.offsetTop ?? 0;
+      if (containerRef.current) {
+        containerRef.current.style.height = `${h}px`;
+        containerRef.current.style.transform = `translateY(${top}px)`;
+      }
+      // Cancel any stray scroll the browser tried to apply on focus
+      window.scrollTo(0, 0);
+    };
+    setH();
+    vv?.addEventListener("resize", setH);
+    vv?.addEventListener("scroll", setH);
+    window.addEventListener("resize", setH);
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    const onFocusIn = (e: FocusEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (!t || !(t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement)) return;
+      // Defer so the keyboard has time to resize the visual viewport
+      setTimeout(() => {
+        setH();
+        t.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 250);
+    };
+    document.addEventListener("focusin", onFocusIn);
+
+    return () => {
+      vv?.removeEventListener("resize", setH);
+      vv?.removeEventListener("scroll", setH);
+      window.removeEventListener("resize", setH);
+      document.removeEventListener("focusin", onFocusIn);
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      if (containerRef.current) {
+        containerRef.current.style.height = "";
+        containerRef.current.style.transform = "";
+      }
+    };
+  }, []);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse({ email, password });
