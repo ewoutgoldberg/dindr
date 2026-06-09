@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Browser as CapacitorBrowser } from "@capacitor/browser";
 
 type AuthCtx = {
   user: User | null;
@@ -31,7 +34,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Native deep-link OAuth callback handler (iOS/Android via Capacitor).
+    // Expected callback URL: app.dindr://oauth-callback#access_token=...&refresh_token=...
+    let removeListener: (() => void) | undefined;
+    if (Capacitor.isNativePlatform()) {
+      CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
+        try {
+          if (!url || !url.startsWith("app.dindr://")) return;
+          // Tokens can arrive in the URL hash (implicit) or as ?code= (PKCE)
+          const hashIndex = url.indexOf("#");
+          const queryIndex = url.indexOf("?");
+          const hash = hashIndex >= 0 ? url.substring(hashIndex + 1) : "";
+          const query = queryIndex >= 0 ? url.substring(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined) : "";
+          const params = new URLSearchParams(hash || query);
+          const access_token = params.get("access_token");
+          const refresh_token = params.get("refresh_token");
+          const code = params.get("code");
+
+          if (access_token && refresh_token) {
+            await supabase.auth.setSession({ access_token, refresh_token });
+          } else if (code) {
+            await supabase.auth.exchangeCodeForSession(code);
+          }
+        } catch (e) {
+          console.error("OAuth deep-link handling failed", e);
+        } finally {
+          try { await CapacitorBrowser.close(); } catch { /* noop */ }
+        }
+      }).then((handle) => {
+        removeListener = () => handle.remove();
+      });
+    }
+
+    return () => {
+      subscription.unsubscribe();
+      removeListener?.();
+    };
   }, []);
 
   const signOut = async () => {
