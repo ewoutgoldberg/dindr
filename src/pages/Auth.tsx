@@ -116,8 +116,29 @@ const Auth = () => {
   const google = async () => {
     setBusy(true);
     try {
-      const isNative = window.location.protocol === "capacitor:";
-      const origin = isNative ? "https://dindr.lovable.app" : window.location.origin;
+      const { Capacitor } = await import("@capacitor/core");
+      const isNative = Capacitor.isNativePlatform();
+
+      if (isNative) {
+        // Native iOS/Android (Capacitor): open the OAuth flow in the system browser
+        // (SFSafariViewController on iOS / Chrome Custom Tabs on Android) — Google
+        // refuses to sign in inside an embedded WKWebView. After auth, the OAuth
+        // broker redirects to our custom URL scheme, which the AuthProvider catches
+        // via appUrlOpen and exchanges for a Supabase session.
+        const redirectTo = "app.dindr://oauth-callback";
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo, skipBrowserRedirect: true },
+        });
+        if (error) throw error;
+        if (!data?.url) throw new Error("No OAuth URL returned");
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url: data.url, presentationStyle: "popover" });
+        return;
+      }
+
+      // Web (and PWA): use the Lovable managed OAuth broker as before.
+      const origin = window.location.origin;
       const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${origin}${from}` });
       if (result.error) throw result.error;
     } catch (err: unknown) {
