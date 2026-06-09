@@ -53,7 +53,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
         <div
           aria-hidden
           className="fixed top-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl"
-          style={{ height: "env(safe-area-inset-top)" }}
+          style={{ height: "var(--app-safe-top)" }}
         />
       )}
       {!hideNav && <PingPopup />}

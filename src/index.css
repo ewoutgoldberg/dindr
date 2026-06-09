@@ -116,7 +116,15 @@
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
-  .safe-top { padding-top: env(safe-area-inset-top); }
+  :root { --app-safe-top: env(safe-area-inset-top); }
+  .safe-top { padding-top: var(--app-safe-top); }
+  /* Capacitor iOS WebView often reports 0 for safe-area-inset-top; guarantee room for the status bar/Dynamic Island in standalone/native shells. */
+  @supports (-webkit-touch-callout: none) {
+    @media (display-mode: standalone), (display-mode: fullscreen) {
+      :root { --app-safe-top: max(env(safe-area-inset-top), 59px); }
+    }
+  }
+  html.native-shell { --app-safe-top: max(env(safe-area-inset-top), 59px); }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
