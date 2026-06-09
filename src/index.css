@@ -124,7 +124,7 @@
       :root { --app-safe-top: max(env(safe-area-inset-top), 59px); }
     }
   }
-  html.native-shell { --app-safe-top: max(env(safe-area-inset-top), 59px); }
+  html.native-shell { --app-safe-top: max(env(safe-area-inset-top), 59px) !important; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }

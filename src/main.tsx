@@ -6,11 +6,15 @@ import "./index.css";
 // even when env(safe-area-inset-top) reports 0 inside the WKWebView.
 if (typeof window !== "undefined") {
   const w = window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } };
-  const isCapacitor = !!w.Capacitor && (w.Capacitor.isNativePlatform?.() ?? true);
   const ua = navigator.userAgent || "";
+  const isCapacitor = !!w.Capacitor || /Capacitor/i.test(ua) || location.protocol === "capacitor:" || location.protocol === "ionic:";
   const isStandaloneIOS = (navigator as unknown as { standalone?: boolean }).standalone === true;
-  if (isCapacitor || isStandaloneIOS || /Capacitor/i.test(ua)) {
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && (navigator as Navigator & { maxTouchPoints: number }).maxTouchPoints > 1);
+  if (isCapacitor || isStandaloneIOS) {
     document.documentElement.classList.add("native-shell");
+  }
+  if (isIOS) {
+    document.documentElement.classList.add("ios-device");
   }
 }
 
