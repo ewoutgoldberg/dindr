@@ -92,8 +92,14 @@
 @layer base {
   * { @apply border-border; }
   html, body, #root { @apply h-full; }
+  html { @apply bg-background; }
   body {
     @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* Fill iOS safe-area regions with the app background so the WKWebView
+       doesn't show black bars above/below the content on notched devices. */
+    background-color: hsl(var(--background));
     font-feature-settings: "ss01", "cv11";
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
