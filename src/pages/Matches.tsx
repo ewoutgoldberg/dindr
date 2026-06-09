@@ -311,9 +311,8 @@ const Matches = () => {
   );
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
-      <header className="mb-6">
-        
+    <div className="h-full flex flex-col animate-fade-in">
+      <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4">
         <h1 className="text-3xl font-display font-extrabold mt-1">Matches</h1>
         <p className="text-muted-foreground mt-1">
           {hasPartner
@@ -322,15 +321,20 @@ const Matches = () => {
         </p>
       </header>
 
-      <CollapsibleGroups
-        groups={groups}
-        hasPartner={hasPartner}
-        navigate={navigate}
-        handleImgErr={handleImgErr}
-        RecipeTile={RecipeTile}
-        SectionHeader={SectionHeader}
-        initialDate={initialDate}
-      />
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-md mx-auto w-full px-5 pb-8">
+          <CollapsibleGroups
+            groups={groups}
+            hasPartner={hasPartner}
+            navigate={navigate}
+            handleImgErr={handleImgErr}
+            RecipeTile={RecipeTile}
+            SectionHeader={SectionHeader}
+            initialDate={initialDate}
+          />
+        </div>
+      </div>
+
 
       <AlertDialog open={!!confirmMatch} onOpenChange={(o) => { if (!o) setConfirmMatch(null); }}>
         <AlertDialogContent>
