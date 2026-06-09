@@ -134,11 +134,14 @@ const Plan = () => {
 
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 pb-8 animate-fade-in">
+    <div className="h-full flex flex-col animate-fade-in">
       {/* Header */}
-      <header className="mb-6">
+      <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4">
         <h1 className="text-3xl font-display font-extrabold mt-1">What&apos;s cooking?</h1>
       </header>
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-md mx-auto w-full px-5 pb-8">
+
 
       {/* Week navigation */}
       <div className="flex items-center justify-between mb-3">
