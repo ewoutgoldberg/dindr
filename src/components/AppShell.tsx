@@ -61,7 +61,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
 
       {!hideNav && (
         <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
-          <div className={cn("max-w-md mx-auto grid px-2 pt-2", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
+          <div className={cn("max-w-md mx-auto grid px-2 py-1", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
               const showBadge = "showBadge" in rest && rest.showBadge && unread > 0;
