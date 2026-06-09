@@ -142,8 +142,11 @@ const Notifications = () => {
           })}
         </ul>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 export default Notifications;
