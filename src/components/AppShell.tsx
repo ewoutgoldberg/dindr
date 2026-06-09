@@ -48,9 +48,17 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const tabs = isCreator ? creatorTabs : consumerTabs;
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
-    <div className="min-h-screen flex flex-col bg-background safe-top">
+    <div className="min-h-screen flex flex-col bg-background">
+      {!hideNav && (
+        <div
+          aria-hidden
+          className="fixed top-0 inset-x-0 z-40 bg-background/95 backdrop-blur-xl"
+          style={{ height: "env(safe-area-inset-top)" }}
+        />
+      )}
       {!hideNav && <PingPopup />}
-      <main className={cn("flex-1 flex flex-col", !hideNav && "pb-24")}>{children}</main>
+      <main className={cn("flex-1 flex flex-col safe-top", !hideNav && "pb-24")}>{children}</main>
+
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
           <div className={cn("max-w-md mx-auto grid px-2 pt-2", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
