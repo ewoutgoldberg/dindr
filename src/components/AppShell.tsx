@@ -60,7 +60,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain safe-top">{children}</main>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
+        <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
           <div className={cn("max-w-md mx-auto grid px-2 pt-2", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
