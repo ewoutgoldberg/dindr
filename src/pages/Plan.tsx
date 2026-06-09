@@ -245,9 +245,12 @@ const Plan = () => {
       </div>
 
       {/* Footer action */}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 const PlannedRecipeCard = ({
   recipe,
