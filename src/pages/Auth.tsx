@@ -39,14 +39,18 @@ const Auth = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const vv = window.visualViewport;
+    const baseH = window.innerHeight;
     const setH = () => {
       const h = vv?.height ?? window.innerHeight;
       const top = vv?.offsetTop ?? 0;
+      const keyboardOpen = baseH - h > 100;
       if (containerRef.current) {
-        containerRef.current.style.height = `${h}px`;
-        containerRef.current.style.transform = `translateY(${top}px)`;
+        // Only shrink the container when the keyboard is actually open. Otherwise
+        // leave it at 100dvh so iOS safe-area regions stay filled with our background
+        // (prevents black bars above/below in the native WKWebView shell).
+        containerRef.current.style.height = keyboardOpen ? `${h}px` : "";
+        containerRef.current.style.transform = keyboardOpen ? `translateY(${top}px)` : "";
       }
-      // Cancel any stray scroll the browser tried to apply on focus
       window.scrollTo(0, 0);
     };
     setH();
