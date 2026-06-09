@@ -125,8 +125,6 @@
     }
   }
   html.native-shell { --app-safe-top: max(env(safe-area-inset-top), 59px) !important; }
-  /* Belt-and-braces: any iOS device running this app in a non-Safari context (Capacitor uses capacitor://) */
-  html.ios-device:not(.web-browser) { --app-safe-top: max(env(safe-area-inset-top), 47px); }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
