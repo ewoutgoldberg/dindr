@@ -54,8 +54,8 @@ const Favorites = () => {
   const hasFavorites = favorites.length > 0;
 
   return (
-    <div className="max-w-md mx-auto w-full px-5 pt-6 animate-fade-in">
-      <header className="mb-6 flex items-center gap-3">
+    <div className="h-full flex flex-col animate-fade-in">
+      <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4 flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -64,6 +64,9 @@ const Favorites = () => {
 
         </div>
       </header>
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-md mx-auto w-full px-5 pb-8">
+
 
       {hasFavorites && (
         <Button
