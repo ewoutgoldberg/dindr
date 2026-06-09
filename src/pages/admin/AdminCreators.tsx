@@ -129,8 +129,11 @@ const AdminCreators = () => {
           ))}
         </ul>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 export default AdminCreators;
