@@ -58,8 +58,8 @@ const AdminCreators = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full px-5 py-6 animate-fade-in">
-      <header className="flex items-center justify-between mb-5">
+    <div className="h-full flex flex-col animate-fade-in">
+      <header className="shrink-0 max-w-2xl mx-auto w-full px-5 pt-6 pb-4 flex items-center justify-between">
         <div>
           <h1 className="font-display font-extrabold text-2xl">Creators</h1>
           <p className="text-sm text-muted-foreground">Manage profiles &amp; claim links</p>
@@ -73,6 +73,9 @@ const AdminCreators = () => {
           </Button>
         </div>
       </header>
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="max-w-2xl mx-auto w-full px-5 pb-6">
+
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as Status)} className="mb-5">
         <TabsList className="w-full grid grid-cols-5">
