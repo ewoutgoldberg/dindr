@@ -48,7 +48,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const tabs = isCreator ? creatorTabs : consumerTabs;
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-background">
+    <div className="h-full min-h-0 flex flex-col bg-background">
       {!hideNav && (
         <div
           aria-hidden
@@ -61,7 +61,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
 
       {!hideNav && (
         <nav className="shrink-0 border-t border-border bg-background/95 backdrop-blur-xl safe-bottom">
-          <div className={cn("max-w-md mx-auto grid px-2 pt-2", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
+          <div className={cn("max-w-md mx-auto grid h-[4.25rem] px-2 py-1", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
               const showBadge = "showBadge" in rest && rest.showBadge && unread > 0;
@@ -76,10 +76,10 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
                       </span>
                     )}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-wide leading-none">{label}</span>
                 </>
               );
-              const baseClass = "flex flex-col items-center gap-1 py-2 rounded-xl transition-colors";
+              const baseClass = "h-full min-h-0 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors";
               if (onClick) {
                 return (
                   <button
