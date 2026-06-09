@@ -48,7 +48,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const tabs = isCreator ? creatorTabs : consumerTabs;
   const hideNav = pathname.startsWith("/swipe-favorites") || pathname === "/auth";
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
+    <div className="h-full flex flex-col overflow-hidden bg-background">
       {!hideNav && (
         <div
           aria-hidden
