@@ -161,9 +161,12 @@ const Favorites = () => {
           )}
         </ul>
       )}
+        </div>
+      </div>
     </div>
   );
 };
+
 
 const PlanFavoriteAction = ({ recipeId, recipeTitle, userId }: { recipeId: string; recipeTitle: string; userId?: string }) => {
   const [open, setOpen] = useState(false);
