@@ -103,7 +103,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
-          options: { emailRedirectTo: `${window.location.origin}/plan` },
+          options: { emailRedirectTo: `${window.location.origin}/swipe/${fmtDateKey(new Date())}` },
         });
         if (error) throw error;
         toast.success("Welcome! Account created.");
