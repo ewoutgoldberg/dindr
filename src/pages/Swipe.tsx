@@ -408,10 +408,6 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
             <span className="text-xs font-semibold">by {recipe.food_creators.name}</span>
           </Link>
         )}
-        <div className="flex gap-2 mb-2">
-          <Badge className="bg-foreground/30 text-primary-foreground border-0">{recipe.category}</Badge>
-          <Badge className="bg-foreground/30 text-primary-foreground border-0 capitalize">{recipe.difficulty}</Badge>
-        </div>
         <h2 className="text-3xl font-display font-extrabold leading-tight drop-shadow">{recipe.title}</h2>
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
         <div className="flex items-center gap-4 mt-3 text-sm font-semibold">
