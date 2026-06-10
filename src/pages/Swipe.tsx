@@ -1,6 +1,6 @@
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform, useAnimation } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -142,6 +142,7 @@ const Swipe = () => {
   }, [user, date]);
 
   const [lastSwipe, setLastSwipe] = useState<{ recipeId: string; index: number } | null>(null);
+  const topCardRef = useRef<SwipeCardHandle>(null);
 
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
@@ -248,6 +249,7 @@ const Swipe = () => {
                   return (
                     <SwipeCard
                       key={r.id}
+                      ref={isTop ? topCardRef : undefined}
                       recipe={r}
                       isTop={isTop}
                       depth={arr.length - 1 - stackIdx}
@@ -257,6 +259,35 @@ const Swipe = () => {
                   );
                 })}
               </AnimatePresence>
+            )}
+            {remaining > 0 && (
+              <div className="absolute bottom-3 inset-x-0 z-20 flex items-center justify-center gap-5 pointer-events-none">
+                <button
+                  type="button"
+                  onClick={() => topCardRef.current?.fling(false)}
+                  className="pointer-events-auto h-14 w-14 rounded-full bg-background shadow-glow grid place-items-center text-destructive border-2 border-destructive/20 active:scale-90 transition-transform"
+                  aria-label="Nope"
+                >
+                  <X className="h-7 w-7" strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  disabled={!lastSwipe}
+                  className="pointer-events-auto h-12 w-12 rounded-full bg-background shadow-card grid place-items-center text-accent-foreground border-2 border-accent/40 active:scale-90 transition-transform disabled:opacity-40"
+                  aria-label="Undo"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => topCardRef.current?.fling(true)}
+                  className="pointer-events-auto h-14 w-14 rounded-full bg-background shadow-glow grid place-items-center text-success border-2 border-success/20 active:scale-90 transition-transform"
+                  aria-label="Yum"
+                >
+                  <Heart className="h-7 w-7 fill-current" strokeWidth={2} />
+                </button>
+              </div>
             )}
             {remaining > 0 && (
               <button
@@ -300,6 +331,10 @@ const Swipe = () => {
   );
 };
 
+export type SwipeCardHandle = {
+  fling: (liked: boolean) => void;
+};
+
 type SwipeCardProps = {
   recipe: Recipe;
   isTop: boolean;
@@ -308,23 +343,54 @@ type SwipeCardProps = {
   onTap: () => void;
 };
 
-const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
+const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
+  const controls = useAnimation();
   const startX = useRef<number>(0);
+  const flying = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    fling: (liked: boolean) => {
+      if (!isTop || flying.current) return;
+      flying.current = true;
+      const target = liked ? 700 : -700;
+      controls
+        .start({
+          x: target,
+          rotate: liked ? 18 : -18,
+          transition: { duration: 0.35, ease: [0.32, 0.72, 0.35, 1] },
+        })
+        .then(() => {
+          onSwipe?.(liked);
+        });
+    },
+  }), [isTop, controls, onSwipe]);
 
   const handleEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
-    if (Math.abs(info.offset.x) > threshold) {
-      onSwipe?.(info.offset.x > 0);
+    const velocity = info.velocity.x;
+    const offset = info.offset.x;
+    if (Math.abs(offset) > threshold || Math.abs(velocity) > 600) {
+      const liked = offset > 0 || velocity > 0;
+      flying.current = true;
+      const target = liked ? 700 : -700;
+      controls
+        .start({
+          x: target,
+          rotate: liked ? 18 : -18,
+          transition: { duration: 0.3, ease: [0.32, 0.72, 0.35, 1] },
+        })
+        .then(() => onSwipe?.(liked));
+    } else {
+      controls.start({ x: 0, rotate: 0, transition: { type: "spring", stiffness: 400, damping: 30 } });
     }
   };
 
   return (
     <motion.div
-      ref={ref}
       className="swipe-card"
       style={{
         x: isTop ? x : 0,
@@ -333,6 +399,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
         y: depth * 12,
         zIndex: 10 - depth,
       }}
+      animate={isTop ? controls : undefined}
       drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.9}
@@ -342,8 +409,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
         if (Math.abs(e.clientX - startX.current) < 6) onTap();
       }}
       initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
-      exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
     >
       <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
@@ -373,7 +439,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
           </motion.div>
         </>
       )}
-      <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
+      <div className="absolute inset-x-0 bottom-0 p-6 pb-24 text-primary-foreground">
         {recipe.food_creators && (
           <Link
             to={`/creator/${recipe.food_creators.id}`}
