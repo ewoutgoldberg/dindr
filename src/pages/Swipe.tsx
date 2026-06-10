@@ -420,14 +420,16 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
         toggle();
       }}
       onPointerDown={(e) => e.stopPropagation()}
+      style={{ top: "calc(var(--app-safe-top) + 1rem)" }}
       className={cn(
-        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
+        "absolute right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
         isFavorite ? "bg-accent text-accent-foreground" : "bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
       )}
       aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
     >
       <Bookmark className={cn("h-5 w-5", isFavorite && "fill-current")} />
     </button>
+
   );
 };
 
