@@ -215,7 +215,8 @@ const Swipe = () => {
   const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
 
   return (
-    <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden" style={{ marginTop: "calc(var(--app-safe-top) * -1)" }}>
+
 
       <DatePickerDialog
         open={pickerOpen}
