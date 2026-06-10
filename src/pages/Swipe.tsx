@@ -215,7 +215,8 @@ const Swipe = () => {
   const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
 
   return (
-    <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden" style={{ marginTop: "calc(var(--app-safe-top) * -1)" }}>
+
 
       <DatePickerDialog
         open={pickerOpen}
@@ -265,7 +266,8 @@ const Swipe = () => {
                   setPickedDate(activeDateKey);
                   setPickerOpen(true);
                 }}
-                className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-foreground/40 text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-foreground/50 transition-colors text-left"
+                style={{ top: "calc(var(--app-safe-top) + 1rem)" }}
+                className="absolute left-4 z-20 flex items-center gap-2 bg-foreground/40 text-primary-foreground rounded-full pl-3 pr-4 py-2 hover:bg-foreground/50 transition-colors text-left"
               >
                 <CalendarIcon className="h-4 w-4 shrink-0" />
                 <div className="leading-tight">
@@ -278,13 +280,15 @@ const Swipe = () => {
               <button
                 type="button"
                 onClick={handleUndo}
-                className="absolute top-[4.25rem] left-4 z-20 flex items-center gap-1.5 bg-foreground/40 text-primary-foreground rounded-full px-3 py-1.5 hover:bg-foreground/50 transition-colors text-xs font-semibold"
+                style={{ top: "calc(var(--app-safe-top) + 4.25rem)" }}
+                className="absolute left-4 z-20 flex items-center gap-1.5 bg-foreground/40 text-primary-foreground rounded-full px-3 py-1.5 hover:bg-foreground/50 transition-colors text-xs font-semibold"
                 aria-label="Undo last swipe"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
                 Undo last swipe
               </button>
             )}
+
 
 
           </div>
@@ -354,25 +358,27 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
             to={`/recipe/${recipe.id}/card`}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="absolute top-4 right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
+            style={{ top: "calc(var(--app-safe-top) + 1rem)" }}
+            className="absolute right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
             aria-label="Bekijk als kaart"
           >
             <CreditCard className="h-5 w-5" />
           </Link>
           <motion.div
-            style={{ opacity: likeOpacity }}
-            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
+            style={{ opacity: likeOpacity, top: "calc(var(--app-safe-top) + 2rem)" }}
+            className="absolute left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
           >
             YUM
           </motion.div>
           <motion.div
-            style={{ opacity: nopeOpacity }}
-            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
+            style={{ opacity: nopeOpacity, top: "calc(var(--app-safe-top) + 2rem)" }}
+            className="absolute right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
           >
             NOPE
           </motion.div>
         </>
       )}
+
       <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
         {recipe.food_creators && (
           <Link
@@ -414,14 +420,16 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
         toggle();
       }}
       onPointerDown={(e) => e.stopPropagation()}
+      style={{ top: "calc(var(--app-safe-top) + 1rem)" }}
       className={cn(
-        "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
+        "absolute right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
         isFavorite ? "bg-accent text-accent-foreground" : "bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
       )}
       aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
     >
       <Bookmark className={cn("h-5 w-5", isFavorite && "fill-current")} />
     </button>
+
   );
 };
 
