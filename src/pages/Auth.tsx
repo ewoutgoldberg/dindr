@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import hero from "@/assets/hero-pasta.jpg";
+import { fmtDateKey } from "@/lib/dates";
+
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email").max(255),
