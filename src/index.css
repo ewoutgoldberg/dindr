@@ -127,7 +127,7 @@
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
-  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   :root { --app-safe-top: env(safe-area-inset-top); }
   .safe-top { padding-top: var(--app-safe-top); }
   /* Capacitor iOS WebView often reports 0 for safe-area-inset-top; guarantee room for the status bar/Dynamic Island in standalone/native shells. */
@@ -148,6 +148,7 @@
     background: hsl(var(--background) / 0.97);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    margin-top: auto;
   }
 
   .app-bottom-nav-grid {
@@ -188,8 +189,8 @@
 
   html.native-shell .app-bottom-nav-grid,
   html.ios-device .app-bottom-nav-grid {
-    height: 5.25rem;
-    padding-bottom: 0.875rem;
+    height: 4.875rem;
+    padding-bottom: 0.625rem;
   }
 
   .swipe-card {
