@@ -340,13 +340,17 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
   const startX = useRef<number>(0);
+  const swipedRef = useRef(false);
 
   const handleEnd = (_: unknown, info: PanInfo) => {
+    if (swipedRef.current) return;
     const threshold = 100;
     if (Math.abs(info.offset.x) > threshold) {
+      swipedRef.current = true;
       onSwipe?.(info.offset.x > 0);
     }
   };
+
 
   return (
     <motion.div
