@@ -249,6 +249,7 @@ const Swipe = () => {
                   return (
                     <SwipeCard
                       key={r.id}
+                      ref={isTop ? topCardRef : undefined}
                       recipe={r}
                       isTop={isTop}
                       depth={arr.length - 1 - stackIdx}
@@ -258,6 +259,35 @@ const Swipe = () => {
                   );
                 })}
               </AnimatePresence>
+            )}
+            {remaining > 0 && (
+              <div className="absolute bottom-3 inset-x-0 z-20 flex items-center justify-center gap-5 pointer-events-none">
+                <button
+                  type="button"
+                  onClick={() => topCardRef.current?.fling(false)}
+                  className="pointer-events-auto h-14 w-14 rounded-full bg-background shadow-glow grid place-items-center text-destructive border-2 border-destructive/20 active:scale-90 transition-transform"
+                  aria-label="Nope"
+                >
+                  <X className="h-7 w-7" strokeWidth={3} />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  disabled={!lastSwipe}
+                  className="pointer-events-auto h-12 w-12 rounded-full bg-background shadow-card grid place-items-center text-accent-foreground border-2 border-accent/40 active:scale-90 transition-transform disabled:opacity-40"
+                  aria-label="Undo"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => topCardRef.current?.fling(true)}
+                  className="pointer-events-auto h-14 w-14 rounded-full bg-background shadow-glow grid place-items-center text-success border-2 border-success/20 active:scale-90 transition-transform"
+                  aria-label="Yum"
+                >
+                  <Heart className="h-7 w-7 fill-current" strokeWidth={2} />
+                </button>
+              </div>
             )}
             {remaining > 0 && (
               <button
