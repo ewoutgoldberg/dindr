@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import hero from "@/assets/hero-pasta.jpg";
+import { fmtDateKey } from "@/lib/dates";
+
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email").max(255),
@@ -27,7 +29,7 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
 
   const redirectParam = new URLSearchParams(location.search).get("redirect");
-  const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/plan";
+  const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? `/swipe/${fmtDateKey(new Date())}`;
 
   useEffect(() => {
     if (user) navigate(from, { replace: true });
@@ -101,7 +103,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
-          options: { emailRedirectTo: `${window.location.origin}/plan` },
+          options: { emailRedirectTo: `${window.location.origin}/swipe/${fmtDateKey(new Date())}` },
         });
         if (error) throw error;
         toast.success("Welcome! Account created.");
