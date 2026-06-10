@@ -232,7 +232,7 @@ const Swipe = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="flex-1 flex px-5 pb-3 relative min-h-0">
+        <div className="flex-1 flex px-5 pb-3 relative min-h-0" style={{ paddingTop: "var(--app-safe-top)" }}>
           <div className="relative w-full max-w-md mx-auto flex-1 min-h-0">
             {remaining === 0 ? (
               <EmptyState
