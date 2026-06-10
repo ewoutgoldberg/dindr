@@ -362,7 +362,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
       }}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
-      exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.3 } }}
+      exit={{ x: x.get() > 0 ? (typeof window !== "undefined" ? window.innerWidth + 200 : 1200) : -(typeof window !== "undefined" ? window.innerWidth + 200 : 1200), opacity: 0, transition: { duration: 0.45, ease: "easeOut" } }}
     >
       <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
