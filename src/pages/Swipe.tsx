@@ -448,12 +448,14 @@ const EmptyState = ({
   date,
   onMatches,
   onAdjustFilters,
+  onRestart,
   noRecipes,
   alreadyDone,
 }: {
   date: string;
   onMatches: () => void;
   onAdjustFilters: () => void;
+  onRestart: () => void;
   noRecipes: boolean;
   alreadyDone?: boolean;
 }) => (
@@ -466,11 +468,14 @@ const EmptyState = ({
           </div>
           <h2 className="text-2xl font-display font-extrabold">No recipes match your filters</h2>
           <p className="text-muted-foreground mt-2">
-            Try loosening your filters to see more dishes.
+            Try loosening your filters or restart to swipe through all dishes again.
           </p>
           <div className="flex flex-col gap-2 mt-6">
             <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
               Adjust filters
+            </Button>
+            <Button variant="outline" size="lg" className="w-full" onClick={onRestart}>
+              Restart swiping all dishes
             </Button>
           </div>
         </>
