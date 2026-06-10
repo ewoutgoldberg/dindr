@@ -161,8 +161,11 @@ const Auth = () => {
       return;
     }
     setBusy(true);
+    const resetOrigin = window.location.hostname.includes("lovableproject.com") || window.location.hostname.includes("id-preview")
+      ? "https://dindr.lovable.app"
+      : window.location.origin;
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${resetOrigin}/reset-password`,
     });
     setBusy(false);
     if (error) {
