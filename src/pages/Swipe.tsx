@@ -147,18 +147,11 @@ const Swipe = () => {
     const recipe = recipes[index];
     if (!recipe || !user || !date) return;
 
-    // Persist FIRST so a network failure doesn't silently skip the card.
-    const { error } = await supabase.from("swipes").upsert(
-      { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
-      { onConflict: "user_id,recipe_id,plan_date" }
-    );
-    if (error) {
-      toast.error("Could not save your swipe. Try again.");
-      return;
-    }
-
-    setLastSwipe({ recipeId: recipe.id, index });
-    const nextIndex = index + 1;
+    // Optimistically advance so the swiped card unmounts immediately and
+    // can't be re-dragged while the network request is in flight.
+    const swipedIndex = index;
+    const nextIndex = swipedIndex + 1;
+    setLastSwipe({ recipeId: recipe.id, index: swipedIndex });
     setIndex(nextIndex);
     const nextTop = recipes[nextIndex];
     if (nextTop) {
@@ -166,6 +159,20 @@ const Swipe = () => {
     } else {
       sessionStorage.removeItem(`swipeTopRecipe:${date}`);
     }
+
+    const { error } = await supabase.from("swipes").upsert(
+      { user_id: user.id, recipe_id: recipe.id, plan_date: date, liked },
+      { onConflict: "user_id,recipe_id,plan_date" }
+    );
+    if (error) {
+      // Rollback on failure.
+      toast.error("Could not save your swipe. Try again.");
+      setIndex(swipedIndex);
+      setLastSwipe(null);
+      if (recipe) sessionStorage.setItem(`swipeTopRecipe:${date}`, recipe.id);
+      return;
+    }
+
 
     if (liked) {
       // check if partner also liked → match
@@ -333,13 +340,17 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
   const startX = useRef<number>(0);
+  const swipedRef = useRef(false);
 
   const handleEnd = (_: unknown, info: PanInfo) => {
+    if (swipedRef.current) return;
     const threshold = 100;
     if (Math.abs(info.offset.x) > threshold) {
+      swipedRef.current = true;
       onSwipe?.(info.offset.x > 0);
     }
   };
+
 
   return (
     <motion.div
