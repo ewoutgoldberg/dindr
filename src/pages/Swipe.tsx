@@ -142,6 +142,7 @@ const Swipe = () => {
   }, [user, date]);
 
   const [lastSwipe, setLastSwipe] = useState<{ recipeId: string; index: number } | null>(null);
+  const topCardRef = useRef<SwipeCardHandle>(null);
 
   const handleSwipe = async (liked: boolean) => {
     const recipe = recipes[index];
