@@ -358,25 +358,27 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
             to={`/recipe/${recipe.id}/card`}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="absolute top-4 right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
+            style={{ top: "calc(var(--app-safe-top) + 1rem)" }}
+            className="absolute right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
             aria-label="Bekijk als kaart"
           >
             <CreditCard className="h-5 w-5" />
           </Link>
           <motion.div
-            style={{ opacity: likeOpacity }}
-            className="absolute top-8 left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
+            style={{ opacity: likeOpacity, top: "calc(var(--app-safe-top) + 2rem)" }}
+            className="absolute left-8 px-4 py-2 border-4 border-success text-success font-extrabold text-2xl rounded-xl rotate-[-12deg] bg-background/70"
           >
             YUM
           </motion.div>
           <motion.div
-            style={{ opacity: nopeOpacity }}
-            className="absolute top-8 right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
+            style={{ opacity: nopeOpacity, top: "calc(var(--app-safe-top) + 2rem)" }}
+            className="absolute right-8 px-4 py-2 border-4 border-destructive text-destructive font-extrabold text-2xl rounded-xl rotate-[12deg] bg-background/70"
           >
             NOPE
           </motion.div>
         </>
       )}
+
       <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
         {recipe.food_creators && (
           <Link
