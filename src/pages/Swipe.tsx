@@ -300,6 +300,10 @@ const Swipe = () => {
   );
 };
 
+export type SwipeCardHandle = {
+  fling: (liked: boolean) => void;
+};
+
 type SwipeCardProps = {
   recipe: Recipe;
   isTop: boolean;
@@ -308,23 +312,54 @@ type SwipeCardProps = {
   onTap: () => void;
 };
 
-const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
+const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
+  const controls = useAnimation();
   const startX = useRef<number>(0);
+  const flying = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    fling: (liked: boolean) => {
+      if (!isTop || flying.current) return;
+      flying.current = true;
+      const target = liked ? 700 : -700;
+      controls
+        .start({
+          x: target,
+          rotate: liked ? 18 : -18,
+          transition: { duration: 0.35, ease: [0.32, 0.72, 0.35, 1] },
+        })
+        .then(() => {
+          onSwipe?.(liked);
+        });
+    },
+  }), [isTop, controls, onSwipe]);
 
   const handleEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
-    if (Math.abs(info.offset.x) > threshold) {
-      onSwipe?.(info.offset.x > 0);
+    const velocity = info.velocity.x;
+    const offset = info.offset.x;
+    if (Math.abs(offset) > threshold || Math.abs(velocity) > 600) {
+      const liked = offset > 0 || velocity > 0;
+      flying.current = true;
+      const target = liked ? 700 : -700;
+      controls
+        .start({
+          x: target,
+          rotate: liked ? 18 : -18,
+          transition: { duration: 0.3, ease: [0.32, 0.72, 0.35, 1] },
+        })
+        .then(() => onSwipe?.(liked));
+    } else {
+      controls.start({ x: 0, rotate: 0, transition: { type: "spring", stiffness: 400, damping: 30 } });
     }
   };
 
   return (
     <motion.div
-      ref={ref}
       className="swipe-card"
       style={{
         x: isTop ? x : 0,
@@ -333,6 +368,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
         y: depth * 12,
         zIndex: 10 - depth,
       }}
+      animate={isTop ? controls : undefined}
       drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.9}
@@ -342,8 +378,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
         if (Math.abs(e.clientX - startX.current) < 6) onTap();
       }}
       initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
-      exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
     >
       <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 gradient-card-overlay" />
@@ -373,7 +408,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
           </motion.div>
         </>
       )}
-      <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
+      <div className="absolute inset-x-0 bottom-0 p-6 pb-24 text-primary-foreground">
         {recipe.food_creators && (
           <Link
             to={`/creator/${recipe.food_creators.id}`}
