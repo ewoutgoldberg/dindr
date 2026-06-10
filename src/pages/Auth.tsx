@@ -29,7 +29,7 @@ const Auth = () => {
   const [busy, setBusy] = useState(false);
 
   const redirectParam = new URLSearchParams(location.search).get("redirect");
-  const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/plan";
+  const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? `/swipe/${fmtDateKey(new Date())}`;
 
   useEffect(() => {
     if (user) navigate(from, { replace: true });
