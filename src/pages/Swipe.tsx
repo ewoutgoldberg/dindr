@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform, useAnimation } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
