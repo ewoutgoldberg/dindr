@@ -237,6 +237,25 @@ const Swipe = () => {
               <EmptyState
                 onMatches={() => navigate(`/matches?date=${date}`)}
                 onAdjustFilters={() => navigate(`/filters?date=${date}`)}
+                onRestart={async () => {
+                  if (!user || !date) return;
+                  const { error } = await supabase
+                    .from("swipes")
+                    .delete()
+                    .eq("user_id", user.id)
+                    .eq("plan_date", date);
+                  if (error) {
+                    toast.error("Couldn't restart. Try again.");
+                    return;
+                  }
+                  sessionStorage.removeItem(`swipeTopRecipe:${date}`);
+                  setLastSwipe(null);
+                  setIndex(0);
+                  setLoading(true);
+                  // Trigger reload by navigating to same route with state
+                  navigate(`/swipe/${date}`, { replace: true, state: { dateConfirmed: true, reload: Date.now() } });
+                  window.location.reload();
+                }}
                 date={date!}
                 noRecipes={recipes.length === 0}
                 alreadyDone={recipes.length > 0}
