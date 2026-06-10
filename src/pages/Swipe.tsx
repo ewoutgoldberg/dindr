@@ -488,7 +488,10 @@ const EmptyState = ({
             <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
               Adjust filters
             </Button>
-            <Button variant="outline" onClick={onMatches}>See my likes</Button>
+            <Button variant="outline" size="lg" className="w-full" onClick={onRestart}>
+              Restart swiping all dishes
+            </Button>
+            <Button variant="ghost" onClick={onMatches}>See my likes</Button>
           </div>
         </>
       ) : (
