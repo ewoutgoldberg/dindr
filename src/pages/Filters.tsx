@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import { Tables } from "@/integrations/supabase/types";
 import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
@@ -56,6 +57,7 @@ type Creator = Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "spe
 const Filters = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const dateParam = searchParams.get("date");
 
@@ -174,7 +176,7 @@ const Filters = () => {
     setPantryState(setPantry(user.id, today, []));
     setHealthyOnlyState(setHealthyOnly(user.id, today, false));
     await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [], meal_type: null });
-    toast.success("Filters cleared");
+    toast.success(t("filters.filtersCleared"));
   };
 
   const toggleHealthy = () => {
@@ -201,7 +203,7 @@ const Filters = () => {
 
       <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-display font-extrabold">Stel je filters in</h1>
+          <h1 className="text-3xl font-display font-extrabold">{t("filters.title")}</h1>
           {dateConfirmed && (
             <button
               type="button"
@@ -215,7 +217,7 @@ const Filters = () => {
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground shrink-0">
-            Wis ({activeCount})
+            {t("common.clear")} ({activeCount})
           </Button>
         )}
       </header>
@@ -229,7 +231,7 @@ const Filters = () => {
           {/* Cooking time */}
           <div>
           <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-            <Clock className="h-4 w-4" /> Bereidingstijd
+            <Clock className="h-4 w-4" /> {t("filters.cookingTime")}
           </p>
             <div className="flex gap-2">
               {TIME_BUCKETS.map((t) => (
@@ -251,7 +253,7 @@ const Filters = () => {
 
           {/* Difficulty */}
         <div>
-          <p className="text-sm font-semibold mb-2">Moeilijkheid</p>
+          <p className="text-sm font-semibold mb-2">{t("filters.difficulty")}</p>
           <div className="flex gap-2">
               {DIFFICULTIES.map((d) => (
                 <button
@@ -272,7 +274,7 @@ const Filters = () => {
 
           {/* Categories */}
         <div>
-          <p className="text-sm font-semibold mb-2">Categorieën</p>
+          <p className="text-sm font-semibold mb-2">{t("filters.categories")}</p>
           <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => {
                 const active = plan?.categories?.includes(cat);
@@ -296,7 +298,7 @@ const Filters = () => {
           {/* Meal type */}
         <div>
           <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-            <Utensils className="h-4 w-4" /> Maaltijdtype
+            <Utensils className="h-4 w-4" /> {t("filters.mealType")}
           </p>
             <div className="flex gap-2">
               {MEAL_TYPES.map((mt) => (
@@ -319,7 +321,7 @@ const Filters = () => {
           {/* Healthy */}
         <div>
           <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-            <Leaf className="h-4 w-4" /> Dieet
+            <Leaf className="h-4 w-4" /> {t("filters.diet")}
           </p>
             <button
               onClick={toggleHealthy}
@@ -332,10 +334,10 @@ const Filters = () => {
               aria-pressed={healthyOnly}
             >
             <Leaf className="h-4 w-4" />
-            Alleen gezond
+            {t("filters.healthyOnly")}
           </button>
           <p className="text-xs text-muted-foreground mt-2">
-            Toon alleen lichte, groente-gerichte en gezonde gerechten.
+            {t("filters.healthyDescription")}
           </p>
           </div>
 
@@ -343,19 +345,19 @@ const Filters = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold flex items-center gap-2">
-                <Carrot className="h-4 w-4" /> Al in je keuken
+                <Carrot className="h-4 w-4" /> {t("filters.alreadyInKitchen")}
               </p>
               {pantry.length > 0 && (
                 <button
                   onClick={() => user && setPantryState(setPantry(user.id, today, []))}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Wis
+                  <X className="h-3 w-3" /> {t("common.clear")}
                 </button>
               )}
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              Voeg ingrediënten toe die je al hebt. We geven voorrang aan recepten die deze bevatten.
+              {t("filters.pantryDescription")}
             </p>
             <form
               onSubmit={(e) => {
@@ -367,11 +369,11 @@ const Filters = () => {
               <Input
                 value={pantryInput}
                 onChange={(e) => setPantryInput(e.target.value)}
-                placeholder="bijv. tomaat, knoflook, pasta"
+                placeholder={t("filters.pantryPlaceholder")}
                 maxLength={40}
                 className="h-10"
               />
-              <Button type="submit" size="icon" variant="outline" aria-label="Ingrediënt toevoegen" disabled={!pantryInput.trim()}>
+              <Button type="submit" size="icon" variant="outline" aria-label={t("filters.addIngredient")} disabled={!pantryInput.trim()}>
                 <Plus className="h-4 w-4" />
               </Button>
             </form>
@@ -395,18 +397,18 @@ const Filters = () => {
           {/* Allergies */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold">Allergieën &amp; vermijden</p>
+              <p className="text-sm font-semibold">{t("filters.allergies")}</p>
               {(plan?.allergies?.length ?? 0) > 0 && (
                 <button
                   onClick={() => upsert({ allergies: [] })}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Wis
+                  <X className="h-3 w-3" /> {t("common.clear")}
                 </button>
               )}
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              Recepten met deze ingrediënten worden verborgen.
+              {t("filters.allergiesDescription")}
             </p>
             <div className="flex flex-wrap gap-2">
               {ALLERGENS.map((a) => {
@@ -432,19 +434,19 @@ const Filters = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold flex items-center gap-2">
-                <ChefHat className="h-4 w-4" /> Chef
+                <ChefHat className="h-4 w-4" /> {t("filters.chef")}
               </p>
               {selectedCreator && (
                 <button
                   onClick={() => upsert({ creator_id: null })}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Wis
+                  <X className="h-3 w-3" /> {t("common.clear")}
                 </button>
               )}
             </div>
             {creators.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Nog geen chefs beschikbaar.</p>
+              <p className="text-xs text-muted-foreground">{t("filters.noChefs")}</p>
             ) : (
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
                 {creators.map((c) => {
@@ -492,7 +494,7 @@ const Filters = () => {
         </div>
 
         <Button variant="hero" size="lg" className="w-full mt-5" onClick={() => navigate(`/swipe/${today}`, { state: { dateConfirmed: true } })}>
-          <Sparkles className="h-5 w-5 mr-2" /> Begin met swipen
+          <Sparkles className="h-5 w-5 mr-2" /> {t("filters.startSwiping")}
         </Button>
       </div>
 
@@ -500,7 +502,7 @@ const Filters = () => {
         <div className="absolute inset-0 grid place-items-center z-10 pointer-events-none">
           <div className="text-center bg-background/60 backdrop-blur-sm px-6 py-5 rounded-2xl">
             <CalendarIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-muted-foreground font-semibold">Kies een datum om je filters in te stellen</p>
+            <p className="text-muted-foreground font-semibold">{t("filters.pickDate")}</p>
           </div>
         </div>
       )}
@@ -526,6 +528,7 @@ const DatePickerDialog = ({
   onConfirm: () => void;
   onCancel: () => void;
 }) => {
+  const { t } = useTranslation();
   const selectedRef = useRef<HTMLButtonElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
@@ -551,9 +554,9 @@ const DatePickerDialog = ({
         <DialogOverlay className="bg-transparent" />
         <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background/70 backdrop-blur-xl p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Which day are you filtering for?</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{t("filters.whichDay")}</DialogTitle>
           <DialogDescription>
-            Filters apply only to this date's meal plan.
+            {t("filters.whichDayDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -561,7 +564,7 @@ const DatePickerDialog = ({
           <button
             type="button"
             onClick={() => scrollBy(-1)}
-            aria-label="Previous dates"
+            aria-label={t("common.previousDates")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-sm grid place-items-center hover:bg-background"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -569,7 +572,7 @@ const DatePickerDialog = ({
           <button
             type="button"
             onClick={() => scrollBy(1)}
-            aria-label="Next dates"
+            aria-label={t("common.nextDates")}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-sm grid place-items-center hover:bg-background"
           >
             <ChevronRight className="h-4 w-4" />
@@ -592,7 +595,7 @@ const DatePickerDialog = ({
                   )}
                 >
                   <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
-                    {today ? "Today" : format(d, "EEE")}
+                    {today ? t("common.today") : format(d, "EEE")}
                   </span>
                   <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
                     {format(d, "d")}
@@ -606,7 +609,7 @@ const DatePickerDialog = ({
 
         <DialogFooter className="sm:justify-stretch">
           <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
-            Confirm date
+            {t("filters.confirmDate")}
           </Button>
         </DialogFooter>
         </DialogPrimitive.Content>
