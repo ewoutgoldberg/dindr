@@ -1,42 +1,33 @@
-# Witruimte onder nav weg + nav écht stilzetten
+## Doel
+De hele app tweetalig maken: Nederlands (standaard) en Engels. Gebruiker kiest taal op de Profiel-pagina; voorkeur wordt onthouden.
 
-Twee separate problemen in `src/index.css` en `src/components/AppShell.tsx`.
+## Aanpak
+- `react-i18next` + `i18next` + `i18next-browser-languagedetector` toevoegen.
+- Twee vertaalbestanden: `src/i18n/locales/nl.json` (volledige NL) en `src/i18n/locales/en.json` (volledige EN).
+- Config in `src/i18n/index.ts`, geïnitialiseerd in `src/main.tsx`. Standaardtaal: `nl`. Voorkeur opgeslagen in `localStorage` (`dindr.lang`).
+- Alle UI-strings in pagina's en componenten vervangen door `t('key')`. Backend-waarden (categorie-keys, difficulty-enum, e.d.) blijven in het Engels; alleen labels worden via `t()` vertaald.
+- Op `src/pages/Profile.tsx` een nette Taal-sectie met segmented toggle "Nederlands / English".
+- De recent toegevoegde Nederlandse strings op `Filters.tsx` (en de eerder vertaalde labels) verhuizen naar de keys, zodat ze in beide talen werken.
 
-## 1. Witruimte onder de nav
+## Scope per scherm
+Volledige strings van: AppShell-nav, Auth, ResetPassword, Plan, Filters, Swipe, Matches, RecipeDetail, RecipeCard (frontkant), Shopping, Profile, Favorites, SwipeFavorites, Notifications, Claim, Creator-pagina's, NotFound, en gedeelde componenten (RecipeCard front/back labels, dialogen, knoppen).
 
-De `.safe-bottom` utility is nu:
-```css
-padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+Buiten scope: dynamische content uit de database (recepttitels, ingrediënten, stap-tekst) — die staat in één taal in de DB en wordt niet runtime vertaald.
+
+## Technische details
+```text
+src/
+  i18n/
+    index.ts            # i18next init, detector, fallback=nl
+    locales/
+      nl.json
+      en.json
+main.tsx                # import "./i18n"
+pages/Profile.tsx       # <LanguageToggle />
 ```
-Dat dwingt minimaal 16px padding af, óók bovenop de iOS home-indicator inset (34px) → de nav lijkt zwevend met witruimte eronder.
-
-Fix in `src/index.css`:
-```css
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-```
-(Pure safe-area inset, geen extra minimum. Op devices zonder inset = 0.)
-
-## 2. Nav beweegt nog steeds
-
-`h-[100dvh] overflow-hidden` op de AppShell-root volstaat niet altijd in WKWebView: de `<body>` zelf kan nog rubber-band-scrollen, en dat duwt visueel ook de nav mee. `overscroll-behavior: none` op body wordt door oudere WebKit-versies genegeerd.
-
-Fix in `src/index.css` (body):
-```css
-body {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-  /* bestaande regels behouden */
-}
-```
-En in `src/components/AppShell.tsx` de outer van `h-[100dvh] flex flex-col overflow-hidden` naar `h-full flex flex-col overflow-hidden` (omdat body nu de viewport vult).
-
-Hiermee kan alleen de scroll-container binnen `<main>` (of de per-page body) nog scrollen; de nav en headers staan letterlijk stil.
+- Keys gegroepeerd per scherm: `nav.*`, `auth.*`, `plan.*`, `filters.*`, `swipe.*`, `matches.*`, `recipe.*`, `shopping.*`, `profile.*`, `common.*`.
+- `i18n.changeLanguage(lang)` schrijft naar `localStorage`; `<html lang>` wordt bijgewerkt.
+- Geen wijzigingen aan swipe-logica, auth-flow, edge functions of database.
 
 ## Verificatie
-- Preview: nav zit strak onderaan, geen lichte band eronder behalve de iOS home-indicator zelf.
-- Scrollen op Plan/Matches/MyKitchen: alleen content beweegt, nav en header blijven 100% stil.
-- Swipe-pagina behoudt zijn full-bleed layout (geen scroll, blijft passen binnen viewport).
+Na implementatie wissel ik in de preview tussen NL en EN op de Profiel-pagina en controleer ik dat navigatie, Filters, Swipe en Matches mee veranderen.
