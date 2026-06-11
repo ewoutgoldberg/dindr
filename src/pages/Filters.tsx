@@ -271,9 +271,9 @@ const Filters = () => {
           </div>
 
           {/* Categories */}
-          <div>
-            <p className="text-sm font-semibold mb-2">Categories</p>
-            <div className="flex flex-wrap gap-2">
+        <div>
+          <p className="text-sm font-semibold mb-2">Categorieën</p>
+          <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => {
                 const active = plan?.categories?.includes(cat);
                 return (
