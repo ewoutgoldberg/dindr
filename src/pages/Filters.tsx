@@ -250,9 +250,9 @@ const Filters = () => {
           </div>
 
           {/* Difficulty */}
-          <div>
-            <p className="text-sm font-semibold mb-2">Difficulty</p>
-            <div className="flex gap-2">
+        <div>
+          <p className="text-sm font-semibold mb-2">Moeilijkheid</p>
+          <div className="flex gap-2">
               {DIFFICULTIES.map((d) => (
                 <button
                   key={d.value}
