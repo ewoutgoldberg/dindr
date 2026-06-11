@@ -317,10 +317,10 @@ const Filters = () => {
           </div>
 
           {/* Healthy */}
-          <div>
-            <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <Leaf className="h-4 w-4" /> Diet
-            </p>
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Leaf className="h-4 w-4" /> Dieet
+          </p>
             <button
               onClick={toggleHealthy}
               className={cn(
