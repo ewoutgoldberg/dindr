@@ -331,12 +331,12 @@ const Filters = () => {
               )}
               aria-pressed={healthyOnly}
             >
-              <Leaf className="h-4 w-4" />
-              Healthy only
-            </button>
-            <p className="text-xs text-muted-foreground mt-2">
-              Only show lighter, veggie-forward and healthy dishes.
-            </p>
+            <Leaf className="h-4 w-4" />
+            Alleen gezond
+          </button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Toon alleen lichte, groente-gerichte en gezonde gerechten.
+          </p>
           </div>
 
           {/* Pantry */}
