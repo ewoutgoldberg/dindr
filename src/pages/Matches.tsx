@@ -10,6 +10,7 @@ import { Archive, Check, ChevronDown, Heart, Loader2, Sparkles, User as UserIcon
 import { fmtDayLong } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
 import {
@@ -38,6 +39,7 @@ const PLACEHOLDER = "/placeholder.svg";
 const Matches = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const initialDate = searchParams.get("date") ?? sessionStorage.getItem("activeSwipeDate");
   const [groups, setGroups] = useState<Group[]>([]);
@@ -140,7 +142,7 @@ const Matches = () => {
           { onConflict: "user_id,plan_date" },
         );
     }
-    toast.success("Decision saved!");
+    toast.success(t("matches.decisionSaved"));
     setGroups((prev) => prev.map((g) => (g.date === date ? { ...g, finalId: recipeId } : g)));
     const group = groups.find((g) => g.date === date);
     const recipe =
@@ -180,7 +182,7 @@ const Matches = () => {
       toast.error(error.message);
       return;
     }
-    toast.success(stillLiked ? "It's a match! 🎉" : "Saved your like — partner can confirm later.");
+    toast.success(stillLiked ? t("matches.matchSaved") : t("matches.likeSaved"));
     setGroups((prev) =>
       prev.map((g) => {
         if (g.date !== date) return g;
@@ -209,8 +211,8 @@ const Matches = () => {
     return (
       <div className="min-h-screen grid place-items-center px-6 text-center">
         <div>
-          <p className="text-sm text-muted-foreground mb-3">Couldn't load your matches.</p>
-          <Button variant="outline" onClick={load}>Try again</Button>
+          <p className="text-sm text-muted-foreground mb-3">{t("matches.couldNotLoad")}</p>
+          <Button variant="outline" onClick={load}>{t("common.tryAgain")}</Button>
         </div>
       </div>
     );
@@ -251,7 +253,7 @@ const Matches = () => {
           />
           {isFinal && (
             <span className="absolute top-2 right-2 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full flex items-center gap-1">
-              <Check className="h-3 w-3" /> Picked
+              <Check className="h-3 w-3" /> {t("matches.picked")}
             </span>
           )}
           {tone === "partner" && (
@@ -265,7 +267,7 @@ const Matches = () => {
               }}
             >
               <span className="inline-flex items-center gap-1 rounded-md bg-primary text-primary-foreground shadow-glow animate-pop px-3 py-1.5 text-sm font-semibold">
-                <Zap className="h-3.5 w-3.5" /> Match this
+                <Zap className="h-3.5 w-3.5" /> {t("matches.matchThis")}
               </span>
             </div>
           )}
@@ -273,7 +275,7 @@ const Matches = () => {
         <div className="p-3">
           <p className="font-display font-bold text-sm leading-tight line-clamp-2">{recipe.title}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {recipe.cooking_time_minutes} min · {recipe.category}
+            {recipe.cooking_time_minutes} {t("common.min")} · {recipe.category}
           </p>
         </div>
       </button>
@@ -285,7 +287,7 @@ const Matches = () => {
             className="w-full h-8 text-xs"
             onClick={() => setFinal(date, recipe.id)}
           >
-            {isFinal ? "Final pick ✓" : "Make it final"}
+            {isFinal ? t("matches.finalPickShort") : t("matches.makeItFinal")}
           </Button>
         </div>
       )}
@@ -313,11 +315,9 @@ const Matches = () => {
   return (
     <div className="h-full flex flex-col animate-fade-in">
       <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4">
-        <h1 className="text-3xl font-display font-extrabold mt-1">Matches</h1>
+        <h1 className="text-3xl font-display font-extrabold mt-1">{t("matches.title")}</h1>
         <p className="text-muted-foreground mt-1">
-          {hasPartner
-            ? "It's only a real match when you both pick the same recipe."
-            : "Connect a partner in your profile to turn picks into matches."}
+          {hasPartner ? t("matches.withPartner") : t("matches.withoutPartner")}
         </p>
       </header>
 
@@ -331,6 +331,7 @@ const Matches = () => {
             RecipeTile={RecipeTile}
             SectionHeader={SectionHeader}
             initialDate={initialDate}
+            t={t}
           />
         </div>
       </div>
@@ -339,20 +340,20 @@ const Matches = () => {
       <AlertDialog open={!!confirmMatch} onOpenChange={(o) => { if (!o) setConfirmMatch(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Like this recipe too?</AlertDialogTitle>
+            <AlertDialogTitle>{t("matches.likeRecipeTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmMatch ? `"${confirmMatch.recipe.title}" will be added to your likes for this day. If your partner still likes it, it becomes a match.` : ""}
+              {confirmMatch ? t("matches.likeRecipeDescription", { title: confirmMatch.recipe.title }) : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (confirmMatch) matchRecipe(confirmMatch.date, confirmMatch.recipe);
                 setConfirmMatch(null);
               }}
             >
-              Like it
+              {t("matches.likeIt")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -370,6 +371,7 @@ type CollapsibleGroupsProps = {
   RecipeTile: React.FC<{ recipe: Recipe; date: string; tone: "mine" | "partner" | "match"; isFinal?: boolean }>;
   SectionHeader: React.FC<{ icon: React.ReactNode; label: string; count: number; tint: string }>;
   initialDate?: string | null;
+  t: (key: string, opts?: Record<string, unknown>) => string;
 };
 
 const CollapsibleGroups = ({
@@ -380,6 +382,7 @@ const CollapsibleGroups = ({
   RecipeTile,
   SectionHeader,
   initialDate,
+  t,
 }: CollapsibleGroupsProps) => {
   const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
   const [openDate, setOpenDate] = useState<string | null>(initialDate ?? today);
@@ -442,7 +445,7 @@ const CollapsibleGroups = ({
                 <h2 className="font-display font-bold text-base truncate">{fmtDayLong(parseISO(g.date))}</h2>
                 {isToday && (
                   <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                    Today
+                    {t("matches.today")}
                   </span>
                 )}
               </div>
@@ -454,7 +457,7 @@ const CollapsibleGroups = ({
                   </Badge>
                 ) : hasPartner ? (
                   <Badge variant="outline" className="text-muted-foreground text-[10px]">
-                    {totalItems} pick{totalItems === 1 ? "" : "s"}
+                    {t("matches.pickCount", { count: totalItems })}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="text-muted-foreground text-[10px]">
@@ -472,14 +475,12 @@ const CollapsibleGroups = ({
                     <div className="h-12 w-12 rounded-full bg-background grid place-items-center mx-auto mb-3">
                       <Heart className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="font-display font-bold text-sm">No picks yet for this day</p>
+                    <p className="font-display font-bold text-sm">{t("matches.noPicksYet")}</p>
                     <p className="text-xs text-muted-foreground mt-1 mb-4">
-                      {hasPartner
-                        ? "Start swiping to create a match with your partner."
-                        : "Start swiping to build your shortlist."}
+                      {hasPartner ? t("matches.noPicksDescriptionPartner") : t("matches.noPicksDescriptionSolo")}
                     </p>
                     <Button variant="hero" size="sm" onClick={() => navigate(`/swipe/${g.date}`, { state: { dateConfirmed: true } })}>
-                      <Sparkles className="h-3.5 w-3.5" /> Start swiping
+                      <Sparkles className="h-3.5 w-3.5" /> {t("matches.startSwiping")}
                     </Button>
                   </div>
                 )}
@@ -488,7 +489,7 @@ const CollapsibleGroups = ({
                   <div className="mb-2">
                     <SectionHeader
                       icon={<Check className="h-3.5 w-3.5 text-success-foreground" />}
-                      label="Final pick"
+                      label={t("matches.finalPick")}
                       count={1}
                       tint="bg-success"
                     />
@@ -505,12 +506,12 @@ const CollapsibleGroups = ({
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                         <span className="absolute top-3 left-3 bg-success text-success-foreground text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <Check className="h-3 w-3" /> Final pick
+                          <Check className="h-3 w-3" /> {t("matches.finalPick")}
                         </span>
                         <div className="absolute bottom-3 left-3 right-3 text-white">
                           <p className="font-display font-extrabold text-lg leading-tight">{finalRecipe.title}</p>
                           <p className="text-xs opacity-90 mt-0.5">
-                            {finalRecipe.cooking_time_minutes} min · {finalRecipe.category}
+                            {finalRecipe.cooking_time_minutes} {t("common.min")} · {finalRecipe.category}
                           </p>
                         </div>
                       </div>
@@ -524,7 +525,7 @@ const CollapsibleGroups = ({
                       planDate={g.date}
                       variant="ghost"
                       size="sm"
-                      label="Ping partner"
+                      label={t("matches.pingPartner")}
                       className="h-7 px-2 text-xs"
                     />
                   </div>
@@ -534,7 +535,7 @@ const CollapsibleGroups = ({
                   <>
                     <SectionHeader
                       icon={<Sparkles className="h-3.5 w-3.5 text-accent-foreground" />}
-                      label="Matches"
+                      label={t("matches.title")}
                       count={matchesToShow.length}
                       tint="bg-accent"
                     />
@@ -550,7 +551,7 @@ const CollapsibleGroups = ({
                   <>
                     <SectionHeader
                       icon={<UserIcon className="h-3.5 w-3.5 text-primary-foreground" />}
-                      label="Your suggestions"
+                      label={t("matches.yourSuggestions")}
                       count={mineOnly.length}
                       tint="bg-primary"
                     />
@@ -566,7 +567,7 @@ const CollapsibleGroups = ({
                   <>
                     <SectionHeader
                       icon={<Users className="h-3.5 w-3.5 text-secondary-foreground" />}
-                      label="Partner's suggestions"
+                      label={t("matches.partnerSuggestions")}
                       count={partnerOnly.length}
                       tint="bg-secondary"
                     />
@@ -580,7 +581,7 @@ const CollapsibleGroups = ({
 
                 {hasPartner && matchesToShow.length === 0 && !finalRecipe && (
                   <p className="text-xs text-muted-foreground mt-3 italic">
-                    Keep swiping — a match happens when you both like the same recipe.
+                    {t("matches.keepSwipingHint")}
                   </p>
                 )}
               </div>
@@ -604,7 +605,7 @@ const CollapsibleGroups = ({
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
                 <Archive className="h-3.5 w-3.5" />
               </span>
-              <h2 className="font-display font-bold text-sm text-muted-foreground">Eerdere matches</h2>
+              <h2 className="font-display font-bold text-sm text-muted-foreground">{t("matches.pastMatches")}</h2>
               <span className="text-[11px] text-muted-foreground">({pastGroups.length})</span>
             </div>
             <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", pastOpen && "rotate-180")} />
