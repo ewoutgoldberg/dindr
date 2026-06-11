@@ -15,47 +15,9 @@ export const OrientationGate = ({ children }: { children: React.ReactNode }) => 
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  useEffect(() => {
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    if (!isTouch) return;
-    const el = document.documentElement as HTMLElement & {
-      webkitRequestFullscreen?: () => Promise<void>;
-    };
-    const doc = document as Document & {
-      webkitExitFullscreen?: () => Promise<void>;
-      webkitFullscreenElement?: Element | null;
-    };
-    const inFs = () => !!(document.fullscreenElement || doc.webkitFullscreenElement);
-    const enter = () => {
-      if (inFs()) return;
-      const req = el.requestFullscreen?.bind(el) ?? el.webkitRequestFullscreen?.bind(el);
-      req?.().catch(() => {});
-    };
-    const exit = () => {
-      if (!inFs()) return;
-      const ex = document.exitFullscreen?.bind(document) ?? doc.webkitExitFullscreen?.bind(doc);
-      ex?.().catch(() => {});
-    };
-
-    if (isLandscape) {
-      // Try immediately (works if triggered by a recent user gesture)
-      enter();
-      // Fallback: request on next user interaction (required by most browsers)
-      const onGesture = () => {
-        enter();
-        window.removeEventListener("touchstart", onGesture);
-        window.removeEventListener("click", onGesture);
-      };
-      window.addEventListener("touchstart", onGesture, { passive: true });
-      window.addEventListener("click", onGesture);
-      return () => {
-        window.removeEventListener("touchstart", onGesture);
-        window.removeEventListener("click", onGesture);
-      };
-    } else {
-      exit();
-    }
-  }, [isLandscape]);
+  // Fullscreen API removed: the card already fills the viewport via fixed
+  // positioning and the bottom nav is hidden, so no browser fullscreen toast
+  // is needed (and the toast + X button were unwanted).
 
 
   // Only show overlay on touch devices in portrait
