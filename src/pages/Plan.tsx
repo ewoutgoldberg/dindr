@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import { Tables } from "@/integrations/supabase/types";
 import { getPantry } from "@/lib/pantry";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
@@ -45,6 +46,7 @@ type RecipeLite = Pick<Tables<"recipes">, "id" | "title" | "image_url" | "cookin
 const Plan = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [selected, setSelected] = useState<Date>(new Date());
   const [plans, setPlans] = useState<Record<string, MealPlan>>({});
@@ -111,7 +113,7 @@ const Plan = () => {
     if (!user) return;
     const missing = days.map((d) => fmtDateKey(d)).filter((k) => !plans[k]);
     if (missing.length === 0) {
-      toast.info("Every day this week is already set up.");
+      toast.info(t("plan.everyDaySet"));
       return;
     }
     const results = await Promise.all(
@@ -121,8 +123,8 @@ const Plan = () => {
     );
     const failed = results.filter((r) => r.error).length;
     await loadWeek();
-    if (failed > 0) toast.error(`Planned ${missing.length - failed}/${missing.length} days. Try again.`);
-    else toast.success(`Planned ${missing.length} day${missing.length === 1 ? "" : "s"}!`);
+    if (failed > 0) toast.error(t("plan.plannedPartial", { done: missing.length - failed, total: missing.length }));
+    else toast.success(t("plan.plannedDays", { count: missing.length }));
   };
 
   const startSwiping = () => navigate(`/swipe/${fmtDateKey(selected)}`, { state: { dateConfirmed: true } });
@@ -137,7 +139,7 @@ const Plan = () => {
     <div className="h-full flex flex-col animate-fade-in">
       {/* Header */}
       <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4">
-        <h1 className="text-3xl font-display font-extrabold mt-1">What&apos;s cooking?</h1>
+        <h1 className="text-3xl font-display font-extrabold mt-1">{t("plan.whatsCooking")}</h1>
       </header>
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
         <div className="max-w-md mx-auto w-full px-5 pb-8">
@@ -145,26 +147,26 @@ const Plan = () => {
 
       {/* Week navigation */}
       <div className="flex items-center justify-between mb-3">
-        <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, -7))} aria-label="Previous week">
+        <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, -7))} aria-label={t("plan.previousWeek")}>
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <p className="text-sm font-semibold">{format(weekStart, "MMM d")} – {format(addDays(weekStart, 6), "MMM d")}</p>
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, 7))} aria-label="Next week">
+          <Button variant="ghost" size="icon" onClick={() => setWeekStart(addDays(weekStart, 7))} aria-label={t("plan.nextWeek")}>
             <ChevronRight className="h-5 w-5" />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Week options">
+              <Button variant="ghost" size="icon" aria-label={t("plan.weekOptions")}>
                 <MoreVertical className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}>
-                <RefreshCw className="h-4 w-4 mr-2" /> Jump to this week
+                <RefreshCw className="h-4 w-4 mr-2" /> {t("plan.jumpToThisWeek")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={planAllWeek}>
-                <Sparkles className="h-4 w-4 mr-2" /> Plan whole week
+                <Sparkles className="h-4 w-4 mr-2" /> {t("plan.planWholeWeek")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -211,7 +213,7 @@ const Plan = () => {
         <div className="flex items-baseline justify-between mb-2 px-1">
           <div>
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              {isToday(selected) ? "Today" : "Selected day"}
+              {isToday(selected) ? t("common.today") : t("common.selectedDay")}
             </p>
             <h2 className="font-display font-bold text-xl">{fmtDayLong(selected)}</h2>
           </div>
@@ -222,12 +224,14 @@ const Plan = () => {
             recipe={finalRecipe}
             onView={() => navigate(`/recipe/${finalRecipe.id}`)}
             onSwap={handleSwap}
+            t={t}
           />
         ) : (
           <EmptyDayCard
             hasFilters={activeFilterCount > 0}
             onSwipe={startSwiping}
             onOpenFilters={() => navigate(`/filters?date=${fmtDateKey(selected)}`)}
+            t={t}
           />
         )}
       </section>
@@ -240,7 +244,7 @@ const Plan = () => {
           planDate={fmtDateKey(selected)}
           variant="outline"
           className="w-full"
-          label={`Notify partner about ${isToday(selected) ? "today" : fmtDayLong(selected)}`}
+          label={t("plan.notifyPartnerAbout", { day: isToday(selected) ? t("common.today").toLowerCase() : fmtDayLong(selected) })}
         />
       </div>
 
@@ -256,10 +260,12 @@ const PlannedRecipeCard = ({
   recipe,
   onView,
   onSwap,
+  t,
 }: {
   recipe: RecipeLite;
   onView: () => void;
   onSwap: () => void;
+  t: (key: string) => string;
 }) => (
   <div className="bg-card rounded-3xl overflow-hidden shadow-card">
     <button onClick={onView} className="block w-full text-left active:opacity-90 transition-opacity">
@@ -273,9 +279,9 @@ const PlannedRecipeCard = ({
         )}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
         <div className="absolute bottom-3 left-4 right-4 flex items-center gap-2">
-          <Badge className="bg-success text-success-foreground border-0">Planned</Badge>
+          <Badge className="bg-success text-success-foreground border-0">{t("plan.planned")}</Badge>
           <Badge variant="secondary" className="bg-background/80 backdrop-blur">
-            <Clock className="h-3 w-3 mr-1" /> {recipe.cooking_time_minutes} min
+            <Clock className="h-3 w-3 mr-1" /> {recipe.cooking_time_minutes} {t("common.min")}
           </Badge>
         </div>
       </div>
@@ -286,10 +292,10 @@ const PlannedRecipeCard = ({
     </button>
     <div className="px-4 pb-4 flex gap-2">
       <Button variant="hero" className="flex-1" onClick={onView}>
-        View recipe
+        {t("plan.viewRecipe")}
       </Button>
       <Button variant="outline" onClick={onSwap}>
-        <RefreshCw className="h-4 w-4 mr-2" /> Swap
+        <RefreshCw className="h-4 w-4 mr-2" /> {t("plan.swap")}
       </Button>
     </div>
   </div>
@@ -299,20 +305,20 @@ const EmptyDayCard = ({
   hasFilters,
   onSwipe,
   onOpenFilters,
+  t,
 }: {
   hasFilters: boolean;
   onSwipe: () => void;
   onOpenFilters: () => void;
+  t: (key: string) => string;
 }) => (
   <div className="bg-card rounded-3xl p-6 shadow-soft text-center">
     <div className="h-14 w-14 rounded-full gradient-warm grid place-items-center mx-auto mb-3 shadow-glow">
       <Sparkles className="h-7 w-7 text-primary-foreground" />
     </div>
-    <h3 className="font-display font-bold text-lg">Nothing planned yet</h3>
+    <h3 className="font-display font-bold text-lg">{t("plan.nothingPlanned")}</h3>
     <p className="text-sm text-muted-foreground mt-1 mb-5">
-      {hasFilters
-        ? "Your filters are set. Start swiping to pick a recipe."
-        : "Start swiping to pick a dish — or refine first."}
+      {hasFilters ? t("plan.filtersSetSwipe") : t("plan.swipeToPick")}
     </p>
     <Button
       variant="hero"
@@ -320,10 +326,10 @@ const EmptyDayCard = ({
       className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
       onClick={onSwipe}
     >
-      <Sparkles className="h-5 w-5 mr-2" /> Start swiping
+      <Sparkles className="h-5 w-5 mr-2" /> {t("plan.startSwiping")}
     </Button>
     <Button variant="ghost" size="sm" className="w-full mt-2 text-muted-foreground" onClick={onOpenFilters}>
-      <SlidersHorizontal className="h-4 w-4 mr-2" /> Refine first
+      <SlidersHorizontal className="h-4 w-4 mr-2" /> {t("plan.refineFirst")}
     </Button>
   </div>
 );

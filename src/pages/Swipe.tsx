@@ -14,6 +14,7 @@ import { addDays, isSameDay } from "date-fns";
 import { fmtDateKey } from "@/lib/dates";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Tables } from "@/integrations/supabase/types";
 import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
@@ -27,6 +28,7 @@ const Swipe = () => {
   const { date } = useParams<{ date: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
   const preConfirmed = (location.state as { dateConfirmed?: boolean } | null)?.dateConfirmed === true;
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -166,7 +168,7 @@ const Swipe = () => {
     );
     if (error) {
       // Rollback on failure.
-      toast.error("Could not save your swipe. Try again.");
+      toast.error(t("swipe.couldNotSave"));
       setIndex(swipedIndex);
       setLastSwipe(null);
       if (recipe) sessionStorage.setItem(`swipeTopRecipe:${date}`, recipe.id);
@@ -206,13 +208,13 @@ const Swipe = () => {
       .eq("recipe_id", lastSwipe.recipeId)
       .eq("plan_date", date);
     if (error) {
-      toast.error("Couldn't undo. Try again.");
+      toast.error(t("swipe.couldNotUndo"));
       return;
     }
     setIndex(lastSwipe.index);
     sessionStorage.setItem(`swipeTopRecipe:${date}`, lastSwipe.recipeId);
     setLastSwipe(null);
-    toast.success("Undone");
+    toast.success(t("swipe.undone"));
   };
 
 
@@ -254,7 +256,7 @@ const Swipe = () => {
                     .eq("user_id", user.id)
                     .eq("plan_date", date);
                   if (error) {
-                    toast.error("Couldn't restart. Try again.");
+                    toast.error(t("swipe.couldNotRestart"));
                     return;
                   }
                   sessionStorage.removeItem(`swipeTopRecipe:${date}`);
@@ -297,7 +299,7 @@ const Swipe = () => {
               >
                 <CalendarIcon className="h-4 w-4 shrink-0" />
                 <div className="leading-tight">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Swiping for</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider opacity-90">{t("swipe.swipingFor")}</p>
                   <p className="text-sm font-display font-bold">{dateLabel}</p>
                 </div>
               </button>
@@ -307,10 +309,10 @@ const Swipe = () => {
                 type="button"
                 onClick={handleUndo}
                 className="absolute top-[4.25rem] left-4 z-20 flex items-center gap-1.5 bg-foreground/40 text-primary-foreground rounded-full px-3 py-1.5 hover:bg-foreground/50 transition-colors text-xs font-semibold"
-                aria-label="Undo last swipe"
+                aria-label={t("swipe.undoLast")}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/></svg>
-                Undo last swipe
+                {t("swipe.undoLast")}
               </button>
             )}
 
@@ -337,6 +339,7 @@ type SwipeCardProps = {
 };
 
 const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, depth, onSwipe, onTap }, ref) => {
+  const { t } = useTranslation();
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [0, 120], [0, 1]);
@@ -387,7 +390,7 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute top-4 right-16 z-10 h-11 w-11 rounded-full grid place-items-center bg-foreground/40 backdrop-blur text-primary-foreground hover:bg-foreground/60 transition-colors"
-            aria-label="Bekijk als kaart"
+            aria-label={t("swipe.viewAsCard")}
           >
             <CreditCard className="h-5 w-5" />
           </Link>
@@ -418,14 +421,14 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
               alt={recipe.food_creators.name}
               className="h-7 w-7 rounded-full object-cover"
             />
-            <span className="text-xs font-semibold">by {recipe.food_creators.name}</span>
+            <span className="text-xs font-semibold">{t("common.by")} {recipe.food_creators.name}</span>
           </Link>
         )}
         <h2 className="text-3xl font-display font-extrabold leading-tight drop-shadow">{recipe.title}</h2>
         <p className="text-sm mt-1.5 opacity-90 line-clamp-2">{recipe.description}</p>
         <div className="flex items-center gap-4 mt-3 text-sm font-semibold">
-          <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {recipe.cooking_time_minutes} min</span>
-          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.servings} pers.</span>
+          <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {recipe.cooking_time_minutes} {t("common.min")}</span>
+          <span className="flex items-center gap-1.5 capitalize"><ChefHat className="h-4 w-4" /> {recipe.servings} {t("swipe.people")}</span>
         </div>
       </div>
     </motion.div>
@@ -435,6 +438,7 @@ SwipeCard.displayName = "SwipeCard";
 
 const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
   const { isFavorite, toggle } = useFavorite(recipeId);
+  const { t } = useTranslation();
   return (
     <button
       onClick={(e) => {
@@ -446,7 +450,7 @@ const FavoriteToggle = ({ recipeId }: { recipeId: string }) => {
         "absolute top-4 right-4 h-11 w-11 rounded-full grid place-items-center transition-all active:scale-90 z-10",
         isFavorite ? "bg-accent text-accent-foreground" : "bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
       )}
-      aria-label={isFavorite ? "Remove from favorites" : "Save to favorites"}
+      aria-label={isFavorite ? t("swipe.removeFromFavorites") : t("swipe.saveToFavorites")}
     >
       <Bookmark className={cn("h-5 w-5", isFavorite && "fill-current")} />
     </button>
@@ -467,7 +471,9 @@ const EmptyState = ({
   onRestart: () => void;
   noRecipes: boolean;
   alreadyDone?: boolean;
-}) => (
+}) => {
+  const { t } = useTranslation();
+  return (
   <div className="absolute inset-0 grid place-items-center text-center px-6">
     <div>
       {noRecipes ? (
@@ -475,16 +481,14 @@ const EmptyState = ({
           <div className="h-20 w-20 rounded-full bg-muted grid place-items-center mx-auto mb-4">
             <SlidersHorizontal className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h2 className="text-2xl font-display font-extrabold">No recipes match your filters</h2>
-          <p className="text-muted-foreground mt-2">
-            Try loosening your filters or restart to swipe through all dishes again.
-          </p>
+          <h2 className="text-2xl font-display font-extrabold">{t("swipe.noMatchTitle")}</h2>
+          <p className="text-muted-foreground mt-2">{t("swipe.noMatchDescription")}</p>
           <div className="flex flex-col gap-2 mt-6">
             <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
-              Adjust filters
+              {t("swipe.adjustFilters")}
             </Button>
             <Button variant="outline" size="lg" className="w-full" onClick={onRestart}>
-              Restart swiping all dishes
+              {t("swipe.restartAll")}
             </Button>
           </div>
         </>
@@ -493,18 +497,16 @@ const EmptyState = ({
           <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
             <Sparkles className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h2 className="text-2xl font-display font-extrabold">You've seen them all</h2>
-          <p className="text-muted-foreground mt-2">
-            You've gone through every recipe that matches this day's filters. Loosen them up to see more dishes, or jump to your likes.
-          </p>
+          <h2 className="text-2xl font-display font-extrabold">{t("swipe.seenAllTitle")}</h2>
+          <p className="text-muted-foreground mt-2">{t("swipe.seenAllDescription")}</p>
           <div className="flex flex-col gap-2 mt-6">
             <Button variant="hero" size="lg" className="w-full" onClick={onAdjustFilters}>
-              Adjust filters
+              {t("swipe.adjustFilters")}
             </Button>
             <Button variant="outline" size="lg" className="w-full" onClick={onRestart}>
-              Restart swiping all dishes
+              {t("swipe.restartAll")}
             </Button>
-            <Button variant="ghost" onClick={onMatches}>See my likes</Button>
+            <Button variant="ghost" onClick={onMatches}>{t("swipe.seeMyLikes")}</Button>
           </div>
         </>
       ) : (
@@ -512,27 +514,28 @@ const EmptyState = ({
           <div className="h-20 w-20 rounded-full gradient-warm grid place-items-center mx-auto mb-4 shadow-glow">
             <Sparkles className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h2 className="text-2xl font-display font-extrabold">You're done swiping!</h2>
-          <p className="text-muted-foreground mt-2">
-            Let your partner know your suggestions are ready, or jump to your matches.
-          </p>
+          <h2 className="text-2xl font-display font-extrabold">{t("swipe.doneTitle")}</h2>
+          <p className="text-muted-foreground mt-2">{t("swipe.doneDescription")}</p>
           <div className="flex flex-col gap-2 mt-6">
             <NotifyPartnerButton
               planDate={date}
               variant="hero"
               size="lg"
-              label="Notify partner my picks are ready"
+              label={t("swipe.notifyPartner")}
               className="w-full"
             />
-            <Button variant="outline" onClick={onMatches}>See my likes</Button>
+            <Button variant="outline" onClick={onMatches}>{t("swipe.seeMyLikes")}</Button>
           </div>
         </>
       )}
     </div>
   </div>
-);
+  );
+};
 
-const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () => void; onView: () => void }) => (
+const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () => void; onView: () => void }) => {
+  const { t } = useTranslation();
+  return (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
@@ -545,17 +548,18 @@ const MatchModal = ({ recipe, onClose, onView }: { recipe: Recipe; onClose: () =
       transition={{ type: "spring", damping: 14 }}
       className="text-center text-secondary-foreground"
     >
-      <p className="text-accent text-2xl font-display font-extrabold mb-2 animate-pop">It's a match! 🎉</p>
+      <p className="text-accent text-2xl font-display font-extrabold mb-2 animate-pop">{t("swipe.itsAMatch")}</p>
       <h3 className="text-4xl font-display font-extrabold">{recipe.title}</h3>
       <img src={recipe.image_url ?? ""} alt={recipe.title} className="w-64 h-64 object-cover rounded-3xl mx-auto my-6 shadow-glow" />
-      <p className="opacity-80 mb-6">You and your partner both liked this recipe.</p>
+      <p className="opacity-80 mb-6">{t("swipe.bothLiked")}</p>
       <div className="flex flex-col gap-3">
-        <Button variant="hero" size="lg" onClick={onView}>See recipe</Button>
-        <Button variant="ghost" onClick={onClose} className="text-secondary-foreground hover:bg-secondary-foreground/10">Keep swiping</Button>
+        <Button variant="hero" size="lg" onClick={onView}>{t("swipe.seeRecipe")}</Button>
+        <Button variant="ghost" onClick={onClose} className="text-secondary-foreground hover:bg-secondary-foreground/10">{t("swipe.keepSwiping")}</Button>
       </div>
     </motion.div>
   </motion.div>
-);
+  );
+};
 
 const DatePickerDialog = ({
   open,
@@ -572,6 +576,7 @@ const DatePickerDialog = ({
   onConfirm: () => void;
   onCancel: () => void;
 }) => {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
   const didInitialScroll = useRef(false);
@@ -599,9 +604,9 @@ const DatePickerDialog = ({
         <DialogOverlay className="bg-transparent" />
         <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-sm translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background/70 backdrop-blur-xl p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Which day are you swiping for?</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{t("swipe.whichDay")}</DialogTitle>
           <DialogDescription>
-            Confirm the date so your picks land on the right meal plan.
+            {t("swipe.whichDayDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -609,7 +614,7 @@ const DatePickerDialog = ({
           <button
             type="button"
             onClick={() => scrollBy(-1)}
-            aria-label="Previous dates"
+            aria-label={t("common.previousDates")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 grid place-items-center rounded-full bg-background/90 border border-border shadow-sm hover:bg-background"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -617,7 +622,7 @@ const DatePickerDialog = ({
           <button
             type="button"
             onClick={() => scrollBy(1)}
-            aria-label="Next dates"
+            aria-label={t("common.nextDates")}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 grid place-items-center rounded-full bg-background/90 border border-border shadow-sm hover:bg-background"
           >
             <ChevronRight className="h-4 w-4" />
@@ -643,7 +648,7 @@ const DatePickerDialog = ({
                   )}
                 >
                   <span className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
-                    {today ? "Today" : format(d, "EEE")}
+                    {today ? t("common.today") : format(d, "EEE")}
                   </span>
                   <span className="font-display font-extrabold text-xl leading-tight mt-0.5">
                     {format(d, "d")}
@@ -657,7 +662,7 @@ const DatePickerDialog = ({
 
         <DialogFooter className="sm:justify-stretch">
           <Button variant="hero" size="lg" className="w-full" onClick={onConfirm}>
-            Start swiping
+            {t("filters.startSwiping")}
           </Button>
         </DialogFooter>
       </DialogPrimitive.Content>
