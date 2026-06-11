@@ -294,10 +294,10 @@ const Filters = () => {
           </div>
 
           {/* Meal type */}
-          <div>
-            <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <Utensils className="h-4 w-4" /> Meal type
-            </p>
+        <div>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Utensils className="h-4 w-4" /> Maaltijdtype
+          </p>
             <div className="flex gap-2">
               {MEAL_TYPES.map((mt) => (
                 <button
