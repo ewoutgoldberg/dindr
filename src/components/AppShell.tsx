@@ -63,7 +63,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
       <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain safe-top flex flex-col">{children}</main>
 
       {!hideNav && (
-        <nav className="app-bottom-nav safe-bottom">
+        <nav className="app-bottom-nav safe-bottom landscape:hidden">
           <div className={cn("app-bottom-nav-grid", tabs.length === 4 ? "grid-cols-4" : "grid-cols-5")}>
             {tabs.map(({ to, label, icon: Icon, onClick, ...rest }, idx) => {
               const matchPath = ("match" in rest ? rest.match : (typeof to === "string" ? to : "")) ?? "";
