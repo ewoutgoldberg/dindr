@@ -238,9 +238,9 @@ const Swipe = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="flex-1 flex px-5 pb-3 relative min-h-0 items-center justify-center">
+        <div className="flex-1 flex px-5 pb-3 relative min-h-0 items-stretch justify-center">
           <div
-            className="relative mx-auto portrait:w-full portrait:max-w-md portrait:aspect-[3/4] landscape:h-full landscape:w-full landscape:max-w-[900px]"
+            className="relative mx-auto portrait:w-full portrait:max-w-md portrait:h-full landscape:h-full landscape:w-full landscape:max-w-[900px]"
           >
             {remaining === 0 ? (
               <EmptyState
