@@ -18,7 +18,7 @@ const RecipeCard = () => {
   const { user } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [flipped, setFlipped] = useState(false);
+  const [flipCount, setFlipCount] = useState(0);
   const [stepImages, setStepImages] = useState<string[]>([]);
   const [nutrition, setNutrition] = useState<Record<string, number> | null>(null);
   const [assetsReady, setAssetsReady] = useState(false);
@@ -123,12 +123,12 @@ const RecipeCard = () => {
         <div
           className="relative w-full h-full max-w-[900px] max-h-[560px] cursor-pointer"
           style={{ perspective: "1800px" }}
-          onClick={() => setFlipped((f) => !f)}
+          onClick={() => setFlipCount((c) => c + 1)}
         >
           <motion.div
             className="relative w-full h-full"
             style={{ transformStyle: "preserve-3d" }}
-            animate={{ rotateY: flipped ? 180 : 0 }}
+            animate={{ rotateY: flipCount * 180 }}
             transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
           >
             <CardFront recipe={recipe} creatorName={creatorName} />
