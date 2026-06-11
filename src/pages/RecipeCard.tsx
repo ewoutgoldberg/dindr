@@ -18,7 +18,7 @@ const RecipeCard = () => {
   const { user } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [flipped, setFlipped] = useState(false);
+  const [flipCount, setFlipCount] = useState(0);
   const [stepImages, setStepImages] = useState<string[]>([]);
   const [nutrition, setNutrition] = useState<Record<string, number> | null>(null);
   const [assetsReady, setAssetsReady] = useState(false);
