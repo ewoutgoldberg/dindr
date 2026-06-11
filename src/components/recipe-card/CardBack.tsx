@@ -142,7 +142,7 @@ export const CardBack = ({
       {/* Footer */}
       <div className="shrink-0 px-5 pb-2 pt-1 text-center">
         <p className="text-[10px] text-neutral-500">
-          Receptkaart van <span className="font-semibold" style={{ color: "#1a2540" }}>{creatorName}</span> · gemaakt met Dindr
+          Receptkaart van <span className="font-semibold" style={{ color: "#1a2540" }}>{creatorName}</span>
         </p>
       </div>
     </div>

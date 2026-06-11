@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
     const stepPromises = steps.map((step, i) =>
       (async () => {
         try {
-          const prompt = `Overhead food photography style step-by-step cooking image showing: ${step}. Clean kitchen, natural light, recipe card illustration style, no text, no watermark.`;
+          const prompt = `Hand-drawn flat vector illustration, soft pastel colors, minimal style, consistent recipe card illustration look across the whole set. Top-down view of this cooking step: ${step}. White background, no photography, no realism, no text, no letters, no words, no numbers, no watermark, no labels. Dutch recipe card style.`;
           const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
             method: "POST",
             headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
