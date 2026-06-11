@@ -215,7 +215,7 @@ const Filters = () => {
         </div>
         {activeCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground shrink-0">
-            Clear ({activeCount})
+            Wis ({activeCount})
           </Button>
         )}
       </header>
