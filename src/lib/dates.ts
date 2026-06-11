@@ -11,17 +11,17 @@ export const getWeekDays = (anchor: Date = new Date()) => {
 };
 
 export const CATEGORIES = [
-  "Pasta", "Rijst", "Salade", "Sushi", "Vegetarisch", "Kip", "Dessert",
+  "Pasta", "Rice", "Salad", "Sushi", "Vegetarian", "Chicken", "Dessert",
 ] as const;
 
 export const TIME_BUCKETS = [
   { label: "10–15 min", value: 15 },
   { label: "30 min", value: 30 },
-  { label: "1 uur+", value: 999 },
+  { label: "1 hour+", value: 999 },
 ] as const;
 
 export const DIFFICULTIES = [
-  { label: "Makkelijk", value: "easy" },
-  { label: "Gemiddeld", value: "medium" },
-  { label: "Gevorderd", value: "advanced" },
+  { label: "Easy", value: "easy" },
+  { label: "Medium", value: "medium" },
+  { label: "Advanced", value: "advanced" },
 ] as const;
