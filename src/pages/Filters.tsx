@@ -226,7 +226,7 @@ const Filters = () => {
         <div className="max-w-md mx-auto w-full px-5 pb-8">
 
 
-      <div className={cn("relative", !dateConfirmed && "blur-[5px] pointer-events-none select-none opacity-50")}>
+      <div className={cn("relative", !dateConfirmed && "blur-[3px] pointer-events-none select-none opacity-50")}>
         <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
           {/* Cooking time */}
           <div>
