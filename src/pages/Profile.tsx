@@ -4,13 +4,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, Heart, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, Languages } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { setLanguage, SupportedLang } from "@/i18n";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useIsCreator, setViewMode } from "@/hooks/useIsCreator";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,13 +26,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
-
 type Profile = Tables<"profiles">;
 
 const Profile = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const unread = useUnreadNotifications();
   const { isAdmin } = useIsAdmin();
   const { hasCreatorProfile, viewMode } = useIsCreator();
@@ -43,12 +45,12 @@ const Profile = () => {
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const currentLang: SupportedLang = (i18n.language?.startsWith("en") ? "en" : "nl");
 
   const load = async () => {
     if (!user) return;
     const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setProfile(p);
-
 
     const { data: partnership } = await supabase
       .from("partnerships")
@@ -73,14 +75,14 @@ const Profile = () => {
   const copyCode = () => {
     if (!profile?.invite_code) return;
     navigator.clipboard.writeText(profile.invite_code);
-    toast.success("Invite code copied!");
+    toast.success(t("profile.inviteCodeCopied"));
   };
 
   const connect = async () => {
     if (!user) return;
     const c = code.trim().toUpperCase();
     if (c.length !== 6) {
-      toast.error("Enter a 6-character code");
+      toast.error(t("profile.enter6CharCode"));
       return;
     }
     setBusy(true);
@@ -90,7 +92,7 @@ const Profile = () => {
       toast.error(error.message);
       return;
     }
-    toast.success("Connected!");
+    toast.success(t("profile.connectedToast"));
     setCode("");
     load();
   };
@@ -98,7 +100,7 @@ const Profile = () => {
   const disconnect = async () => {
     if (!partnershipId) return;
     await supabase.from("partnerships").delete().eq("id", partnershipId);
-    toast.success("Disconnected");
+    toast.success(t("profile.disconnected"));
     load();
   };
 
@@ -107,7 +109,7 @@ const Profile = () => {
     e.target.value = "";
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image must be smaller than 10MB");
+      toast.error(t("profile.imageTooLarge"));
       return;
     }
     const reader = new FileReader();
@@ -137,11 +139,10 @@ const Profile = () => {
       return;
     }
     setProfile((p) => (p ? { ...p, avatar_url: url } : p));
-    toast.success("Photo updated");
+    toast.success(t("profile.photoUpdated"));
   };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-
 
   return (
     <div className="max-w-md mx-auto w-full px-5 pt-6 pb-28 animate-fade-in relative">
@@ -157,17 +158,17 @@ const Profile = () => {
             <path d="M7 16V4m0 0L3 8m4-4l4 4" />
             <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
           </svg>
-          {viewMode === "creator" ? "Switch to Chef mode" : "Switch to Creator mode"}
+          {viewMode === "creator" ? t("profile.switchToChef") : t("profile.switchToCreator")}
         </button>
       )}
-      {/* Profile header — compact & centered */}
+      {/* Profile header */}
       <section className="flex flex-col items-center mb-8">
         <div className="relative h-20 w-20 shrink-0 mb-3">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="relative h-full w-full rounded-full overflow-hidden active:scale-95 transition-transform"
-            aria-label="Change profile photo"
+            aria-label={t("profile.changePhoto")}
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
@@ -195,18 +196,18 @@ const Profile = () => {
           className="hidden"
           onChange={onPickAvatar}
         />
-        <h1 className="font-display font-extrabold text-xl">{profile?.display_name ?? "Cook"}</h1>
+        <h1 className="font-display font-extrabold text-xl">{profile?.display_name ?? t("profile.cook")}</h1>
         <p className="text-sm text-muted-foreground">{user?.email}</p>
       </section>
 
-      {/* Menu items — single grouped card */}
+      {/* Menu items */}
       <section className="bg-card rounded-3xl shadow-soft overflow-hidden mb-5">
         <button
           onClick={() => navigate("/favorites")}
           className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
         >
           <BookOpen className="h-5 w-5 text-primary shrink-0" />
-          <span className="flex-1 font-semibold text-sm">My recipe book</span>
+          <span className="flex-1 font-semibold text-sm">{t("profile.myRecipeBook")}</span>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="mx-5 h-px bg-border" />
@@ -215,7 +216,7 @@ const Profile = () => {
           className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
         >
           <ShoppingCart className="h-5 w-5 text-primary shrink-0" />
-          <span className="flex-1 font-semibold text-sm">Grocery list</span>
+          <span className="flex-1 font-semibold text-sm">{t("profile.groceryList")}</span>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="mx-5 h-px bg-border" />
@@ -224,7 +225,7 @@ const Profile = () => {
           className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
         >
           <Bell className="h-5 w-5 text-primary shrink-0" />
-          <span className="flex-1 font-semibold text-sm">Notifications</span>
+          <span className="flex-1 font-semibold text-sm">{t("profile.notifications")}</span>
           {unread > 0 ? (
             <span className="min-w-[22px] h-[22px] px-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold grid place-items-center">
               {unread > 9 ? "9+" : unread}
@@ -235,6 +236,29 @@ const Profile = () => {
         </button>
       </section>
 
+      {/* Language toggle */}
+      <section className="bg-card rounded-3xl shadow-soft overflow-hidden mb-5 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Languages className="h-4 w-4 text-primary" />
+          <h2 className="font-display font-bold text-base">{t("profile.language")}</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-2 bg-muted/60 rounded-xl p-1">
+          {(["nl", "en"] as const).map((lng) => (
+            <button
+              key={lng}
+              onClick={() => setLanguage(lng)}
+              className={cn(
+                "py-2 rounded-lg text-sm font-semibold transition-colors",
+                currentLang === lng ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-pressed={currentLang === lng}
+            >
+              {lng === "nl" ? t("profile.languageDutch") : t("profile.languageEnglish")}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {isAdmin && (
         <section className="bg-card rounded-3xl shadow-soft overflow-hidden mb-5">
           <button
@@ -242,17 +266,17 @@ const Profile = () => {
             className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
           >
             <Shield className="h-5 w-5 text-primary shrink-0" />
-            <span className="flex-1 font-semibold text-sm">Admin</span>
+            <span className="flex-1 font-semibold text-sm">{t("profile.admin")}</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
         </section>
       )}
 
-      {/* Cooking pair — compact */}
+      {/* Cooking pair */}
       <section className="bg-card rounded-3xl p-4 shadow-soft mb-5">
         <div className="flex items-center gap-2 mb-3">
           <Users className="h-4 w-4 text-primary" />
-          <h2 className="font-display font-bold text-base">Cooking pair</h2>
+          <h2 className="font-display font-bold text-base">{t("profile.cookingPair")}</h2>
         </div>
         {partner ? (
           <div className="flex items-center gap-2.5">
@@ -265,69 +289,61 @@ const Profile = () => {
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{partner.display_name}</p>
-              <p className="text-xs text-muted-foreground">Connected</p>
+              <p className="text-xs text-muted-foreground">{t("profile.connected")}</p>
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-muted-foreground text-xs h-8 px-2.5 gap-1">
-                  <X className="h-3.5 w-3.5" /> Disconnect
+                  <X className="h-3.5 w-3.5" /> {t("profile.disconnect")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Disconnect from {partner.display_name ?? "your partner"}?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    You'll stop sharing swipes, matches and your shopping list. You can reconnect later with an invite code.
-                  </AlertDialogDescription>
+                  <AlertDialogTitle>{t("profile.disconnectTitle", { name: partner.display_name ?? t("profile.disconnectFromPartner") })}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("profile.disconnectDescription")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Keep connected</AlertDialogCancel>
-                  <AlertDialogAction onClick={disconnect}>Disconnect</AlertDialogAction>
+                  <AlertDialogCancel>{t("profile.keepConnected")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={disconnect}>{t("profile.disconnect")}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-
           </div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground mb-3">Share your code to sync likes &amp; picks.</p>
+            <p className="text-sm text-muted-foreground mb-3">{t("profile.shareCode")}</p>
             <button onClick={copyCode} className="w-full bg-muted rounded-xl px-4 py-3 flex items-center justify-between active:scale-[0.99] transition-transform mb-3">
               <span className="font-mono font-bold text-lg tracking-[0.3em]">{profile?.invite_code}</span>
               <Copy className="h-4 w-4 text-muted-foreground" />
             </button>
             <div className="flex gap-2">
               <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold h-10" />
-              <Button variant="hero" onClick={connect} disabled={busy} className="h-10 px-4">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Connect"}</Button>
+              <Button variant="hero" onClick={connect} disabled={busy} className="h-10 px-4">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("profile.connect")}</Button>
             </div>
           </>
         )}
       </section>
 
-      {/* Sign out — subtle */}
+      {/* Sign out */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <button
-            className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2"
-          >
-            <LogOut className="h-4 w-4" /> Sign out
+          <button className="w-full py-4 text-sm text-muted-foreground font-medium hover:text-destructive transition-colors flex items-center justify-center gap-2">
+            <LogOut className="h-4 w-4" /> {t("profile.signOut")}
           </button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sign out of Dinder?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You'll need to log in again to see your plan, matches and shopping list.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("profile.signOutTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("profile.signOutDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Stay signed in</AlertDialogCancel>
+            <AlertDialogCancel>{t("profile.staySignedIn")}</AlertDialogCancel>
             <AlertDialogAction onClick={() => signOut().then(() => navigate("/auth", { replace: true }))}>
-              Sign out
+              {t("profile.signOut")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
 
       <AvatarCropDialog
         open={!!cropSrc}
