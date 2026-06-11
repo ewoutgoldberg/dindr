@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, BookOpen, Sparkles, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { useUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import { useIsCreator } from "@/hooks/useIsCreator";
 import { PingPopup } from "@/components/PingPopup";
@@ -23,26 +24,26 @@ const activeSwipeDate = () => {
   return sessionStorage.getItem("activeSwipeDate") || today();
 };
 
-const consumerTabs: Tab[] = [
-  { to: "/filters", label: "Filters", icon: SlidersHorizontal },
-  { to: () => `/swipe/${activeSwipeDate()}`, match: "/swipe", label: "Swipe", icon: Flame },
-  { to: "/matches", label: "Matches", icon: Heart },
-  { to: "/plan", label: "Plan", icon: CalendarDays },
-  { to: "/profile", label: "MyKitchen", icon: User, showBadge: true },
-];
-
-
 export const AppShell = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
   const unread = useUnreadNotifications();
   const { isCreator, creatorId } = useIsCreator();
+  const { t } = useTranslation();
+
+  const consumerTabs: Tab[] = [
+    { to: "/filters", label: t("nav.filters"), icon: SlidersHorizontal },
+    { to: () => `/swipe/${activeSwipeDate()}`, match: "/swipe", label: t("nav.swipe"), icon: Flame },
+    { to: "/matches", label: t("nav.matches"), icon: Heart },
+    { to: "/plan", label: t("nav.plan"), icon: CalendarDays },
+    { to: "/profile", label: t("nav.myKitchen"), icon: User, showBadge: true },
+  ];
 
   const creatorTabs: Tab[] = [
-    { to: "/creator/dashboard", match: "/creator/dashboard", label: "Dashboard", icon: ChefHat },
-    { to: "/creator/recipes", match: "/creator/recipes", label: "Recepten", icon: BookOpen },
-    { to: "/creator/inspiration", match: "/creator/inspiration", label: "Inspiratie", icon: Sparkles },
-    { to: "/creator/insights", match: "/creator/insights", label: "Inzichten", icon: BarChart3 },
-    { to: "/profile", match: "/profile", label: "MyKitchen", icon: User, showBadge: true },
+    { to: "/creator/dashboard", match: "/creator/dashboard", label: t("nav.dashboard"), icon: ChefHat },
+    { to: "/creator/recipes", match: "/creator/recipes", label: t("nav.recipes"), icon: BookOpen },
+    { to: "/creator/inspiration", match: "/creator/inspiration", label: t("nav.inspiration"), icon: Sparkles },
+    { to: "/creator/insights", match: "/creator/insights", label: t("nav.insights"), icon: BarChart3 },
+    { to: "/profile", match: "/profile", label: t("nav.myKitchen"), icon: User, showBadge: true },
   ];
 
   const tabs = isCreator ? creatorTabs : consumerTabs;
