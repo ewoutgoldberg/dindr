@@ -201,7 +201,7 @@ const Filters = () => {
 
       <header className="shrink-0 max-w-md mx-auto w-full px-5 pt-6 pb-4 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-display font-extrabold">Tune your inspiration</h1>
+          <h1 className="text-3xl font-display font-extrabold">Stel je filters in</h1>
           {dateConfirmed && (
             <button
               type="button"
