@@ -228,9 +228,9 @@ const Filters = () => {
         <div className="bg-card rounded-3xl p-5 shadow-soft space-y-5">
           {/* Cooking time */}
           <div>
-            <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <Clock className="h-4 w-4" /> Cooking time
-            </p>
+          <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Clock className="h-4 w-4" /> Bereidingstijd
+          </p>
             <div className="flex gap-2">
               {TIME_BUCKETS.map((t) => (
                 <button
