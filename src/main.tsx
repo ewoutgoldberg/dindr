@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import "./i18n";
 
 // Detect Capacitor/native WebView shells so safe-area padding can fall back to a sensible minimum
 // even when env(safe-area-inset-top) reports 0 inside the WKWebView.
