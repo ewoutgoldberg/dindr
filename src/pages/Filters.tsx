@@ -343,19 +343,19 @@ const Filters = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold flex items-center gap-2">
-                <Carrot className="h-4 w-4" /> Already in your kitchen
+                <Carrot className="h-4 w-4" /> Al in je keuken
               </p>
               {pantry.length > 0 && (
                 <button
                   onClick={() => user && setPantryState(setPantry(user.id, today, []))}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Clear
+                  <X className="h-3 w-3" /> Wis
                 </button>
               )}
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              Add ingredients you already have. We'll prioritize recipes that use them.
+              Voeg ingrediënten toe die je al hebt. We geven voorrang aan recepten die deze bevatten.
             </p>
             <form
               onSubmit={(e) => {
@@ -367,11 +367,11 @@ const Filters = () => {
               <Input
                 value={pantryInput}
                 onChange={(e) => setPantryInput(e.target.value)}
-                placeholder="e.g. tomato, garlic, pasta"
+                placeholder="bijv. tomaat, knoflook, pasta"
                 maxLength={40}
                 className="h-10"
               />
-              <Button type="submit" size="icon" variant="outline" aria-label="Add ingredient" disabled={!pantryInput.trim()}>
+              <Button type="submit" size="icon" variant="outline" aria-label="Ingrediënt toevoegen" disabled={!pantryInput.trim()}>
                 <Plus className="h-4 w-4" />
               </Button>
             </form>
@@ -395,18 +395,18 @@ const Filters = () => {
           {/* Allergies */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold">Allergies &amp; avoid</p>
+              <p className="text-sm font-semibold">Allergieën &amp; vermijden</p>
               {(plan?.allergies?.length ?? 0) > 0 && (
                 <button
                   onClick={() => upsert({ allergies: [] })}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Clear
+                  <X className="h-3 w-3" /> Wis
                 </button>
               )}
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              Recipes containing these ingredients will be hidden.
+              Recepten met deze ingrediënten worden verborgen.
             </p>
             <div className="flex flex-wrap gap-2">
               {ALLERGENS.map((a) => {
@@ -432,19 +432,19 @@ const Filters = () => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold flex items-center gap-2">
-                <ChefHat className="h-4 w-4" /> Food creator
+                <ChefHat className="h-4 w-4" /> Chef
               </p>
               {selectedCreator && (
                 <button
                   onClick={() => upsert({ creator_id: null })}
                   className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <X className="h-3 w-3" /> Clear
+                  <X className="h-3 w-3" /> Wis
                 </button>
               )}
             </div>
             {creators.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No creators available yet.</p>
+              <p className="text-xs text-muted-foreground">Nog geen chefs beschikbaar.</p>
             ) : (
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x">
                 {creators.map((c) => {
