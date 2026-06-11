@@ -240,13 +240,8 @@ const Swipe = () => {
       ) : (
         <div className="flex-1 flex px-5 pb-3 relative min-h-0 items-center justify-center">
           <div
-            className="relative mx-auto"
-            style={{
-              width: "100%",
-              maxWidth: "28rem",
-              maxHeight: "100%",
-              aspectRatio: "3 / 4",
-            }}
+            className="relative mx-auto portrait:w-full portrait:max-w-md landscape:h-full landscape:w-auto"
+            style={{ aspectRatio: "3 / 4" }}
           >
             {remaining === 0 ? (
               <EmptyState
