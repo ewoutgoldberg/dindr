@@ -492,7 +492,7 @@ const Filters = () => {
         </div>
 
         <Button variant="hero" size="lg" className="w-full mt-5" onClick={() => navigate(`/swipe/${today}`, { state: { dateConfirmed: true } })}>
-          <Sparkles className="h-5 w-5 mr-2" /> Start swiping
+          <Sparkles className="h-5 w-5 mr-2" /> Begin met swipen
         </Button>
       </div>
 
