@@ -151,7 +151,7 @@ const Profile = () => {
             setViewMode(viewMode === "creator" ? "consumer" : "creator");
             if (viewMode !== "creator") navigate("/creator/dashboard");
           }}
-          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(env(safe-area-inset-bottom,0px)+7rem)] z-30 inline-flex items-center gap-2 rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
+          className="fixed left-1/2 -translate-x-1/2 bottom-[calc(3.5rem+env(safe-area-inset-bottom,0px)+0.5rem)] z-30 inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-foreground text-background pl-4 pr-5 py-3 text-sm font-semibold shadow-[0_8px_24px_-4px_hsl(var(--foreground)/0.35)] hover:scale-[1.03] active:scale-[0.98] transition-transform"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
             <path d="M7 16V4m0 0L3 8m4-4l4 4" />
