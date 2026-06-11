@@ -240,12 +240,12 @@ const Swipe = () => {
       ) : (
         <div className="flex-1 flex px-5 pb-3 relative min-h-0 items-center justify-center">
           <div
-            className="relative mx-auto min-h-0"
+            className="relative mx-auto"
             style={{
-              height: "100%",
+              width: "100%",
+              maxWidth: "28rem",
+              maxHeight: "100%",
               aspectRatio: "3 / 4",
-              maxWidth: "min(28rem, 100%)",
-              width: "auto",
             }}
           >
             {remaining === 0 ? (
