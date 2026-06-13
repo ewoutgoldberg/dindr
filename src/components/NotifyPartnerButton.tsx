@@ -59,6 +59,21 @@ export const NotifyPartnerButton = ({
       toast.error("Couldn't send notification");
       return;
     }
+    // Fire-and-forget push to partner
+    const senderName =
+      (user.user_metadata as { display_name?: string } | undefined)?.display_name ||
+      user.email?.split("@")[0] ||
+      "Je partner";
+    supabase.functions
+      .invoke("send-push", {
+        body: {
+          recipientUserId: partner.id,
+          title: "Nieuwe eetsuggesties 🍽️",
+          body: `${senderName} heeft suggesties klaargezet, maak een match!`,
+          data: { type: "suggestions", planDate: planDate ?? null },
+        },
+      })
+      .catch((e) => console.error("send-push failed", e));
     setConfirmOpen(true);
   };
 
