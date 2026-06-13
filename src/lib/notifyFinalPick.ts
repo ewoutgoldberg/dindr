@@ -27,4 +27,23 @@ export async function notifyPartnerFinalPick(
     plan_date: planDate,
     message: `${FINAL_PICK_PREFIX}${recipeTitle}`,
   });
+
+  // Look up sender name for the push body
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", userId)
+    .maybeSingle();
+  const senderName = senderProfile?.display_name || "Je partner";
+
+  supabase.functions
+    .invoke("send-push", {
+      body: {
+        recipientUserId: partnerId,
+        title: "Keuze gemaakt ✅",
+        body: `${senderName} heeft gekozen wat jullie eten`,
+        data: { type: "choice", planDate, recipeTitle },
+      },
+    })
+    .catch((e) => console.error("send-push failed", e));
 }
