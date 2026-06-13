@@ -53,7 +53,15 @@ async function sendOne(
   token: string,
   payload: unknown,
   jwt: string,
-): Promise<{ status: number; reason?: string }> {
+): Promise<{ status: number; reason?: string; raw?: string }> {
+  let kid = "?", iss = "?", iat = "?";
+  try {
+    const [h, p] = jwt.split(".");
+    const hj = JSON.parse(atob(h.replace(/-/g, "+").replace(/_/g, "/")));
+    const pj = JSON.parse(atob(p.replace(/-/g, "+").replace(/_/g, "/")));
+    kid = hj.kid; iss = pj.iss; iat = String(pj.iat);
+  } catch { /* noop */ }
+  console.log(`[apns] send host=${host} kid=${kid} iss=${iss} iat=${iat} topic=${APNS_BUNDLE_ID} token12=${token.slice(0, 12)}`);
   const res = await fetch(`${host}/3/device/${token}`, {
     method: "POST",
     headers: {
@@ -66,13 +74,17 @@ async function sendOne(
     body: JSON.stringify(payload),
   });
   let reason: string | undefined;
+  let raw: string | undefined;
   if (res.status !== 200) {
     try {
-      const j = await res.json();
-      reason = j?.reason;
+      raw = await res.text();
+      try { reason = JSON.parse(raw)?.reason; } catch { /* noop */ }
     } catch { /* noop */ }
+    console.log(`[apns] FAIL host=${host} status=${res.status} apns-id=${res.headers.get("apns-id")} reason=${reason} body=${raw}`);
+  } else {
+    console.log(`[apns] OK host=${host} apns-id=${res.headers.get("apns-id")}`);
   }
-  return { status: res.status, reason };
+  return { status: res.status, reason, raw };
 }
 
 Deno.serve(async (req) => {
