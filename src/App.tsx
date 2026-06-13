@@ -42,6 +42,7 @@ const App = () => (
       <Sonner position="top-center" offset="calc(var(--app-safe-top, 0px) + 16px)" mobileOffset="calc(var(--app-safe-top, 0px) + 16px)" />
       <BrowserRouter>
         <AuthProvider>
+          <PushInit />
           <AppShell>
             <Routes>
               <Route path="/" element={<Index />} />
