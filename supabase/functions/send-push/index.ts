@@ -113,19 +113,19 @@ Deno.serve(async (req) => {
       const envHost = row.environment === "sandbox" ? APNS_HOSTS.sandbox : APNS_HOSTS.production;
       let r = await sendOne(envHost, row.token, payload, jwt);
 
-      // Fallback to opposite environment on BadDeviceToken
-      if (r.status !== 200 && r.reason === "BadDeviceToken") {
+      // Fallback to opposite environment on BadDeviceToken / BadEnvironmentKeyInToken
+      if (
+        r.status !== 200 &&
+        (r.reason === "BadDeviceToken" || r.reason === "BadEnvironmentKeyInToken")
+      ) {
         const altHost = envHost === APNS_HOSTS.production ? APNS_HOSTS.sandbox : APNS_HOSTS.production;
         const r2 = await sendOne(altHost, row.token, payload, jwt);
         if (r2.status === 200) {
-          // update environment for future sends
           await admin.from("device_tokens").update({
             environment: altHost === APNS_HOSTS.sandbox ? "sandbox" : "production",
           }).eq("id", row.id);
-          r = r2;
-        } else {
-          r = r2;
         }
+        r = r2;
       }
 
       if (r.status === 200) {
