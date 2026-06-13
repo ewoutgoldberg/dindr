@@ -6,6 +6,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RequireAdmin } from "@/components/RequireAdmin";
+import { PushInit } from "@/components/PushInit";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
