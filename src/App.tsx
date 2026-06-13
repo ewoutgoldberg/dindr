@@ -6,6 +6,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RequireAdmin } from "@/components/RequireAdmin";
+import { PushInit } from "@/components/PushInit";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -41,6 +42,7 @@ const App = () => (
       <Sonner position="top-center" offset="calc(var(--app-safe-top, 0px) + 16px)" mobileOffset="calc(var(--app-safe-top, 0px) + 16px)" />
       <BrowserRouter>
         <AuthProvider>
+          <PushInit />
           <AppShell>
             <Routes>
               <Route path="/" element={<Index />} />
