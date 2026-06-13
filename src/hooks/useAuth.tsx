@@ -21,10 +21,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Set up listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
       setLoading(false);
+      // Always start in the consumer (user) account after sign-in, even for users
+      // who also have a creator profile. They can still switch to creator mode
+      // afterwards via the profile menu.
+      if (event === "SIGNED_IN") {
+        try {
+          localStorage.setItem("dindr:viewMode", "consumer");
+          window.dispatchEvent(new Event("dindr:viewModeChange"));
+        } catch { /* noop */ }
+      }
     });
 
     // THEN check existing session
