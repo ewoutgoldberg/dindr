@@ -12,6 +12,19 @@ const APNS_PRIVATE_KEY = Deno.env.get("APNS_PRIVATE_KEY")!;
 const APNS_BUNDLE_ID = Deno.env.get("APNS_BUNDLE_ID")!;
 const APNS_DEFAULT_ENV = (Deno.env.get("APNS_DEFAULT_ENV") ?? "production").toLowerCase();
 
+// Startup config fingerprint (no secret material leaked)
+const pkHasBegin = APNS_PRIVATE_KEY.includes("-----BEGIN PRIVATE KEY-----");
+const pkHasEnd = APNS_PRIVATE_KEY.includes("-----END PRIVATE KEY-----");
+const pkLines = APNS_PRIVATE_KEY.split("\n").length;
+async function pkFingerprint(): Promise<string> {
+  const buf = new TextEncoder().encode(APNS_PRIVATE_KEY);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).slice(0, 6).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+pkFingerprint().then((fp) =>
+  console.log(`[apns] cfg key_id=${APNS_KEY_ID} team=${APNS_TEAM_ID} bundle=${APNS_BUNDLE_ID} default_env=${APNS_DEFAULT_ENV} pem_begin=${pkHasBegin} pem_end=${pkHasEnd} pem_lines=${pkLines} pem_sha256_6=${fp}`)
+);
+
 const APNS_HOSTS = {
   production: "https://api.push.apple.com",
   sandbox: "https://api.sandbox.push.apple.com",
