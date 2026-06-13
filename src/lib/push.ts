@@ -10,28 +10,25 @@ export async function initPushNotifications(navigate: (path: string) => void) {
   initialized = true;
 
   try {
-    let perm = await PushNotifications.checkPermissions();
-    if (perm.receive === "prompt" || perm.receive === "prompt-with-rationale") {
-      perm = await PushNotifications.requestPermissions();
-    }
-    if (perm.receive !== "granted") return;
-
-    await PushNotifications.register();
-
+    // Register listeners BEFORE calling register(), otherwise the
+    // `registration` event can fire before we're listening and the token
+    // never reaches device_tokens.
     PushNotifications.addListener("registration", async ({ value }) => {
       try {
+        console.log("APNs registration received, token prefix:", value?.slice(0, 12));
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || !value) return;
         const env =
           (typeof window !== "undefined" &&
             (window as unknown as { __APNS_ENV__?: string }).__APNS_ENV__) ||
           "production";
-        await supabase
+        const { error } = await supabase
           .from("device_tokens")
           .upsert(
             { user_id: user.id, token: value, platform: "ios", environment: env },
             { onConflict: "token" },
           );
+        if (error) console.error("device_tokens upsert error", error);
       } catch (e) {
         console.error("device_tokens upsert failed", e);
       }
@@ -40,6 +37,18 @@ export async function initPushNotifications(navigate: (path: string) => void) {
     PushNotifications.addListener("registrationError", (err) => {
       console.error("Push registration error", err);
     });
+
+    let perm = await PushNotifications.checkPermissions();
+    if (perm.receive === "prompt" || perm.receive === "prompt-with-rationale") {
+      perm = await PushNotifications.requestPermissions();
+    }
+    if (perm.receive !== "granted") {
+      console.warn("Push permission not granted:", perm.receive);
+      return;
+    }
+
+    await PushNotifications.register();
+
 
     PushNotifications.addListener("pushNotificationActionPerformed", (action) => {
       const data = (action.notification?.data ?? {}) as Record<string, unknown>;
