@@ -204,13 +204,17 @@ const Filters = () => {
     if ((plan?.allergies?.length ?? 0) > 0) n++;
     if (healthyOnly) n++;
     if (plan?.meal_type) n++;
+    if (selectedCuisine) n++;
+    if (selectedTags.length > 0) n++;
     return n;
-  }, [plan, pantry, healthyOnly]);
+  }, [plan, pantry, healthyOnly, selectedCuisine, selectedTags]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
     setHealthyOnlyState(setHealthyOnly(user.id, today, false));
+    setSelectedTagsState(setTags(user.id, today, []));
+    setSelectedCuisineState(setCuisine(user.id, today, null));
     await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [], meal_type: null });
     toast.success(t("filters.filtersCleared"));
   };
@@ -220,9 +224,28 @@ const Filters = () => {
     setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
   };
 
+  const toggleTag = (key: string) => {
+    if (!user) return;
+    const next = selectedTags.includes(key)
+      ? selectedTags.filter((k) => k !== key)
+      : [...selectedTags, key];
+    setSelectedTagsState(setTags(user.id, today, next));
+  };
+
+  const pickCuisine = (cui: string) => {
+    if (!user) return;
+    const next = selectedCuisine === cui ? null : cui;
+    setSelectedCuisineState(setCuisine(user.id, today, next));
+  };
+
   const setMealType = (type: string | null) => {
     upsert({ meal_type: plan?.meal_type === type ? null : type });
   };
+
+  const categoriesToShow = availableCategories.length > 0 ? availableCategories : (FALLBACK_CATEGORIES as readonly string[]);
+  const tagsToShow = availableTags.length > 0
+    ? SMART_TAGS.filter((t) => availableTags.includes(t.key))
+    : SMART_TAGS;
 
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
 
