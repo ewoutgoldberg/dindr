@@ -380,7 +380,19 @@ const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(({ recipe, isTop, d
       animate={{ opacity: 1, scale: 1 - depth * 0.04 }}
       exit={{ x: x.get() > 0 ? (typeof window !== "undefined" ? window.innerWidth + 200 : 1200) : -(typeof window !== "undefined" ? window.innerWidth + 200 : 1200), opacity: 0, transition: { duration: 0.45, ease: "easeOut" } }}
     >
-      <img src={recipe.image_url ?? ""} alt={recipe.title} loading={isTop ? "eager" : "lazy"} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+      {/* Blurred fill so portraits/landscape both show the full image (object-contain) without empty bars */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-center bg-cover scale-110 blur-2xl opacity-80"
+        style={{ backgroundImage: recipe.image_url ? `url("${recipe.image_url}")` : undefined }}
+      />
+      <img
+        src={recipe.image_url ?? ""}
+        alt={recipe.title}
+        loading={isTop ? "eager" : "lazy"}
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-contain"
+      />
       <div className="absolute inset-0 gradient-card-overlay" />
       {isTop && (
         <>
