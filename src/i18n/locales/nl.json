@@ -166,5 +166,33 @@
     "pickCount_other": "{{count}} keuzes",
     "pastMatches": "Eerdere matches",
     "today": "Vandaag"
+  },
+  "onboarding": {
+    "skip": "Overslaan",
+    "next": "Volgende",
+    "back": "Terug",
+    "start": "Beginnen met swipen",
+    "replay": "Rondleiding opnieuw bekijken",
+    "welcome": {
+      "title": "Welkom bij Dinder",
+      "body": "Tinder voor je avondeten. We helpen je in een minuutje op weg."
+    },
+    "swipe": {
+      "title": "Swipe je avondeten",
+      "body": "Swipe rechts op recepten die je lekker vindt en links op de rest. Als jij én je partner allebei rechts swipen, krijg je een match."
+    },
+    "filters": {
+      "title": "Stel je filters in",
+      "body": "Kies per dag je dieet, keuken en smart labels. Zo zie je alleen recepten die je echt wilt eten."
+    },
+    "partner": {
+      "title": "Kook samen met je partner",
+      "body": "Deel je 6-cijferige code, of vul de code van je partner in via je profiel. Samen swipen = samen matchen."
+    },
+    "plan": {
+      "title": "Plan je week",
+      "body": "Kies een dag tot 30 dagen vooruit, swipe ervoor, en je matches verschijnen automatisch in je weekplan en boodschappenlijst."
+    }
   }
 }
+
