@@ -33,12 +33,14 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { Tables } from "@/integrations/supabase/types";
-import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
+import { CATEGORIES as FALLBACK_CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
 import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
 import { MEAL_TYPES } from "@/lib/mealType";
-import { Leaf } from "lucide-react";
+import { SMART_TAGS, getTags, setTags } from "@/lib/tags";
+import { getCuisine, setCuisine } from "@/lib/cuisine";
+import { Leaf, Globe2, Tag as TagIcon } from "lucide-react";
 
 type MealPlan = {
   id: string;
@@ -78,6 +80,11 @@ const Filters = () => {
   const [pantry, setPantryState] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
   const [healthyOnly, setHealthyOnlyState] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTagsState] = useState<string[]>([]);
+  const [selectedCuisine, setSelectedCuisineState] = useState<string | null>(null);
 
   const handleConfirmDate = () => {
     if (pickedDate !== dateParam) {
