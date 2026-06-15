@@ -98,6 +98,8 @@ const Filters = () => {
     if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
     setHealthyOnlyState(getHealthyOnly(user.id, today));
+    setSelectedTagsState(getTags(user.id, today));
+    setSelectedCuisineState(getCuisine(user.id, today));
     supabase
       .from("meal_plans")
       .select("*")
@@ -106,6 +108,33 @@ const Filters = () => {
       .maybeSingle()
       .then(({ data }) => setPlan((data as MealPlan) ?? null));
   }, [user, today, dateConfirmed]);
+
+  // Dynamically derive available filter values from the recipe dataset.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("recipes")
+        .select("category, cuisine, tags")
+        .eq("published", true)
+        .limit(2000);
+      if (cancelled || !data) return;
+      const cats = new Set<string>();
+      const cuis = new Set<string>();
+      const tags = new Set<string>();
+      for (const row of data as { category: string | null; cuisine: string | null; tags: string[] | null }[]) {
+        if (row.category) cats.add(row.category);
+        if (row.cuisine) cuis.add(row.cuisine);
+        for (const t of row.tags ?? []) if (t) tags.add(t);
+      }
+      setAvailableCategories([...cats].sort());
+      setAvailableCuisines([...cuis].sort());
+      setAvailableTags([...tags].sort());
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     supabase
