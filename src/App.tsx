@@ -33,6 +33,7 @@ import AdminCreatorForm from "./pages/admin/AdminCreatorForm";
 import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
 import AdminImportCreators from "./pages/admin/AdminImportCreators";
 import NotFound from "./pages/NotFound";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
               <Route path="/plan" element={<RequireAuth><Plan /></RequireAuth>} />
               <Route path="/filters" element={<RequireAuth><Filters /></RequireAuth>} />
               <Route path="/swipe/:date" element={<RequireAuth><Swipe /></RequireAuth>} />
