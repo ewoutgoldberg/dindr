@@ -100,7 +100,15 @@
     "filtersCleared": "Filters gewist",
     "whichDay": "Voor welke dag stel je filters in?",
     "whichDayDescription": "Filters gelden alleen voor het menu van deze dag.",
-    "confirmDate": "Datum bevestigen"
+    "confirmDate": "Datum bevestigen",
+    "cuisine": "Keuken",
+    "smartTags": "Slimme labels",
+    "tagQuick": "Snel klaar",
+    "tagHealthy": "Gezond",
+    "tagComfort": "Comfort food",
+    "tagSpicy": "Pittig",
+    "tagVegetarian": "Vegetarisch",
+    "tagHighProtein": "Veel eiwit"
   },
   "swipe": {
     "swipingFor": "Aan het swipen voor",
