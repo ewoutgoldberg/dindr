@@ -45,6 +45,7 @@
     "disconnected": "Losgekoppeld",
     "shareCode": "Deel je eigen code met je partner en vul hieronder de code van je partner in om jullie te koppelen.",
     "inviteCodeCopied": "Uitnodigingscode gekopieerd!",
+    "partnerCodeLabel": "Code van je partner",
     "enter6CharCode": "Voer een code van 6 tekens in",
     "connect": "Verbinden",
     "connectedToast": "Verbonden!",

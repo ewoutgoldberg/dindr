@@ -45,6 +45,7 @@
     "disconnected": "Disconnected",
     "shareCode": "Share your own code with your partner and enter their code below to connect.",
     "inviteCodeCopied": "Invite code copied!",
+    "partnerCodeLabel": "Partner's code",
     "enter6CharCode": "Enter a 6-character code",
     "connect": "Connect",
     "connectedToast": "Connected!",
