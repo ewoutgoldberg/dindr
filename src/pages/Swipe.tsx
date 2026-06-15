@@ -20,6 +20,8 @@ import { Link } from "react-router-dom";
 import { getPantry, extractIngredientNames, countMatches } from "@/lib/pantry";
 import { recipeHasAllergen } from "@/lib/allergens";
 import { getHealthyOnly, isHealthyRecipe } from "@/lib/healthy";
+import { getTags } from "@/lib/tags";
+import { getCuisine } from "@/lib/cuisine";
 import { NotifyPartnerButton } from "@/components/NotifyPartnerButton";
 
 type Recipe = Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "id" | "name" | "avatar_url" | "handle"> | null };
@@ -85,7 +87,13 @@ const Swipe = () => {
         q = q.eq("meal_type", (plan as { meal_type?: string | null } | null)?.meal_type);
       }
 
-      const { data, error } = await q.limit(50);
+      // Local-only filters: cuisine + smart tags
+      const localCuisine = getCuisine(user.id, date);
+      const localTags = getTags(user.id, date);
+      if (localCuisine) q = q.eq("cuisine", localCuisine);
+      if (localTags.length > 0) q = q.overlaps("tags", localTags);
+
+      const { data, error } = await q.limit(200);
       if (error) toast.error(error.message);
 
       let filtered = ((data ?? []) as Recipe[]).filter((r) => !excluded.has(r.id));
