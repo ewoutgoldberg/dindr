@@ -331,11 +331,11 @@ const Filters = () => {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Categories — generated from imported recipes */}
         <div>
           <p className="text-sm font-semibold mb-2">{t("filters.categories")}</p>
           <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((cat) => {
+              {categoriesToShow.map((cat) => {
                 const active = plan?.categories?.includes(cat);
                 return (
                   <Badge
@@ -353,6 +353,60 @@ const Filters = () => {
               })}
             </div>
           </div>
+
+          {/* Cuisine — generated from imported recipes */}
+          {availableCuisines.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Globe2 className="h-4 w-4" /> {t("filters.cuisine")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {availableCuisines.map((cui) => {
+                  const active = selectedCuisine === cui;
+                  return (
+                    <Badge
+                      key={cui}
+                      variant={active ? "default" : "outline"}
+                      onClick={() => pickCuisine(cui)}
+                      className={cn(
+                        "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                        active && "bg-primary text-primary-foreground hover:bg-primary"
+                      )}
+                    >
+                      {cui}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Smart tags — generated from recipe tags */}
+          {tagsToShow.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <TagIcon className="h-4 w-4" /> {t("filters.smartTags")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {tagsToShow.map((tag) => {
+                  const active = selectedTags.includes(tag.key);
+                  return (
+                    <Badge
+                      key={tag.key}
+                      variant={active ? "default" : "outline"}
+                      onClick={() => toggleTag(tag.key)}
+                      className={cn(
+                        "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                        active && "bg-primary text-primary-foreground hover:bg-primary"
+                      )}
+                    >
+                      {t(tag.labelKey)}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Meal type */}
         <div>
