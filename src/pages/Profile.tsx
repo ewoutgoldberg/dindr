@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, LogOut, Users, Copy, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, Languages } from "lucide-react";
+import { Loader2, LogOut, Users, Copy, X, Bell, ShoppingCart, Camera, BookOpen, ChevronRight, Shield, Languages, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -233,6 +233,15 @@ const Profile = () => {
           ) : (
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
+        </button>
+        <div className="mx-5 h-px bg-border" />
+        <button
+          onClick={() => navigate("/onboarding?replay=1")}
+          className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
+        >
+          <Sparkles className="h-5 w-5 text-primary shrink-0" />
+          <span className="flex-1 font-semibold text-sm">{t("onboarding.replay")}</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
       </section>
 

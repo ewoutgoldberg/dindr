@@ -166,5 +166,33 @@
     "pickCount_other": "{{count}} picks",
     "pastMatches": "Past matches",
     "today": "Today"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "start": "Start swiping",
+    "replay": "Replay the tour",
+    "welcome": {
+      "title": "Welcome to Dinder",
+      "body": "Tinder for dinner. We'll get you up to speed in a minute."
+    },
+    "swipe": {
+      "title": "Swipe your dinner",
+      "body": "Swipe right on recipes you like, left on the rest. When you and your partner both swipe right, you get a match."
+    },
+    "filters": {
+      "title": "Set your filters",
+      "body": "Pick your diet, cuisine and smart labels per day. Only see recipes you actually want to eat."
+    },
+    "partner": {
+      "title": "Cook with your partner",
+      "body": "Share your 6-character code, or enter your partner's code in your profile. Swipe together to match together."
+    },
+    "plan": {
+      "title": "Plan your week",
+      "body": "Pick any day up to 30 days ahead, swipe for it, and your matches automatically show up in your weekly plan and shopping list."
+    }
   }
 }
+

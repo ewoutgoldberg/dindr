@@ -50,6 +50,7 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const hideNav =
     pathname.startsWith("/swipe-favorites") ||
     pathname === "/auth" ||
+    pathname.startsWith("/onboarding") ||
     /^\/recipe\/[^/]+\/card$/.test(pathname);
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">

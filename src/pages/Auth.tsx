@@ -27,13 +27,14 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [justSignedUp, setJustSignedUp] = useState(false);
 
   const redirectParam = new URLSearchParams(location.search).get("redirect");
   const from = redirectParam ?? (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? `/swipe/${fmtDateKey(new Date())}`;
 
   useEffect(() => {
-    if (user) navigate(from, { replace: true });
-  }, [user, navigate, from]);
+    if (user) navigate(justSignedUp ? "/onboarding" : from, { replace: true });
+  }, [user, navigate, from, justSignedUp]);
 
   // iOS keyboard handling: keep the auth screen pinned to the visual viewport so it
   // doesn't shift/scroll when the on-screen keyboard appears. Uses visualViewport
@@ -103,9 +104,10 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
-          options: { emailRedirectTo: `${window.location.origin}/swipe/${fmtDateKey(new Date())}` },
+          options: { emailRedirectTo: `${window.location.origin}/onboarding` },
         });
         if (error) throw error;
+        setJustSignedUp(true);
         toast.success("Welcome! Account created.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password: parsed.data.password });
