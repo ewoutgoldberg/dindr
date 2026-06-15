@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
         instructions: steps,
         meal_type: guessMealType(m.strCategory),
         published: true,
-        content_source: "themealdb",
+        content_source: "imported",
         baseTags,
       };
     }).filter((r) => r.title && r.image_url && r.ingredients.length > 0);
