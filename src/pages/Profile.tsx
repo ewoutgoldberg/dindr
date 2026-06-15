@@ -316,6 +316,7 @@ const Profile = () => {
               <span className="font-mono font-bold text-lg tracking-[0.3em]">{profile?.invite_code}</span>
               <Copy className="h-4 w-4 text-muted-foreground" />
             </button>
+            <p className="text-xs text-muted-foreground mb-1.5">{t("profile.partnerCodeLabel")}</p>
             <div className="flex gap-2">
               <Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength={6} placeholder="ABC123" className="rounded-xl uppercase tracking-[0.3em] font-mono font-bold h-10" />
               <Button variant="hero" onClick={connect} disabled={busy} className="h-10 px-4">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("profile.connect")}</Button>
