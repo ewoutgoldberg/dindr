@@ -441,6 +441,8 @@ export type Database = {
           servings: number
           step_images: Json
           subtitle: string | null
+          tags: string[]
+          themealdb_id: string | null
           title: string
         }
         Insert: {
@@ -466,6 +468,8 @@ export type Database = {
           servings?: number
           step_images?: Json
           subtitle?: string | null
+          tags?: string[]
+          themealdb_id?: string | null
           title: string
         }
         Update: {
@@ -491,6 +495,8 @@ export type Database = {
           servings?: number
           step_images?: Json
           subtitle?: string | null
+          tags?: string[]
+          themealdb_id?: string | null
           title?: string
         }
         Relationships: [

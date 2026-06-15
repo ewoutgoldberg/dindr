@@ -33,12 +33,14 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { Tables } from "@/integrations/supabase/types";
-import { CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
+import { CATEGORIES as FALLBACK_CATEGORIES, DIFFICULTIES, TIME_BUCKETS, fmtDateKey } from "@/lib/dates";
 import { getPantry, setPantry, normalizeIngredient } from "@/lib/pantry";
 import { ALLERGENS } from "@/lib/allergens";
 import { getHealthyOnly, setHealthyOnly } from "@/lib/healthy";
 import { MEAL_TYPES } from "@/lib/mealType";
-import { Leaf } from "lucide-react";
+import { SMART_TAGS, getTags, setTags } from "@/lib/tags";
+import { getCuisine, setCuisine } from "@/lib/cuisine";
+import { Leaf, Globe2, Tag as TagIcon } from "lucide-react";
 
 type MealPlan = {
   id: string;
@@ -78,6 +80,11 @@ const Filters = () => {
   const [pantry, setPantryState] = useState<string[]>([]);
   const [pantryInput, setPantryInput] = useState("");
   const [healthyOnly, setHealthyOnlyState] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableCuisines, setAvailableCuisines] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTagsState] = useState<string[]>([]);
+  const [selectedCuisine, setSelectedCuisineState] = useState<string | null>(null);
 
   const handleConfirmDate = () => {
     if (pickedDate !== dateParam) {
@@ -91,6 +98,8 @@ const Filters = () => {
     if (!user || !dateConfirmed) return;
     setPantryState(getPantry(user.id, today));
     setHealthyOnlyState(getHealthyOnly(user.id, today));
+    setSelectedTagsState(getTags(user.id, today));
+    setSelectedCuisineState(getCuisine(user.id, today));
     supabase
       .from("meal_plans")
       .select("*")
@@ -99,6 +108,33 @@ const Filters = () => {
       .maybeSingle()
       .then(({ data }) => setPlan((data as MealPlan) ?? null));
   }, [user, today, dateConfirmed]);
+
+  // Dynamically derive available filter values from the recipe dataset.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("recipes")
+        .select("category, cuisine, tags")
+        .eq("published", true)
+        .limit(2000);
+      if (cancelled || !data) return;
+      const cats = new Set<string>();
+      const cuis = new Set<string>();
+      const tags = new Set<string>();
+      for (const row of data as { category: string | null; cuisine: string | null; tags: string[] | null }[]) {
+        if (row.category) cats.add(row.category);
+        if (row.cuisine) cuis.add(row.cuisine);
+        for (const t of row.tags ?? []) if (t) tags.add(t);
+      }
+      setAvailableCategories([...cats].sort());
+      setAvailableCuisines([...cuis].sort());
+      setAvailableTags([...tags].sort());
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     supabase
@@ -168,13 +204,17 @@ const Filters = () => {
     if ((plan?.allergies?.length ?? 0) > 0) n++;
     if (healthyOnly) n++;
     if (plan?.meal_type) n++;
+    if (selectedCuisine) n++;
+    if (selectedTags.length > 0) n++;
     return n;
-  }, [plan, pantry, healthyOnly]);
+  }, [plan, pantry, healthyOnly, selectedCuisine, selectedTags]);
 
   const clearAll = async () => {
     if (!user) return;
     setPantryState(setPantry(user.id, today, []));
     setHealthyOnlyState(setHealthyOnly(user.id, today, false));
+    setSelectedTagsState(setTags(user.id, today, []));
+    setSelectedCuisineState(setCuisine(user.id, today, null));
     await upsert({ max_time_minutes: null, difficulty: null, categories: [], creator_id: null, allergies: [], meal_type: null });
     toast.success(t("filters.filtersCleared"));
   };
@@ -184,9 +224,28 @@ const Filters = () => {
     setHealthyOnlyState(setHealthyOnly(user.id, today, !healthyOnly));
   };
 
+  const toggleTag = (key: string) => {
+    if (!user) return;
+    const next = selectedTags.includes(key)
+      ? selectedTags.filter((k) => k !== key)
+      : [...selectedTags, key];
+    setSelectedTagsState(setTags(user.id, today, next));
+  };
+
+  const pickCuisine = (cui: string) => {
+    if (!user) return;
+    const next = selectedCuisine === cui ? null : cui;
+    setSelectedCuisineState(setCuisine(user.id, today, next));
+  };
+
   const setMealType = (type: string | null) => {
     upsert({ meal_type: plan?.meal_type === type ? null : type });
   };
+
+  const categoriesToShow = availableCategories.length > 0 ? availableCategories : (FALLBACK_CATEGORIES as readonly string[]);
+  const tagsToShow = availableTags.length > 0
+    ? SMART_TAGS.filter((t) => availableTags.includes(t.key))
+    : SMART_TAGS;
 
   const selectedCreator = creators.find((c) => c.id === plan?.creator_id) ?? null;
 
@@ -272,11 +331,11 @@ const Filters = () => {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Categories — generated from imported recipes */}
         <div>
           <p className="text-sm font-semibold mb-2">{t("filters.categories")}</p>
           <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((cat) => {
+              {categoriesToShow.map((cat) => {
                 const active = plan?.categories?.includes(cat);
                 return (
                   <Badge
@@ -294,6 +353,60 @@ const Filters = () => {
               })}
             </div>
           </div>
+
+          {/* Cuisine — generated from imported recipes */}
+          {availableCuisines.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Globe2 className="h-4 w-4" /> {t("filters.cuisine")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {availableCuisines.map((cui) => {
+                  const active = selectedCuisine === cui;
+                  return (
+                    <Badge
+                      key={cui}
+                      variant={active ? "default" : "outline"}
+                      onClick={() => pickCuisine(cui)}
+                      className={cn(
+                        "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                        active && "bg-primary text-primary-foreground hover:bg-primary"
+                      )}
+                    >
+                      {cui}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Smart tags — generated from recipe tags */}
+          {tagsToShow.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <TagIcon className="h-4 w-4" /> {t("filters.smartTags")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {tagsToShow.map((tag) => {
+                  const active = selectedTags.includes(tag.key);
+                  return (
+                    <Badge
+                      key={tag.key}
+                      variant={active ? "default" : "outline"}
+                      onClick={() => toggleTag(tag.key)}
+                      className={cn(
+                        "cursor-pointer text-sm py-1.5 px-3 rounded-full transition-all",
+                        active && "bg-primary text-primary-foreground hover:bg-primary"
+                      )}
+                    >
+                      {t(tag.labelKey)}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Meal type */}
         <div>

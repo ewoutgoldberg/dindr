@@ -100,7 +100,15 @@
     "filtersCleared": "Filters cleared",
     "whichDay": "Which day are you filtering for?",
     "whichDayDescription": "Filters apply only to this date's meal plan.",
-    "confirmDate": "Confirm date"
+    "confirmDate": "Confirm date",
+    "cuisine": "Cuisine",
+    "smartTags": "Smart tags",
+    "tagQuick": "Quick",
+    "tagHealthy": "Healthy",
+    "tagComfort": "Comfort food",
+    "tagSpicy": "Spicy",
+    "tagVegetarian": "Vegetarian",
+    "tagHighProtein": "High protein"
   },
   "swipe": {
     "swipingFor": "Swiping for",
