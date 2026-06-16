@@ -16,7 +16,7 @@ import planShot from "@/assets/onboarding-plan.png.asset.json";
 /* ---------- Phone frame ---------- */
 
 const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative mx-auto h-full aspect-[9/19] max-h-full rounded-[2.2rem] bg-foreground/90 p-[6px] shadow-card">
+  <div className="relative mx-auto h-full w-full max-w-[320px] rounded-[2.2rem] bg-foreground/90 p-[6px] shadow-card">
     <div className="relative h-full w-full overflow-hidden rounded-[1.9rem] bg-background">
       <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-30 h-4 w-16 rounded-full bg-foreground/90" />
       {children}
