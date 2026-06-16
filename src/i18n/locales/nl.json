@@ -168,31 +168,30 @@
     "today": "Vandaag"
   },
   "onboarding": {
-    "skip": "Overslaan",
+    "skip": "Sla over",
     "next": "Volgende",
     "back": "Terug",
-    "start": "Beginnen met swipen",
-    "replay": "Rondleiding opnieuw bekijken",
+    "start": "Aan de slag",
+    "replay": "Onboarding opnieuw bekijken",
     "welcome": {
       "title": "Welkom bij Dinder",
-      "body": "Tinder voor je avondeten. We helpen je in een minuutje op weg."
+      "body": "Tinder for dinner: samen kiezen wat je vanavond eet."
     },
     "swipe": {
-      "title": "Swipe je avondeten",
-      "body": "Swipe rechts op recepten die je lekker vindt en links op de rest. Als jij én je partner allebei rechts swipen, krijg je een match."
+      "title": "Swipe je diner",
+      "body": "Swipe rechts op recepten die je lekker vindt, links op de rest. Matchen jullie allebei? Dan is het een match."
     },
     "filters": {
       "title": "Stel je filters in",
-      "body": "Kies per dag je dieet, keuken en smart labels. Zo zie je alleen recepten die je echt wilt eten."
+      "body": "Kies keuken, dieet en kooktijd per dag."
     },
     "partner": {
-      "title": "Kook samen met je partner",
-      "body": "Deel je 6-cijferige code, of vul de code van je partner in via je profiel. Samen swipen = samen matchen."
+      "title": "Koppel met je partner",
+      "body": "Deel je code of vul die van je partner in. Swipe samen, match samen."
     },
     "plan": {
       "title": "Plan je week",
-      "body": "Kies een dag tot 30 dagen vooruit, swipe ervoor, en je matches verschijnen automatisch in je weekplan en boodschappenlijst."
+      "body": "Je matches verschijnen automatisch in je weekplanning, met boodschappenlijst."
     }
   }
 }
-
