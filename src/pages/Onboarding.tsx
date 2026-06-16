@@ -24,17 +24,11 @@ const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-/* Real recipe photos (from recipes table) */
-const IMG = {
-  pasta: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800",
-  curry: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=800",
-  salad: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800",
-  pizza: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800",
-  risotto: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800",
-  pesto: "https://images.unsplash.com/photo-1556761223-4c4282c73f77?w=800",
-};
-
-/* ---------- Per-slide phone screens (no fake bottom nav) ---------- */
+const ScreenshotScreen = ({ src, alt }: { src: string; alt: string }) => (
+  <PhoneFrame>
+    <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover object-top" />
+  </PhoneFrame>
+);
 
 const WelcomeScreen = () => (
   <PhoneFrame>
@@ -51,167 +45,10 @@ const WelcomeScreen = () => (
   </PhoneFrame>
 );
 
-const SwipeScreen = () => (
-  <PhoneFrame>
-    <div className="absolute inset-0 pt-8 pb-4 px-3 bg-background">
-      <div className="absolute top-10 left-3 z-10 flex items-center gap-1.5 bg-foreground/75 text-primary-foreground rounded-full pl-2 pr-3 py-1">
-        <CalendarIcon className="h-3 w-3" />
-        <div className="leading-tight">
-          <p className="text-[6px] font-bold uppercase tracking-wider opacity-90">Aan het swipen voor</p>
-          <p className="text-[9px] font-display font-bold">Vanavond</p>
-        </div>
-      </div>
-      <div className="relative h-full w-full">
-        <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-card">
-          <img src={IMG.pasta} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent text-white">
-            <div className="font-display font-bold text-[13px] leading-tight">Creamy Garlic Pasta</div>
-            <div className="flex items-center gap-2 text-[9px] opacity-90 mt-0.5">
-              <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />30 min</span>
-              <span>·</span>
-              <span className="flex items-center gap-0.5"><Users className="h-2.5 w-2.5" />2 pers.</span>
-            </div>
-          </div>
-          <div className="absolute top-3 right-3 rotate-12 border-2 border-emerald-400 text-emerald-400 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-white/10 backdrop-blur-sm">
-            Lekker
-          </div>
-        </div>
-      </div>
-    </div>
-  </PhoneFrame>
-);
-
-const FiltersScreen = () => {
-  const cuisines = [
-    { label: "Italiaans", on: true },
-    { label: "Aziatisch", on: false },
-    { label: "Mediterraans", on: true },
-  ];
-  const diets = [
-    { label: "Vegetarisch", on: true },
-    { label: "Glutenvrij", on: false },
-  ];
-  return (
-    <PhoneFrame>
-      <div className="absolute inset-0 pt-8 pb-4 px-3 bg-background overflow-hidden">
-        <div className="font-display font-extrabold text-sm mb-2.5">Filters</div>
-        <div className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">Keuken</div>
-        <div className="flex flex-wrap gap-1 mb-3">
-          {cuisines.map((p) => (
-            <span
-              key={p.label}
-              className={cn(
-                "px-2 py-0.5 rounded-full text-[9px] font-semibold border",
-                p.on ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
-              )}
-            >
-              {p.label}
-            </span>
-          ))}
-        </div>
-        <div className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">Dieet</div>
-        <div className="flex flex-wrap gap-1 mb-3">
-          {diets.map((p) => (
-            <span
-              key={p.label}
-              className={cn(
-                "px-2 py-0.5 rounded-full text-[9px] font-semibold border",
-                p.on ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
-              )}
-            >
-              {p.label}
-            </span>
-          ))}
-        </div>
-        <div className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">Kooktijd</div>
-        <div className="h-1 rounded-full bg-muted relative mb-1">
-          <div className="absolute left-0 top-0 h-1 w-2/3 rounded-full bg-primary" />
-          <div className="absolute left-[66%] -top-1 h-3 w-3 rounded-full bg-primary shadow" />
-        </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground">
-          <span>10 min</span>
-          <span>45 min</span>
-        </div>
-      </div>
-    </PhoneFrame>
-  );
-};
-
-const PartnerScreen = () => (
-  <PhoneFrame>
-    <div className="absolute inset-0 pt-8 pb-4 px-3 bg-background flex flex-col">
-      <div className="font-display font-extrabold text-sm mb-3">Koppel met je partner</div>
-      <div className="rounded-xl border border-border p-3 text-center mb-3 bg-muted/30">
-        <div className="text-[9px] text-muted-foreground mb-1 uppercase tracking-wider font-semibold">Jouw code</div>
-        <div className="font-display font-extrabold text-2xl tracking-[0.25em] text-primary">428193</div>
-      </div>
-      <div className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">Of vul de code van je partner in</div>
-      <div className="flex gap-1 mb-3">
-        {["7", "2", "9", "0", "4", "5"].map((d, idx) => (
-          <div
-            key={idx}
-            className="flex-1 h-8 rounded-md border border-border grid place-items-center font-display font-bold text-sm bg-muted/40"
-          >
-            {d}
-          </div>
-        ))}
-      </div>
-      <div className="mt-auto flex items-center justify-center gap-2 py-4">
-        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-accent" />
-        <Heart className="h-5 w-5 text-primary fill-primary" />
-        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-accent to-primary" />
-      </div>
-    </div>
-  </PhoneFrame>
-);
-
-const PlanScreen = () => {
-  const days = ["Ma", "Di", "Wo", "Do", "Vr"];
-  const meals = [
-    { src: IMG.pasta, name: "Pasta al limone", min: 30 },
-    { src: IMG.curry, name: "Thaise groene curry", min: 25 },
-    { src: IMG.salad, name: "Griekse salade", min: 20 },
-  ];
-  return (
-    <PhoneFrame>
-      <div className="absolute inset-0 pt-8 pb-4 px-3 bg-background">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="font-display font-extrabold text-sm">Weekplan</div>
-          <ShoppingBasket className="h-3.5 w-3.5 text-primary" />
-        </div>
-        <div className="flex gap-1 mb-3">
-          {days.map((d, i) => (
-            <div
-              key={d}
-              className={cn(
-                "flex-1 py-1 rounded-md text-[9px] font-bold text-center",
-                i === 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-        {meals.map((m) => (
-          <div key={m.name} className="flex items-center gap-2 mb-1.5 rounded-lg border border-border p-1.5">
-            <div className="h-10 w-10 rounded-md overflow-hidden shrink-0">
-              <img src={m.src} alt="" className="h-full w-full object-cover" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-[11px] leading-tight truncate">{m.name}</div>
-              <div className="flex items-center gap-1.5 text-[8px] text-muted-foreground mt-0.5">
-                <span className="flex items-center gap-0.5"><Clock className="h-2 w-2" />{m.min} min</span>
-                <span>·</span>
-                <span className="flex items-center gap-0.5"><Users className="h-2 w-2" />2 pers.</span>
-              </div>
-            </div>
-            <Check className="h-3 w-3 text-primary shrink-0" />
-          </div>
-        ))}
-      </div>
-    </PhoneFrame>
-  );
-};
+const SwipeScreen = () => <ScreenshotScreen src={swipeShot.url} alt="Dindr swipe scherm" />;
+const FiltersScreen = () => <ScreenshotScreen src={filtersShot.url} alt="Dindr filters scherm" />;
+const PartnerScreen = () => <ScreenshotScreen src={matchesShot.url} alt="Dindr matches scherm" />;
+const PlanScreen = () => <ScreenshotScreen src={planShot.url} alt="Dindr weekplan scherm" />;
 
 /* ---------- Page ---------- */
 
