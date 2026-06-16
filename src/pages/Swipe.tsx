@@ -229,7 +229,11 @@ const Swipe = () => {
 
   const remaining = recipes.length - index;
   const activeDateKey = dateConfirmed ? (date ?? pickedDate) : pickedDate;
-  const dateLabel = format(parseISO(activeDateKey), "EEEE, MMM d");
+  const parsedActiveDate = activeDateKey ? parseISO(activeDateKey) : null;
+  const dateLabel =
+    parsedActiveDate && !isNaN(parsedActiveDate.getTime())
+      ? format(parsedActiveDate, "EEEE, MMM d")
+      : "";
 
   return (
     <div className="flex-1 flex flex-col bg-background min-h-0 overflow-hidden">
