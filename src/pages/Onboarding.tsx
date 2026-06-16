@@ -213,7 +213,7 @@ const PartnerScreen = () => (
         <div className="h-7 w-7 rounded-full bg-gradient-to-br from-accent to-primary" />
       </div>
     </div>
-    <BottomNavMock active="myKitchen" />
+    <BottomNavMock active="matches" />
   </PhoneFrame>
 );
 
