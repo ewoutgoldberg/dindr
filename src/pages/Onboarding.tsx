@@ -1,9 +1,9 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { motion, PanInfo, useMotionValue, animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,8 +33,34 @@ const Onboarding = () => {
   );
 
   const [i, setI] = useState(0);
-  const [direction, setDirection] = useState(1);
   const isLast = i === steps.length - 1;
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const x = useMotionValue(0);
+
+  // Measure container width for slide math
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const update = () => setWidth(el.offsetWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Animate to current slide whenever index or width changes
+  useEffect(() => {
+    if (!width) return;
+    const controls = animate(x, -i * width, {
+      type: "spring",
+      stiffness: 320,
+      damping: 36,
+      mass: 0.9,
+    });
+    return controls.stop;
+  }, [i, width, x]);
 
   const finish = useCallback(async () => {
     if (user && !replay) {
@@ -43,35 +69,34 @@ const Onboarding = () => {
     navigate(`/swipe/${fmtDateKey(new Date())}`, { replace: true });
   }, [user, replay, navigate]);
 
-  const goTo = useCallback((idx: number) => {
-    if (idx < 0 || idx >= steps.length) return;
-    setDirection(idx > i ? 1 : -1);
-    setI(idx);
-  }, [i, steps.length]);
+  const goTo = useCallback(
+    (idx: number) => {
+      const next = Math.max(0, Math.min(steps.length - 1, idx));
+      setI(next);
+    },
+    [steps.length]
+  );
 
   const next = useCallback(() => {
     if (isLast) return finish();
     goTo(i + 1);
   }, [isLast, finish, goTo, i]);
 
-  const back = useCallback(() => {
-    if (i === 0) return;
-    goTo(i - 1);
-  }, [i, goTo]);
+  const back = useCallback(() => goTo(i - 1), [i, goTo]);
 
   const handleDragEnd = useCallback(
     (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      const swipeThreshold = 50;
-      if (info.offset.x < -swipeThreshold) {
-        next();
-      } else if (info.offset.x > swipeThreshold) {
-        back();
-      }
+      if (!width) return;
+      const threshold = width * 0.18;
+      const velocity = info.velocity.x;
+      const offset = info.offset.x;
+      let target = i;
+      if (offset < -threshold || velocity < -500) target = i + 1;
+      else if (offset > threshold || velocity > 500) target = i - 1;
+      goTo(target);
     },
-    [next, back]
+    [width, i, goTo]
   );
-
-  const step = steps[i];
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background safe-top">
@@ -102,50 +127,43 @@ const Onboarding = () => {
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step.key}
-            custom={direction}
-            initial={{ opacity: 0, x: direction * 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -100 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
-            className="flex-1 min-h-0 flex flex-col px-6 cursor-grab active:cursor-grabbing"
-          >
-            <div className="flex-1 min-h-0 grid place-items-center">
-              <div className="w-full max-w-md aspect-[3/4] rounded-3xl overflow-hidden shadow-card bg-muted relative">
-                <img
-                  src={step.img}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  width={1024}
-                  height={1365}
-                  loading="eager"
-                  draggable={false}
-                />
-                {/* Subtle swipe hint overlay */}
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 pb-3 pointer-events-none">
-                  <ChevronLeft className="h-6 w-6 text-white/50 drop-shadow" />
-                  <ChevronRight className="h-6 w-6 text-white/50 drop-shadow" />
+      {/* Carousel */}
+      <div ref={trackRef} className="flex-1 min-h-0 overflow-hidden relative">
+        <motion.div
+          className="absolute inset-0 flex touch-pan-y"
+          style={{ x, width: `${steps.length * 100}%` }}
+          drag="x"
+          dragConstraints={{ left: -(steps.length - 1) * width, right: 0 }}
+          dragElastic={0.12}
+          onDragEnd={handleDragEnd}
+        >
+          {steps.map((step) => (
+            <div
+              key={step.key}
+              className="h-full flex flex-col px-6 cursor-grab active:cursor-grabbing"
+              style={{ width: `${100 / steps.length}%`, flexShrink: 0 }}
+            >
+              <div className="flex-1 min-h-0 grid place-items-center">
+                <div className="w-full max-w-sm aspect-[9/16] rounded-[2rem] overflow-hidden shadow-card bg-muted">
+                  <img
+                    src={step.img}
+                    alt=""
+                    className="w-full h-full object-cover select-none"
+                    draggable={false}
+                  />
                 </div>
               </div>
+              <div className="max-w-md w-full mx-auto text-center pb-2 pt-4">
+                <h1 className="font-display font-extrabold text-2xl mb-2">
+                  {t(`onboarding.${step.key}.title`)}
+                </h1>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {t(`onboarding.${step.key}.body`)}
+                </p>
+              </div>
             </div>
-            <div className="max-w-md w-full mx-auto text-center pb-2 pt-4">
-              <h1 className="font-display font-extrabold text-2xl mb-2">
-                {t(`onboarding.${step.key}.title`)}
-              </h1>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {t(`onboarding.${step.key}.body`)}
-              </p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+          ))}
+        </motion.div>
       </div>
 
       {/* Footer: dots + next */}
