@@ -39,7 +39,7 @@ const BottomNavMock = ({ active }: { active: "filters" | "swipe" | "matches" | "
     { key: "filters", label: "Filters", Icon: SlidersHorizontal },
     { key: "swipe", label: "Swipe", Icon: Flame },
     { key: "matches", label: "Matches", Icon: Heart },
-    { key: "plan", label: "Plan", Icon: CalendarDays },
+    { key: "plan", label: "Weekplan", Icon: CalendarDays },
     { key: "myKitchen", label: "MijnKeuken", Icon: User },
   ];
   return (
@@ -213,7 +213,7 @@ const PartnerScreen = () => (
         <div className="h-7 w-7 rounded-full bg-gradient-to-br from-accent to-primary" />
       </div>
     </div>
-    <BottomNavMock active="myKitchen" />
+    <BottomNavMock active="matches" />
   </PhoneFrame>
 );
 
