@@ -174,17 +174,17 @@ const Onboarding = () => {
           {steps.map(({ key, Screen }) => (
             <div
               key={key}
-              className="h-full flex flex-col px-6 cursor-grab active:cursor-grabbing"
+              className="h-full flex flex-col px-4 cursor-grab active:cursor-grabbing"
               style={{ width: `${100 / steps.length}%`, flexShrink: 0 }}
             >
-              <div className="basis-[55%] min-h-0 grid place-items-center py-2">
+              <div className="basis-[78%] min-h-0 grid place-items-center py-2">
                 <Screen />
               </div>
-              <div className="basis-[45%] max-w-md w-full mx-auto text-center pt-5 px-2 overflow-hidden">
-                <h1 className="font-display font-extrabold text-2xl mb-2 leading-tight">
+              <div className="basis-[22%] max-w-md w-full mx-auto text-center pt-2 px-2 overflow-hidden flex flex-col justify-start">
+                <h1 className="font-display font-extrabold text-xl mb-1 leading-tight">
                   {t(`onboarding.${key}.title`)}
                 </h1>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                   {t(`onboarding.${key}.body`)}
                 </p>
               </div>
