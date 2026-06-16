@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,24 +36,40 @@ const Onboarding = () => {
   const [direction, setDirection] = useState(1);
   const isLast = i === steps.length - 1;
 
-  const finish = async () => {
+  const finish = useCallback(async () => {
     if (user && !replay) {
       await supabase.from("profiles").update({ onboarded_at: new Date().toISOString() }).eq("id", user.id);
     }
     navigate(`/swipe/${fmtDateKey(new Date())}`, { replace: true });
-  };
+  }, [user, replay, navigate]);
 
-  const next = () => {
+  const goTo = useCallback((idx: number) => {
+    if (idx < 0 || idx >= steps.length) return;
+    setDirection(idx > i ? 1 : -1);
+    setI(idx);
+  }, [i, steps.length]);
+
+  const next = useCallback(() => {
     if (isLast) return finish();
-    setDirection(1);
-    setI((v) => v + 1);
-  };
+    goTo(i + 1);
+  }, [isLast, finish, goTo, i]);
 
-  const back = () => {
+  const back = useCallback(() => {
     if (i === 0) return;
-    setDirection(-1);
-    setI((v) => v - 1);
-  };
+    goTo(i - 1);
+  }, [i, goTo]);
+
+  const handleDragEnd = useCallback(
+    (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const swipeThreshold = 50;
+      if (info.offset.x < -swipeThreshold) {
+        next();
+      } else if (info.offset.x > swipeThreshold) {
+        back();
+      }
+    },
+    [next, back]
+  );
 
   const step = steps[i];
 
@@ -92,25 +108,35 @@ const Onboarding = () => {
           <motion.div
             key={step.key}
             custom={direction}
-            initial={{ opacity: 0, x: direction * 40 }}
+            initial={{ opacity: 0, x: direction * 100 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -40 }}
-            transition={{ duration: 0.25 }}
-            className="flex-1 min-h-0 flex flex-col px-6"
+            exit={{ opacity: 0, x: direction * -100 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
+            className="flex-1 min-h-0 flex flex-col px-6 cursor-grab active:cursor-grabbing"
           >
             <div className="flex-1 min-h-0 grid place-items-center">
-              <div className="w-full max-w-sm aspect-[4/3] rounded-3xl overflow-hidden shadow-card bg-muted">
+              <div className="w-full max-w-md aspect-[3/4] rounded-3xl overflow-hidden shadow-card bg-muted relative">
                 <img
                   src={step.img}
                   alt=""
                   className="w-full h-full object-cover"
                   width={1024}
-                  height={768}
+                  height={1365}
                   loading="eager"
+                  draggable={false}
                 />
+                {/* Subtle swipe hint overlay */}
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 pb-3 pointer-events-none">
+                  <ChevronLeft className="h-6 w-6 text-white/50 drop-shadow" />
+                  <ChevronRight className="h-6 w-6 text-white/50 drop-shadow" />
+                </div>
               </div>
             </div>
-            <div className="max-w-md w-full mx-auto text-center pb-2">
+            <div className="max-w-md w-full mx-auto text-center pb-2 pt-4">
               <h1 className="font-display font-extrabold text-2xl mb-2">
                 {t(`onboarding.${step.key}.title`)}
               </h1>
@@ -126,12 +152,14 @@ const Onboarding = () => {
       <div className="shrink-0 px-6 pt-3 pb-[max(env(safe-area-inset-bottom),1rem)] max-w-md w-full mx-auto">
         <div className="flex items-center justify-center gap-2 mb-4">
           {steps.map((s, idx) => (
-            <span
+            <button
               key={s.key}
+              onClick={() => goTo(idx)}
               className={cn(
                 "h-1.5 rounded-full transition-all",
                 idx === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
               )}
+              aria-label={`${t("onboarding.back")} ${idx + 1}`}
             />
           ))}
         </div>
