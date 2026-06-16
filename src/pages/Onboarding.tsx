@@ -16,7 +16,7 @@ import planShot from "@/assets/onboarding-plan.png.asset.json";
 /* ---------- Phone frame ---------- */
 
 const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative mx-auto h-full aspect-[9/19] max-h-full rounded-[2.2rem] bg-foreground/90 p-[6px] shadow-card">
+  <div className="relative mx-auto h-full w-full max-w-[320px] rounded-[2.2rem] bg-foreground/90 p-[6px] shadow-card">
     <div className="relative h-full w-full overflow-hidden rounded-[1.9rem] bg-background">
       <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-30 h-4 w-16 rounded-full bg-foreground/90" />
       {children}
@@ -174,17 +174,17 @@ const Onboarding = () => {
           {steps.map(({ key, Screen }) => (
             <div
               key={key}
-              className="h-full flex flex-col px-6 cursor-grab active:cursor-grabbing"
+              className="h-full flex flex-col px-4 cursor-grab active:cursor-grabbing"
               style={{ width: `${100 / steps.length}%`, flexShrink: 0 }}
             >
-              <div className="basis-[55%] min-h-0 grid place-items-center py-2">
+              <div className="basis-[78%] min-h-0 grid place-items-center py-2">
                 <Screen />
               </div>
-              <div className="basis-[45%] max-w-md w-full mx-auto text-center pt-5 px-2 overflow-hidden">
-                <h1 className="font-display font-extrabold text-2xl mb-2 leading-tight">
+              <div className="basis-[22%] max-w-md w-full mx-auto text-center pt-2 px-2 overflow-hidden flex flex-col justify-start">
+                <h1 className="font-display font-extrabold text-xl mb-1 leading-tight">
                   {t(`onboarding.${key}.title`)}
                 </h1>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                   {t(`onboarding.${key}.body`)}
                 </p>
               </div>
