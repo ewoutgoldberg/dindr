@@ -193,5 +193,16 @@
       "title": "Plan your week",
       "body": "Your matches and final picks automatically appear in your weekly plan. Plan days ahead and instantly get a shopping list with all the ingredients."
     }
+  },
+  "inspiration": {
+    "empty": "No inspiration yet. Posts will appear here automatically once this creator connects their social accounts.",
+    "from": "From",
+    "viewOn": "View on {{platform}}",
+    "viewRecipe": "View recipe",
+    "readMore": "read more",
+    "readLess": "less",
+    "seenAt": "Seen on @{{handle}}'s {{platform}}",
+    "cookingNow": "What are creators cooking?",
+    "cookingNowSub": "The latest posts from creators you follow"
   }
 }
