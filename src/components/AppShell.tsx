@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Flame, Heart, User, SlidersHorizontal, ChefHat, BookOpen, Sparkles, BarChart3 } from "lucide-react";
+import { CalendarDays, Flame, Heart, User, ChefHat, BookOpen, Sparkles, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -31,10 +31,10 @@ export const AppShell = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation();
 
   const consumerTabs: Tab[] = [
-    { to: "/filters", label: t("nav.filters"), icon: SlidersHorizontal },
     { to: () => `/swipe/${activeSwipeDate()}`, match: "/swipe", label: t("nav.swipe"), icon: Flame },
     { to: "/matches", label: t("nav.matches"), icon: Heart },
     { to: "/plan", label: t("nav.plan"), icon: CalendarDays },
+    { to: "/inspiration", label: t("nav.inspiration"), icon: Sparkles },
     { to: "/profile", label: t("nav.myKitchen"), icon: User, showBadge: true },
   ];
 
