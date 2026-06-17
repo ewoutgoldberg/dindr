@@ -600,6 +600,7 @@ export type Database = {
           platform: string
           post_url: string | null
           posted_at: string | null
+          recipe_id: string | null
           thumbnail_url: string | null
         }
         Insert: {
@@ -613,6 +614,7 @@ export type Database = {
           platform: string
           post_url?: string | null
           posted_at?: string | null
+          recipe_id?: string | null
           thumbnail_url?: string | null
         }
         Update: {
@@ -626,6 +628,7 @@ export type Database = {
           platform?: string
           post_url?: string | null
           posted_at?: string | null
+          recipe_id?: string | null
           thumbnail_url?: string | null
         }
         Relationships: [
@@ -634,6 +637,13 @@ export type Database = {
             columns: ["creator_id"]
             isOneToOne: false
             referencedRelation: "food_creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_posts_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
             referencedColumns: ["id"]
           },
         ]
