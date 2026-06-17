@@ -179,7 +179,7 @@ const SwipeScreen = () => {
 
   return (
     <PhoneFrame>
-      <div className="absolute inset-0 bg-background pt-[38px] pb-[62px] px-4 flex flex-col">
+      <div className="absolute inset-0 bg-background pt-[38px] pb-[58px] px-4 flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <div className="font-display font-extrabold text-lg">Dindr</div>
           <div className="h-7 w-7 rounded-full bg-muted" />
