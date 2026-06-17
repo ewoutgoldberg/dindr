@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtDateKey } from "@/lib/dates";
 import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
+import { CreatorsCookingNow } from "@/components/CreatorsCookingNow";
 
 type FavoriteRow = Tables<"favorites"> & {
   recipes: (Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "name" | "avatar_url"> | null }) | null;
