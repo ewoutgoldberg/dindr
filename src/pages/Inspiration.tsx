@@ -129,13 +129,28 @@ const Inspiration = () => {
                 </div>
 
                 <div className="relative bg-muted aspect-square max-h-[70vh]">
-                  <img
-                    src={p.thumbnail_url ?? p.media_url ?? ""}
-                    alt={p.caption?.slice(0, 80) ?? "Social post"}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
+                  {p.media_type === "video" && p.media_url ? (
+                    <>
+                      <ReelVideo
+                        src={p.media_url}
+                        poster={p.thumbnail_url ?? undefined}
+                        alt={p.caption?.slice(0, 80) ?? "Reel"}
+                      />
+                      <div className="absolute top-2 left-2 bg-black/55 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold inline-flex items-center gap-1 backdrop-blur-sm">
+                        <Play className="h-3 w-3 fill-current" />
+                        Reel
+                      </div>
+                    </>
+                  ) : (
+                    <img
+                      src={p.thumbnail_url ?? p.media_url ?? ""}
+                      alt={p.caption?.slice(0, 80) ?? "Social post"}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
+
 
                 <div className="p-3 space-y-3">
                   {p.caption && (
