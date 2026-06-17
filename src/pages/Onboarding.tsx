@@ -179,8 +179,6 @@ const SwipeScreen = () => {
   );
 };
 
-// tiny helper to import useTransform without changing top imports
-import { useTransform } from "framer-motion";
 function useTransformWrap(x: ReturnType<typeof useMotionValue<number>>) {
   return useTransform(x, [-100, 0, 100], [-8, 0, 8]);
 }
