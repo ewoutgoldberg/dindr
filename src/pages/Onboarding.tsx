@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, PanInfo, useMotionValue, animate } from "framer-motion";
+import { motion, PanInfo, useMotionValue, useTransform, animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Signal, Wifi, BatteryFull } from "lucide-react";
