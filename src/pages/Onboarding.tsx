@@ -82,7 +82,7 @@ const ScreenshotScreen = ({
         src={src}
         alt={alt}
         className="absolute left-0 right-0 w-full"
-        style={{ top: "-6%", height: "106%", objectFit: "cover", objectPosition: "top" }}
+        style={{ top: "-7%", height: "108%", objectFit: "cover", objectPosition: "top" }}
       />
     </div>
     {children}
