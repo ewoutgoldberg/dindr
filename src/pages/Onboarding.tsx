@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { fmtDateKey } from "@/lib/dates";
-import swipeShot from "@/assets/onboarding-swipe.png.asset.json";
+
 import filtersShot from "@/assets/onboarding-filters.png.asset.json";
 import matchesShot from "@/assets/onboarding-matches.png.asset.json";
 import planShot from "@/assets/onboarding-plan.png.asset.json";
