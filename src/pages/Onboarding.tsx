@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, PanInfo, useMotionValue, animate } from "framer-motion";
+import { motion, PanInfo, useMotionValue, useTransform, animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Signal, Wifi, BatteryFull } from "lucide-react";
@@ -40,6 +40,8 @@ const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/* Screenshot screen — crops the status bar baked into the source screenshot
+   so our synthetic iOS status bar above stays the only one visible. */
 const ScreenshotScreen = ({
   src,
   alt,
@@ -50,37 +52,137 @@ const ScreenshotScreen = ({
   children?: React.ReactNode;
 }) => (
   <PhoneFrame>
-    <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover object-top" />
+    <div className="absolute inset-0 overflow-hidden">
+      <img
+        src={src}
+        alt={alt}
+        className="absolute left-0 right-0 w-full"
+        style={{ top: "-6%", height: "106%", objectFit: "cover", objectPosition: "top" }}
+      />
+    </div>
     {children}
   </PhoneFrame>
 );
 
-const WelcomeScreen = () => (
-  <PhoneFrame>
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-b from-primary/10 via-background to-background">
-      <img
-        src={dindrIcon.url}
-        alt="Dindr"
-        className="h-24 w-24 rounded-[1.4rem] shadow-card mb-5"
-      />
-      <div className="font-display font-extrabold text-3xl tracking-tight">Dindr</div>
-      <div className="text-xs text-muted-foreground mt-1.5">Tinder for dinner</div>
-    </div>
-  </PhoneFrame>
-);
-
-const SwipeScreen = () => (
-  <ScreenshotScreen src={swipeShot.url} alt="Dindr swipe">
-    {/* YUM stamp like swiping right */}
-    <div className="absolute top-[28%] left-6 z-30 rotate-[-18deg]">
-      <div className="px-3 py-1 rounded-md border-[3px] border-emerald-500 bg-background/30 backdrop-blur-sm">
-        <span className="font-display font-extrabold text-2xl tracking-wider text-emerald-500">
-          YUM
-        </span>
+const WelcomeScreen = () => {
+  const { t } = useTranslation();
+  return (
+    <PhoneFrame>
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-b from-primary/10 via-background to-background">
+        <img
+          src={dindrIcon.url}
+          alt="Dindr"
+          className="h-28 w-28 rounded-[1.6rem] shadow-card mb-5 object-cover"
+        />
+        <div className="font-display font-extrabold text-3xl tracking-tight">Dindr</div>
+        <div className="text-xs text-muted-foreground mt-1.5">
+          {t("onboarding.welcome.tagline", { defaultValue: "Tinder for dinner" })}
+        </div>
       </div>
-    </div>
-  </ScreenshotScreen>
-);
+    </PhoneFrame>
+  );
+};
+
+/* Animated swipe-card demo on slide 2 — real recipe photo, auto right/left loop */
+const DEMO_RECIPE = {
+  image:
+    "https://www.eefkooktzo.nl/wp-content/uploads/2026/04/crispy-chicken-tenders-uit-de-oven.jpg",
+  title: "Crispy chicken tenders",
+  time: 22,
+  servings: 2,
+};
+
+const SwipeScreen = () => {
+  const { t, i18n } = useTranslation();
+  const cardX = useMotionValue(0);
+  const [stamp, setStamp] = useState<"yum" | "nope" | null>(null);
+  const peopleUnit = i18n.language?.startsWith("nl") ? "pers." : "ppl";
+
+  useEffect(() => {
+    let cancelled = false;
+    const loop = async () => {
+      while (!cancelled) {
+        // right
+        setStamp("yum");
+        await animate(cardX, 60, { duration: 0.7, ease: "easeOut" });
+        await new Promise((r) => setTimeout(r, 500));
+        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
+        setStamp(null);
+        await new Promise((r) => setTimeout(r, 600));
+        if (cancelled) return;
+        // left
+        setStamp("nope");
+        await animate(cardX, -60, { duration: 0.7, ease: "easeOut" });
+        await new Promise((r) => setTimeout(r, 500));
+        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
+        setStamp(null);
+        await new Promise((r) => setTimeout(r, 700));
+      }
+    };
+    loop();
+    return () => {
+      cancelled = true;
+    };
+  }, [cardX]);
+
+  return (
+    <PhoneFrame>
+      <div className="absolute inset-0 bg-background pt-[38px] px-4 pb-4 flex flex-col">
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-display font-extrabold text-lg">Dindr</div>
+          <div className="h-7 w-7 rounded-full bg-muted" />
+        </div>
+        <div className="relative flex-1 grid place-items-center">
+          {/* back card */}
+          <div className="absolute inset-x-3 top-3 bottom-6 rounded-2xl bg-muted/60" />
+          <motion.div
+            style={{ x: cardX, rotate: useTransformWrap(cardX) }}
+            className="relative w-full h-full rounded-2xl overflow-hidden shadow-card bg-card"
+          >
+            <img src={DEMO_RECIPE.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 text-white">
+              <div className="font-display font-extrabold text-base leading-tight">
+                {DEMO_RECIPE.title}
+              </div>
+              <div className="text-[11px] opacity-90 mt-1">
+                ca. {DEMO_RECIPE.time} min · {DEMO_RECIPE.servings} {peopleUnit}
+              </div>
+            </div>
+            {/* stamps */}
+            {stamp === "yum" && (
+              <div className="absolute top-4 left-3 rotate-[-18deg]">
+                <div className="px-3 py-1 rounded-md border-[3px] border-emerald-500 bg-white/20 backdrop-blur-sm">
+                  <span className="font-display font-extrabold text-2xl tracking-wider text-emerald-500">
+                    YUM
+                  </span>
+                </div>
+              </div>
+            )}
+            {stamp === "nope" && (
+              <div className="absolute top-4 right-3 rotate-[14deg]">
+                <div className="px-3 py-1 rounded-md border-[3px] border-rose-500 bg-white/20 backdrop-blur-sm">
+                  <span className="font-display font-extrabold text-2xl tracking-wider text-rose-500">
+                    NOPE
+                  </span>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </div>
+        {/* action buttons row */}
+        <div className="flex items-center justify-center gap-6 mt-2">
+          <div className="h-10 w-10 rounded-full bg-rose-500/15 grid place-items-center text-rose-500 text-lg">✕</div>
+          <div className="h-12 w-12 rounded-full bg-emerald-500/15 grid place-items-center text-emerald-500 text-xl">♥</div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+};
+
+function useTransformWrap(x: ReturnType<typeof useMotionValue<number>>) {
+  return useTransform(x, [-100, 0, 100], [-8, 0, 8]);
+}
+
 const FiltersScreen = () => <ScreenshotScreen src={filtersShot.url} alt="Dindr filters" />;
 const MatchesScreen = () => <ScreenshotScreen src={matchesShot.url} alt="Dindr matches" />;
 const PlanScreen = () => <ScreenshotScreen src={planShot.url} alt="Dindr weekplan" />;
