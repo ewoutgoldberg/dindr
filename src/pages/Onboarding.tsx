@@ -65,8 +65,9 @@ const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-/* Screenshot screen — crops the status bar baked into the source screenshot
-   so our synthetic iOS status bar above stays the only one visible. */
+/* Screenshot screen — crops both the source status bar (top) and the source
+   bottom nav (bottom) so our synthetic status bar + mock nav are the only
+   ones visible, identical across every screen. */
 const ScreenshotScreen = ({
   src,
   alt,
@@ -77,14 +78,15 @@ const ScreenshotScreen = ({
   children?: React.ReactNode;
 }) => (
   <PhoneFrame>
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute left-0 right-0 top-[34px] bottom-[58px] overflow-hidden bg-background">
       <img
         src={src}
         alt={alt}
         className="absolute left-0 right-0 w-full"
-        style={{ top: "-7%", height: "108%", objectFit: "cover", objectPosition: "top" }}
+        style={{ top: "-9%", height: "118%", objectFit: "cover", objectPosition: "top" }}
       />
     </div>
+    <MockBottomNav />
     {children}
   </PhoneFrame>
 );
@@ -126,17 +128,17 @@ const MockBottomNav = () => {
     { icon: User, label: t("nav.myKitchen") },
   ];
   return (
-    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-1">
+    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-0.5">
       {items.map(({ icon: Icon, label, active }, i) => (
         <div
           key={i}
           className={cn(
-            "flex flex-col items-center justify-center gap-0.5",
+            "flex flex-col items-center justify-center gap-0.5 min-w-0 px-0.5",
             active ? "text-primary" : "text-muted-foreground"
           )}
         >
-          <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
-          <span className="text-[8.5px] font-semibold uppercase tracking-wide leading-none">{label}</span>
+          <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.5 : 2} />
+          <span className="text-[7.5px] font-semibold leading-none truncate w-full text-center">{label}</span>
         </div>
       ))}
     </div>
@@ -177,7 +179,7 @@ const SwipeScreen = () => {
 
   return (
     <PhoneFrame>
-      <div className="absolute inset-0 bg-background pt-[38px] pb-[62px] px-4 flex flex-col">
+      <div className="absolute inset-0 bg-background pt-[38px] pb-[58px] px-4 flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <div className="font-display font-extrabold text-lg">Dindr</div>
           <div className="h-7 w-7 rounded-full bg-muted" />
