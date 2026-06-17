@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, PanInfo, useMotionValue, animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Flame } from "lucide-react";
+import { ChevronLeft, Signal, Wifi, BatteryFull } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,43 +12,78 @@ import swipeShot from "@/assets/onboarding-swipe.png.asset.json";
 import filtersShot from "@/assets/onboarding-filters.png.asset.json";
 import matchesShot from "@/assets/onboarding-matches.png.asset.json";
 import planShot from "@/assets/onboarding-plan.png.asset.json";
+import dindrIcon from "@/assets/dindr-icon.png.asset.json";
 
-/* ---------- Phone frame ---------- */
+/* ---------- iPhone status bar (consistent across screens) ---------- */
+
+const StatusBar = () => (
+  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-5 pt-1 text-foreground text-[11px] font-semibold pointer-events-none select-none">
+    <span className="tabular-nums tracking-tight">9:41</span>
+    <div className="flex items-center gap-1">
+      <Signal className="h-3 w-3" strokeWidth={2.5} fill="currentColor" />
+      <Wifi className="h-3 w-3" strokeWidth={2.5} />
+      <BatteryFull className="h-3.5 w-3.5" strokeWidth={2} />
+    </div>
+  </div>
+);
+
+/* ---------- Phone frame (real iPhone 19.5:9 ratio) ---------- */
 
 const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative mx-auto h-full w-full max-w-[320px] rounded-[2.2rem] bg-foreground/90 p-[6px] shadow-card">
-    <div className="relative h-full w-full overflow-hidden rounded-[1.9rem] bg-background">
-      <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-30 h-4 w-16 rounded-full bg-foreground/90" />
+  <div className="relative mx-auto h-full aspect-[9/19.5] rounded-[2.6rem] bg-foreground/90 p-[5px] shadow-card">
+    <div className="relative h-full w-full overflow-hidden rounded-[2.3rem] bg-background">
+      {/* Dynamic Island */}
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 h-[26px] w-[88px] rounded-full bg-foreground" />
+      <StatusBar />
       {children}
     </div>
   </div>
 );
 
-const ScreenshotScreen = ({ src, alt }: { src: string; alt: string }) => (
+const ScreenshotScreen = ({
+  src,
+  alt,
+  children,
+}: {
+  src: string;
+  alt: string;
+  children?: React.ReactNode;
+}) => (
   <PhoneFrame>
     <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover object-top" />
+    {children}
   </PhoneFrame>
 );
 
 const WelcomeScreen = () => (
   <PhoneFrame>
-    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-b from-primary/15 via-background to-background">
-      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-accent grid place-items-center shadow-card mb-4">
-        <Flame className="h-11 w-11 text-primary-foreground" strokeWidth={2.6} />
-      </div>
+    <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center bg-gradient-to-b from-primary/10 via-background to-background">
+      <img
+        src={dindrIcon.url}
+        alt="Dindr"
+        className="h-24 w-24 rounded-[1.4rem] shadow-card mb-5"
+      />
       <div className="font-display font-extrabold text-3xl tracking-tight">Dindr</div>
       <div className="text-xs text-muted-foreground mt-1.5">Tinder for dinner</div>
-      <div className="mt-5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold">
-        Samen beslissen wat je eet
-      </div>
     </div>
   </PhoneFrame>
 );
 
-const SwipeScreen = () => <ScreenshotScreen src={swipeShot.url} alt="Dindr swipe scherm" />;
-const FiltersScreen = () => <ScreenshotScreen src={filtersShot.url} alt="Dindr filters scherm" />;
-const PartnerScreen = () => <ScreenshotScreen src={matchesShot.url} alt="Dindr matches scherm" />;
-const PlanScreen = () => <ScreenshotScreen src={planShot.url} alt="Dindr weekplan scherm" />;
+const SwipeScreen = () => (
+  <ScreenshotScreen src={swipeShot.url} alt="Dindr swipe">
+    {/* YUM stamp like swiping right */}
+    <div className="absolute top-[28%] left-6 z-30 rotate-[-18deg]">
+      <div className="px-3 py-1 rounded-md border-[3px] border-emerald-500 bg-background/30 backdrop-blur-sm">
+        <span className="font-display font-extrabold text-2xl tracking-wider text-emerald-500">
+          YUM
+        </span>
+      </div>
+    </div>
+  </ScreenshotScreen>
+);
+const FiltersScreen = () => <ScreenshotScreen src={filtersShot.url} alt="Dindr filters" />;
+const MatchesScreen = () => <ScreenshotScreen src={matchesShot.url} alt="Dindr matches" />;
+const PlanScreen = () => <ScreenshotScreen src={planShot.url} alt="Dindr weekplan" />;
 
 /* ---------- Page ---------- */
 
@@ -64,7 +99,7 @@ const Onboarding = () => {
       { key: "welcome", Screen: WelcomeScreen },
       { key: "swipe", Screen: SwipeScreen },
       { key: "filters", Screen: FiltersScreen },
-      { key: "partner", Screen: PartnerScreen },
+      { key: "matches", Screen: MatchesScreen },
       { key: "plan", Screen: PlanScreen },
     ],
     []
@@ -184,7 +219,7 @@ const Onboarding = () => {
                 <h1 className="font-display font-extrabold text-xl mb-1 leading-tight">
                   {t(`onboarding.${key}.title`)}
                 </h1>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                <p className="text-xs text-muted-foreground leading-snug line-clamp-4">
                   {t(`onboarding.${key}.body`)}
                 </p>
               </div>

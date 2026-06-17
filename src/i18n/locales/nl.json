@@ -175,23 +175,23 @@
     "replay": "Onboarding opnieuw bekijken",
     "welcome": {
       "title": "Welkom bij Dindr",
-      "body": "Tinder for dinner: samen kiezen wat je vanavond eet."
+      "body": "Dindr is Tinder voor je avondeten. Ontdek samen recepten door te swipen, match met je partner op wat jullie allebei lekker vinden, en plan moeiteloos je week — inclusief automatische boodschappenlijst."
     },
     "swipe": {
       "title": "Swipe je diner",
-      "body": "Swipe rechts op recepten die je lekker vindt, links op de rest. Matchen jullie allebei? Dan is het een match."
+      "body": "Swipe naar rechts op recepten die je lekker vindt, naar links op de rest. Vinden jullie allebei hetzelfde leuk? Dan is het een match."
     },
     "filters": {
       "title": "Stel je filters in",
-      "body": "Kies keuken, dieet en kooktijd per dag."
+      "body": "Stel per dag je voorkeuren in: keuken, dieet, allergieën en wat je al in huis hebt. Zo zie je alleen recepten die echt bij jullie passen."
     },
-    "partner": {
-      "title": "Koppel met je partner",
-      "body": "Deel je code of vul die van je partner in. Swipe samen, match samen."
+    "matches": {
+      "title": "Matches",
+      "body": "Onder Matches vind je jouw gelikete recepten én die van je partner. Kozen jullie allebei hetzelfde? Dan is het een match. Per dag bepaal je samen je 'final pick' — wat jullie die avond gaan eten."
     },
     "plan": {
       "title": "Plan je week",
-      "body": "Je matches verschijnen automatisch in je weekplanning, met boodschappenlijst."
+      "body": "Je matches en final picks verschijnen automatisch in je weekplanning. Plan dagen vooruit en krijg meteen een boodschappenlijst met alle ingrediënten."
     }
   }
 }
