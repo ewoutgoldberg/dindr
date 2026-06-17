@@ -65,8 +65,9 @@ const PhoneFrame = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-/* Screenshot screen — crops the status bar baked into the source screenshot
-   so our synthetic iOS status bar above stays the only one visible. */
+/* Screenshot screen — crops both the source status bar (top) and the source
+   bottom nav (bottom) so our synthetic status bar + mock nav are the only
+   ones visible, identical across every screen. */
 const ScreenshotScreen = ({
   src,
   alt,
@@ -77,14 +78,15 @@ const ScreenshotScreen = ({
   children?: React.ReactNode;
 }) => (
   <PhoneFrame>
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute left-0 right-0 top-[34px] bottom-[58px] overflow-hidden bg-background">
       <img
         src={src}
         alt={alt}
         className="absolute left-0 right-0 w-full"
-        style={{ top: "-7%", height: "108%", objectFit: "cover", objectPosition: "top" }}
+        style={{ top: "-9%", height: "118%", objectFit: "cover", objectPosition: "top" }}
       />
     </div>
+    <MockBottomNav />
     {children}
   </PhoneFrame>
 );
