@@ -110,13 +110,22 @@ const WelcomeScreen = () => {
   );
 };
 
-/* Animated swipe-card demo on slide 2 — real recipe photo + mock bottom nav */
-const DEMO_RECIPE = {
-  image: "https://www.eefkooktzo.nl/wp-content/uploads/2026/05/Krokante-gyoza-skirt.jpg",
-  title: "Krokante gyoza skirt",
-  time: 25,
-  servings: 2,
-};
+/* Animated swipe-card demo on slide 2 — real recipe photos + mock bottom nav */
+const DEMO_RECIPES = [
+  {
+    image: "https://www.eefkooktzo.nl/wp-content/uploads/2026/05/Krokante-gyoza-skirt.jpg",
+    title: "Krokante gyoza skirt",
+    time: 25,
+    servings: 2,
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80",
+    title: "Bowl met geroosterde groenten",
+    time: 30,
+    servings: 2,
+  },
+];
 
 const MockBottomNav = () => {
   const { t } = useTranslation();
@@ -128,17 +137,19 @@ const MockBottomNav = () => {
     { icon: User, label: t("nav.myKitchen") },
   ];
   return (
-    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-0.5">
+    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-0">
       {items.map(({ icon: Icon, label, active }, i) => (
         <div
           key={i}
           className={cn(
-            "flex flex-col items-center justify-center gap-0.5 min-w-0 px-0.5",
+            "flex flex-col items-center justify-center gap-0.5 min-w-0 px-0",
             active ? "text-primary" : "text-muted-foreground"
           )}
         >
-          <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.5 : 2} />
-          <span className="text-[7.5px] font-semibold leading-none truncate w-full text-center">{label}</span>
+          <Icon className="h-[17px] w-[17px]" strokeWidth={active ? 2.5 : 2} />
+          <span className="text-[7px] font-semibold leading-none whitespace-nowrap text-center">
+            {label}
+          </span>
         </div>
       ))}
     </div>
