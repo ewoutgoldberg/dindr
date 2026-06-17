@@ -17,34 +17,34 @@ import dindrIcon from "@/assets/dindr-icon.png.asset.json";
 /* ---------- iPhone status bar (consistent across screens) ---------- */
 
 const IosSignal = () => (
-  <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden>
-    <rect x="0"  y="7" width="3" height="4" rx="0.6" />
-    <rect x="4.5" y="5" width="3" height="6" rx="0.6" />
-    <rect x="9"  y="3" width="3" height="8" rx="0.6" />
-    <rect x="13.5" y="0" width="3" height="11" rx="0.6" />
+  <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true">
+    <rect x="0"  y="8" width="3" height="4"  rx="0.8" />
+    <rect x="5"  y="6" width="3" height="6"  rx="0.8" />
+    <rect x="10" y="3" width="3" height="9"  rx="0.8" />
+    <rect x="15" y="0" width="3" height="12" rx="0.8" />
   </svg>
 );
 
 const IosWifi = () => (
-  <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor" aria-hidden>
-    <path d="M8 2.2C5.5 2.2 3.2 3.1 1.5 4.7L0 3.2C2 1.2 4.9 0 8 0s6 1.2 8 3.2l-1.5 1.5C12.8 3.1 10.5 2.2 8 2.2z"/>
-    <path d="M8 5.2C6.4 5.2 4.9 5.8 3.8 6.8L2.4 5.4C3.9 4 5.9 3.2 8 3.2s4.1.8 5.6 2.2L12.2 6.8C11.1 5.8 9.6 5.2 8 5.2z"/>
-    <path d="M8 8.2c-.8 0-1.6.3-2.2.9L8 11l2.2-1.9C9.6 8.5 8.8 8.2 8 8.2z"/>
+  <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true">
+    <path d="M8.5 2.4C5.7 2.4 3.1 3.4 1.2 5.2L0 4C2.2 1.7 5.2.4 8.5.4S14.8 1.7 17 4l-1.2 1.2C13.9 3.4 11.3 2.4 8.5 2.4z" />
+    <path d="M8.5 5.5C6.6 5.5 4.8 6.2 3.5 7.5L2.2 6.2C3.9 4.6 6.1 3.7 8.5 3.7s4.6.9 6.3 2.5L13.5 7.5C12.2 6.2 10.4 5.5 8.5 5.5z" />
+    <path d="M8.5 8.6c-1 0-1.9.4-2.6 1.1L8.5 12l2.6-2.3c-.7-.7-1.6-1.1-2.6-1.1z" />
   </svg>
 );
 
 const IosBattery = () => (
-  <svg width="26" height="12" viewBox="0 0 26 12" aria-hidden>
-    <rect x="0.5" y="0.5" width="22" height="11" rx="2.8" ry="2.8" fill="none" stroke="currentColor" strokeOpacity="0.45" />
-    <rect x="2" y="2" width="19" height="8" rx="1.6" ry="1.6" fill="currentColor" />
-    <rect x="23.5" y="3.5" width="1.8" height="5" rx="0.9" fill="currentColor" opacity="0.45" />
+  <svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true">
+    <rect x="0.5" y="0.5" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" strokeOpacity="0.5" />
+    <rect x="2" y="2" width="20" height="9" rx="1.8" ry="1.8" fill="currentColor" />
+    <rect x="24.5" y="4" width="2" height="5" rx="1" fill="currentColor" opacity="0.5" />
   </svg>
 );
 
 const StatusBar = () => (
-  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-6 pt-2 text-foreground text-[12px] font-semibold pointer-events-none select-none">
+  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-5 pt-1.5 text-foreground text-[12px] font-semibold pointer-events-none select-none">
     <span className="tabular-nums tracking-tight">9:41</span>
-    <div className="flex items-center gap-[5px]">
+    <div className="flex items-center gap-[6px]">
       <IosSignal />
       <IosWifi />
       <IosBattery />
