@@ -175,7 +175,7 @@
     "replay": "Replay onboarding",
     "welcome": {
       "title": "Welcome to Dindr",
-      "body": "Tinder for dinner: decide together what to eat tonight."
+      "body": "Dindr is Tinder for dinner. Discover recipes together by swiping, match with your partner on what you both love, and plan your week effortlessly — including an automatic shopping list."
     },
     "swipe": {
       "title": "Swipe your dinner",
@@ -183,15 +183,15 @@
     },
     "filters": {
       "title": "Set your filters",
-      "body": "Pick cuisine, diet and cooking time per day."
+      "body": "Set your preferences per day: cuisine, diet, allergies and what's already in your kitchen. So you only see recipes that truly fit you."
     },
-    "partner": {
-      "title": "Pair with your partner",
-      "body": "Share your code or enter your partner's. Swipe together, match together."
+    "matches": {
+      "title": "Matches",
+      "body": "Under Matches you'll find your liked recipes and your partner's. Did you both pick the same? Then it's a match. Each day you choose your 'final pick' together — what you'll eat that evening."
     },
     "plan": {
       "title": "Plan your week",
-      "body": "Your matches automatically appear in your week plan, with shopping list."
+      "body": "Your matches and final picks automatically appear in your weekly plan. Plan days ahead and instantly get a shopping list with all the ingredients."
     }
   }
 }
