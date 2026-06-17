@@ -1,10 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Instagram, Music2, ExternalLink, Loader2, ChefHat } from "lucide-react";
+import { Instagram, Music2, ExternalLink, Loader2, ChefHat, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const ReelVideo = ({ src, poster, alt }: { src: string; poster?: string; alt: string }) => {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        });
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      aria-label={alt}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      className="w-full h-full object-cover"
+    />
+  );
+};
+
 
 type Post = {
   id: string;
