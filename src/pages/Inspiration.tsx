@@ -6,23 +6,68 @@ import { Instagram, Music2, ExternalLink, Loader2, ChefHat, Play } from "lucide-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+// Track the currently playing reel so mobile browsers (which throttle
+// concurrent video playback) don't silently refuse to start later videos.
+const activeVideos = new Set<HTMLVideoElement>();
+let currentVideo: HTMLVideoElement | null = null;
+
+const playVideo = (v: HTMLVideoElement) => {
+  if (currentVideo && currentVideo !== v) {
+    currentVideo.pause();
+  }
+  currentVideo = v;
+  // Ensure the source is actually loaded (preload="none" defers this).
+  if (v.readyState < 2) {
+    try {
+      v.load();
+    } catch {
+      /* noop */
+    }
+  }
+  const p = v.play();
+  if (p && typeof p.catch === "function") {
+    p.catch(() => {
+      // Retry once after a tick — often fixes the "interrupted by new load" error.
+      setTimeout(() => v.play().catch(() => {}), 50);
+    });
+  }
+};
+
 const ReelVideo = ({ src, poster, alt }: { src: string; poster?: string; alt: string }) => {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
+    activeVideos.add(v);
+    let visible = false;
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) v.play().catch(() => {});
-          else v.pause();
+          visible = e.isIntersecting && e.intersectionRatio >= 0.4;
+          if (visible) {
+            playVideo(v);
+          } else {
+            v.pause();
+            if (currentVideo === v) currentVideo = null;
+          }
         });
       },
-      { threshold: 0.5 },
+      { threshold: [0, 0.4, 0.75] },
     );
     io.observe(v);
-    return () => io.disconnect();
-  }, []);
+    return () => {
+      io.disconnect();
+      activeVideos.delete(v);
+      if (currentVideo === v) currentVideo = null;
+      v.pause();
+      v.removeAttribute("src");
+      try {
+        v.load();
+      } catch {
+        /* noop */
+      }
+    };
+  }, [src]);
   return (
     <video
       ref={ref}
@@ -32,7 +77,10 @@ const ReelVideo = ({ src, poster, alt }: { src: string; poster?: string; alt: st
       muted
       loop
       playsInline
-      preload="metadata"
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - iOS Safari
+      webkit-playsinline="true"
+      preload="auto"
       className="w-full h-full object-cover"
     />
   );
