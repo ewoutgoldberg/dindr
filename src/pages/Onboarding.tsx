@@ -128,17 +128,17 @@ const MockBottomNav = () => {
     { icon: User, label: t("nav.myKitchen") },
   ];
   return (
-    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-1">
+    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-0.5">
       {items.map(({ icon: Icon, label, active }, i) => (
         <div
           key={i}
           className={cn(
-            "flex flex-col items-center justify-center gap-0.5",
+            "flex flex-col items-center justify-center gap-0.5 min-w-0 px-0.5",
             active ? "text-primary" : "text-muted-foreground"
           )}
         >
-          <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
-          <span className="text-[8.5px] font-semibold uppercase tracking-wide leading-none">{label}</span>
+          <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.5 : 2} />
+          <span className="text-[7.5px] font-semibold leading-none truncate w-full text-center">{label}</span>
         </div>
       ))}
     </div>
