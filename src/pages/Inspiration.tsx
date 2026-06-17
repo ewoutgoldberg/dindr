@@ -187,7 +187,10 @@ const Inspiration = () => {
                   </Badge>
                 </div>
 
-                <div className="relative bg-muted aspect-square max-h-[70vh]">
+                <div
+                  className="relative bg-muted"
+                  style={{ aspectRatio: p.media_type === "video" ? "9 / 16" : "1 / 1" }}
+                >
                   {p.media_type === "video" && p.media_url ? (
                     <>
                       <ReelVideo
