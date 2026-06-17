@@ -229,6 +229,8 @@ const RecipeDetail = () => {
           </section>
         )}
 
+        <RecipeSocialMention recipeId={recipe.id} />
+
         <section className="mt-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display font-bold text-xl">Ingredients</h2>
