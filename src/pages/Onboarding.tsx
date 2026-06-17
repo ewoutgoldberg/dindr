@@ -160,8 +160,13 @@ const SwipeScreen = () => {
   const { i18n } = useTranslation();
   const cardX = useMotionValue(0);
   const cardRotate = useTransform(cardX, [-120, 0, 120], [-10, 0, 10]);
+  const cardOpacity = useTransform(cardX, [-180, -90, 0, 90, 180], [0, 1, 1, 1, 0]);
   const [stamp, setStamp] = useState<"yum" | "nope" | null>(null);
+  const [topIdx, setTopIdx] = useState(0);
   const peopleUnit = i18n.language?.startsWith("nl") ? "pers." : "ppl";
+
+  const top = DEMO_RECIPES[topIdx % DEMO_RECIPES.length];
+  const behind = DEMO_RECIPES[(topIdx + 1) % DEMO_RECIPES.length];
 
   useEffect(() => {
     let cancelled = false;
@@ -196,16 +201,30 @@ const SwipeScreen = () => {
           <div className="h-7 w-7 rounded-full bg-muted" />
         </div>
         <div className="relative flex-1 grid place-items-center">
-          <div className="absolute inset-x-3 top-3 bottom-3 rounded-2xl bg-muted/60" />
+          {/* Card behind (next recipe) */}
+          <div
+            className="absolute inset-x-3 top-3 bottom-3 rounded-2xl overflow-hidden shadow-card bg-card"
+            style={{ transform: "scale(0.95)" }}
+          >
+            <img src={behind.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 text-white">
+              <div className="font-display font-extrabold text-[15px] leading-tight">
+                {behind.title}
+              </div>
+            </div>
+          </div>
+          {/* Top card (animated) */}
           <motion.div
-            style={{ x: cardX, rotate: cardRotate }}
+            style={{ x: cardX, rotate: cardRotate, opacity: cardOpacity }}
             className="relative w-full h-full rounded-2xl overflow-hidden shadow-card bg-card"
           >
-            <img src={DEMO_RECIPE.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 text-white">
-              <div className="font-display font-extrabold text-base leading-tight">{DEMO_RECIPE.title}</div>
+            <img src={top.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pt-6 pb-3 text-white">
+              <div className="font-display font-extrabold text-[15px] leading-tight whitespace-nowrap">
+                {top.title}
+              </div>
               <div className="text-[11px] opacity-90 mt-1">
-                ca. {DEMO_RECIPE.time} min · {DEMO_RECIPE.servings} {peopleUnit}
+                ca. {top.time} min · {top.servings} {peopleUnit}
               </div>
             </div>
             {stamp === "yum" && (
