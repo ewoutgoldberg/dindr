@@ -104,17 +104,17 @@ const SwipeScreen = () => {
       while (!cancelled) {
         // right
         setStamp("yum");
-        await animate(cardX, 60, { duration: 0.7, ease: "easeOut" }).then();
+        await animate(cardX, 60, { duration: 0.7, ease: "easeOut" });
         await new Promise((r) => setTimeout(r, 500));
-        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 }).then();
+        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
         setStamp(null);
         await new Promise((r) => setTimeout(r, 600));
         if (cancelled) return;
         // left
         setStamp("nope");
-        await animate(cardX, -60, { duration: 0.7, ease: "easeOut" }).then();
+        await animate(cardX, -60, { duration: 0.7, ease: "easeOut" });
         await new Promise((r) => setTimeout(r, 500));
-        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 }).then();
+        await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
         setStamp(null);
         await new Promise((r) => setTimeout(r, 700));
       }
