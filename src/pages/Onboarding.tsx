@@ -34,7 +34,7 @@ const IosWifi = () => (
 );
 
 const IosBattery = () => (
-  <svg width="20" height="10" viewBox="0 0 27 13" aria-hidden="true">
+  <svg width="17" height="8" viewBox="0 0 27 13" aria-hidden="true">
     <rect x="0.5" y="0.5" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" strokeOpacity="0.5" />
     <rect x="2" y="2" width="20" height="9" rx="1.8" ry="1.8" fill="currentColor" />
     <rect x="24.5" y="4" width="2" height="5" rx="1" fill="currentColor" opacity="0.5" />
@@ -42,9 +42,9 @@ const IosBattery = () => (
 );
 
 const StatusBar = () => (
-  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-3 pt-1.5 text-foreground text-[10px] font-semibold pointer-events-none select-none">
+  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-2 pt-1.5 text-foreground text-[9px] font-semibold pointer-events-none select-none">
     <span className="tabular-nums tracking-tight">9:41</span>
-    <div className="flex items-center gap-[4px]">
+    <div className="flex items-center gap-[3px]">
       <IosSignal />
       <IosWifi />
       <IosBattery />
