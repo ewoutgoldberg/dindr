@@ -17,7 +17,7 @@ import dindrIcon from "@/assets/dindr-icon.png.asset.json";
 /* ---------- iPhone status bar (consistent across screens) ---------- */
 
 const IosSignal = () => (
-  <svg width="13" height="9" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true">
+  <svg width="11" height="7" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true">
     <rect x="0"  y="8" width="3" height="4"  rx="0.8" />
     <rect x="5"  y="6" width="3" height="6"  rx="0.8" />
     <rect x="10" y="3" width="3" height="9"  rx="0.8" />
