@@ -108,18 +108,45 @@ const WelcomeScreen = () => {
   );
 };
 
-/* Animated swipe-card demo on slide 2 — real recipe photo, auto right/left loop */
+/* Animated swipe-card demo on slide 2 — real recipe photo + mock bottom nav */
 const DEMO_RECIPE = {
-  image:
-    "https://www.eefkooktzo.nl/wp-content/uploads/2026/04/crispy-chicken-tenders-uit-de-oven.jpg",
-  title: "Crispy chicken tenders",
-  time: 22,
+  image: "https://www.eefkooktzo.nl/wp-content/uploads/2026/05/Krokante-gyoza-skirt.jpg",
+  title: "Krokante gyoza skirt",
+  time: 25,
   servings: 2,
 };
 
+const MockBottomNav = () => {
+  const { t } = useTranslation();
+  const items = [
+    { icon: SlidersHorizontal, label: t("nav.filters") },
+    { icon: Flame, label: t("nav.swipe"), active: true },
+    { icon: Heart, label: t("nav.matches") },
+    { icon: CalendarDays, label: t("nav.plan") },
+    { icon: User, label: t("nav.myKitchen") },
+  ];
+  return (
+    <div className="absolute bottom-0 inset-x-0 h-[58px] bg-background border-t border-border grid grid-cols-5 px-1">
+      {items.map(({ icon: Icon, label, active }, i) => (
+        <div
+          key={i}
+          className={cn(
+            "flex flex-col items-center justify-center gap-0.5",
+            active ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+          <span className="text-[8.5px] font-semibold uppercase tracking-wide leading-none">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const SwipeScreen = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const cardX = useMotionValue(0);
+  const cardRotate = useTransform(cardX, [-120, 0, 120], [-10, 0, 10]);
   const [stamp, setStamp] = useState<"yum" | "nope" | null>(null);
   const peopleUnit = i18n.language?.startsWith("nl") ? "pers." : "ppl";
 
@@ -127,21 +154,19 @@ const SwipeScreen = () => {
     let cancelled = false;
     const loop = async () => {
       while (!cancelled) {
-        // right
         setStamp("yum");
-        await animate(cardX, 60, { duration: 0.7, ease: "easeOut" });
-        await new Promise((r) => setTimeout(r, 500));
+        await animate(cardX, 70, { duration: 0.7, ease: "easeOut" });
+        await new Promise((r) => setTimeout(r, 550));
         await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
         setStamp(null);
-        await new Promise((r) => setTimeout(r, 600));
+        await new Promise((r) => setTimeout(r, 650));
         if (cancelled) return;
-        // left
         setStamp("nope");
-        await animate(cardX, -60, { duration: 0.7, ease: "easeOut" });
-        await new Promise((r) => setTimeout(r, 500));
+        await animate(cardX, -70, { duration: 0.7, ease: "easeOut" });
+        await new Promise((r) => setTimeout(r, 550));
         await animate(cardX, 0, { type: "spring", stiffness: 200, damping: 18 });
         setStamp(null);
-        await new Promise((r) => setTimeout(r, 700));
+        await new Promise((r) => setTimeout(r, 750));
       }
     };
     loop();
@@ -152,61 +177,45 @@ const SwipeScreen = () => {
 
   return (
     <PhoneFrame>
-      <div className="absolute inset-0 bg-background pt-[38px] px-4 pb-4 flex flex-col">
+      <div className="absolute inset-0 bg-background pt-[38px] pb-[62px] px-4 flex flex-col">
         <div className="flex items-center justify-between mb-2">
           <div className="font-display font-extrabold text-lg">Dindr</div>
           <div className="h-7 w-7 rounded-full bg-muted" />
         </div>
         <div className="relative flex-1 grid place-items-center">
-          {/* back card */}
-          <div className="absolute inset-x-3 top-3 bottom-6 rounded-2xl bg-muted/60" />
+          <div className="absolute inset-x-3 top-3 bottom-3 rounded-2xl bg-muted/60" />
           <motion.div
-            style={{ x: cardX, rotate: useTransformWrap(cardX) }}
+            style={{ x: cardX, rotate: cardRotate }}
             className="relative w-full h-full rounded-2xl overflow-hidden shadow-card bg-card"
           >
             <img src={DEMO_RECIPE.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-3 text-white">
-              <div className="font-display font-extrabold text-base leading-tight">
-                {DEMO_RECIPE.title}
-              </div>
+              <div className="font-display font-extrabold text-base leading-tight">{DEMO_RECIPE.title}</div>
               <div className="text-[11px] opacity-90 mt-1">
                 ca. {DEMO_RECIPE.time} min · {DEMO_RECIPE.servings} {peopleUnit}
               </div>
             </div>
-            {/* stamps */}
             {stamp === "yum" && (
               <div className="absolute top-4 left-3 rotate-[-18deg]">
                 <div className="px-3 py-1 rounded-md border-[3px] border-emerald-500 bg-white/20 backdrop-blur-sm">
-                  <span className="font-display font-extrabold text-2xl tracking-wider text-emerald-500">
-                    YUM
-                  </span>
+                  <span className="font-display font-extrabold text-2xl tracking-wider text-emerald-500">YUM</span>
                 </div>
               </div>
             )}
             {stamp === "nope" && (
               <div className="absolute top-4 right-3 rotate-[14deg]">
                 <div className="px-3 py-1 rounded-md border-[3px] border-rose-500 bg-white/20 backdrop-blur-sm">
-                  <span className="font-display font-extrabold text-2xl tracking-wider text-rose-500">
-                    NOPE
-                  </span>
+                  <span className="font-display font-extrabold text-2xl tracking-wider text-rose-500">NOPE</span>
                 </div>
               </div>
             )}
           </motion.div>
         </div>
-        {/* action buttons row */}
-        <div className="flex items-center justify-center gap-6 mt-2">
-          <div className="h-10 w-10 rounded-full bg-rose-500/15 grid place-items-center text-rose-500 text-lg">✕</div>
-          <div className="h-12 w-12 rounded-full bg-emerald-500/15 grid place-items-center text-emerald-500 text-xl">♥</div>
-        </div>
       </div>
+      <MockBottomNav />
     </PhoneFrame>
   );
 };
-
-function useTransformWrap(x: ReturnType<typeof useMotionValue<number>>) {
-  return useTransform(x, [-100, 0, 100], [-8, 0, 8]);
-}
 
 const FiltersScreen = () => <ScreenshotScreen src={filtersShot.url} alt="Dindr filters" />;
 const MatchesScreen = () => <ScreenshotScreen src={matchesShot.url} alt="Dindr matches" />;
