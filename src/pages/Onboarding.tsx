@@ -17,7 +17,7 @@ import dindrIcon from "@/assets/dindr-icon.png.asset.json";
 /* ---------- iPhone status bar (consistent across screens) ---------- */
 
 const IosSignal = () => (
-  <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true">
+  <svg width="13" height="9" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true">
     <rect x="0"  y="8" width="3" height="4"  rx="0.8" />
     <rect x="5"  y="6" width="3" height="6"  rx="0.8" />
     <rect x="10" y="3" width="3" height="9"  rx="0.8" />
@@ -26,7 +26,7 @@ const IosSignal = () => (
 );
 
 const IosWifi = () => (
-  <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true">
+  <svg width="12" height="9" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true">
     <path d="M8.5 2.4C5.7 2.4 3.1 3.4 1.2 5.2L0 4C2.2 1.7 5.2.4 8.5.4S14.8 1.7 17 4l-1.2 1.2C13.9 3.4 11.3 2.4 8.5 2.4z" />
     <path d="M8.5 5.5C6.6 5.5 4.8 6.2 3.5 7.5L2.2 6.2C3.9 4.6 6.1 3.7 8.5 3.7s4.6.9 6.3 2.5L13.5 7.5C12.2 6.2 10.4 5.5 8.5 5.5z" />
     <path d="M8.5 8.6c-1 0-1.9.4-2.6 1.1L8.5 12l2.6-2.3c-.7-.7-1.6-1.1-2.6-1.1z" />
@@ -34,7 +34,7 @@ const IosWifi = () => (
 );
 
 const IosBattery = () => (
-  <svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true">
+  <svg width="20" height="10" viewBox="0 0 27 13" aria-hidden="true">
     <rect x="0.5" y="0.5" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" strokeOpacity="0.5" />
     <rect x="2" y="2" width="20" height="9" rx="1.8" ry="1.8" fill="currentColor" />
     <rect x="24.5" y="4" width="2" height="5" rx="1" fill="currentColor" opacity="0.5" />
@@ -42,9 +42,9 @@ const IosBattery = () => (
 );
 
 const StatusBar = () => (
-  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-5 pt-1.5 text-foreground text-[12px] font-semibold pointer-events-none select-none">
+  <div className="absolute top-0 left-0 right-0 z-40 h-[34px] flex items-center justify-between px-3 pt-1.5 text-foreground text-[10px] font-semibold pointer-events-none select-none">
     <span className="tabular-nums tracking-tight">9:41</span>
-    <div className="flex items-center gap-[6px]">
+    <div className="flex items-center gap-[4px]">
       <IosSignal />
       <IosWifi />
       <IosBattery />
