@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Clock, ChefHat, Users, Star, ShoppingCart, Loader2, Plus, Minus, Heart, CreditCard } from "lucide-react";
 import { CreatorCard } from "@/components/CreatorCard";
+import { RecipeSocialMention } from "@/components/RecipeSocialMention";
 import { useFavorite } from "@/hooks/useFavorite";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -227,6 +228,8 @@ const RecipeDetail = () => {
             <CreatorCard creator={recipe.food_creators} />
           </section>
         )}
+
+        <RecipeSocialMention recipeId={recipe.id} />
 
         <section className="mt-6">
           <div className="flex items-center justify-between mb-3">

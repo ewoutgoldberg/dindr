@@ -193,5 +193,16 @@
       "title": "Plan je week",
       "body": "Je matches en final picks verschijnen automatisch in je weekplanning. Plan dagen vooruit en krijg meteen een boodschappenlijst met alle ingrediënten."
     }
+  },
+  "inspiration": {
+    "empty": "Nog geen inspiratie. Zodra deze creator zijn/haar social accounts koppelt, verschijnen hier automatisch posts.",
+    "from": "Van",
+    "viewOn": "Bekijk op {{platform}}",
+    "viewRecipe": "Bekijk recept",
+    "readMore": "lees meer",
+    "readLess": "minder",
+    "seenAt": "Gezien bij @{{handle}} op {{platform}}",
+    "cookingNow": "Wat koken creators nu?",
+    "cookingNowSub": "De nieuwste posts van creators die je volgt"
   }
 }

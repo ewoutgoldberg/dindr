@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { fmtDateKey } from "@/lib/dates";
 import { notifyPartnerFinalPick } from "@/lib/notifyFinalPick";
+import { CreatorsCookingNow } from "@/components/CreatorsCookingNow";
 
 type FavoriteRow = Tables<"favorites"> & {
   recipes: (Tables<"recipes"> & { food_creators?: Pick<Tables<"food_creators">, "name" | "avatar_url"> | null }) | null;
@@ -66,6 +67,10 @@ const Favorites = () => {
       </header>
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
         <div className="max-w-md mx-auto w-full px-5 pb-8">
+
+      <CreatorsCookingNow />
+
+
 
 
       {hasFavorites && (
