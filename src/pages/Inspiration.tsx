@@ -6,31 +6,37 @@ import { Instagram, Music2, ExternalLink, Loader2, ChefHat, Play } from "lucide-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-// Track the currently playing reel so mobile browsers (which throttle
-// concurrent video playback) don't silently refuse to start later videos.
-const activeVideos = new Set<HTMLVideoElement>();
-let currentVideo: HTMLVideoElement | null = null;
+// Allow up to 2 reels to play simultaneously to keep scrolling smooth.
+// Mobile browsers throttle concurrent <video> playback, so we cap and rotate.
+const MAX_CONCURRENT = 2;
+const playingVideos = new Set<HTMLVideoElement>();
+const playOrder: HTMLVideoElement[] = [];
 
-const playVideo = (v: HTMLVideoElement) => {
-  if (currentVideo && currentVideo !== v) {
-    currentVideo.pause();
-  }
-  currentVideo = v;
-  // Ensure the source is actually loaded (preload="none" defers this).
-  if (v.readyState < 2) {
-    try {
-      v.load();
-    } catch {
-      /* noop */
+const requestPlay = (v: HTMLVideoElement) => {
+  if (playingVideos.has(v)) return;
+  while (playOrder.length >= MAX_CONCURRENT) {
+    const oldest = playOrder.shift();
+    if (oldest && oldest !== v) {
+      oldest.pause();
+      playingVideos.delete(oldest);
     }
+  }
+  playingVideos.add(v);
+  playOrder.push(v);
+  if (v.readyState < 2) {
+    try { v.load(); } catch { /* noop */ }
   }
   const p = v.play();
   if (p && typeof p.catch === "function") {
-    p.catch(() => {
-      // Retry once after a tick — often fixes the "interrupted by new load" error.
-      setTimeout(() => v.play().catch(() => {}), 50);
-    });
+    p.catch(() => setTimeout(() => v.play().catch(() => {}), 60));
   }
+};
+
+const releasePlay = (v: HTMLVideoElement) => {
+  v.pause();
+  playingVideos.delete(v);
+  const i = playOrder.indexOf(v);
+  if (i >= 0) playOrder.splice(i, 1);
 };
 
 const ReelVideo = ({ src, poster, alt }: { src: string; poster?: string; alt: string }) => {
@@ -38,34 +44,39 @@ const ReelVideo = ({ src, poster, alt }: { src: string; poster?: string; alt: st
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    activeVideos.add(v);
-    let visible = false;
-    const io = new IntersectionObserver(
+    // Pre-load videos slightly before they enter the viewport so the next
+    // reel is ready to play instantly when the user scrolls down.
+    const preloadIo = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          visible = e.isIntersecting && e.intersectionRatio >= 0.4;
-          if (visible) {
-            playVideo(v);
-          } else {
-            v.pause();
-            if (currentVideo === v) currentVideo = null;
+          if (e.isIntersecting && v.readyState < 2) {
+            try { v.load(); } catch { /* noop */ }
           }
         });
       },
-      { threshold: [0, 0.4, 0.75] },
+      { rootMargin: "1200px 0px 1200px 0px", threshold: 0 },
     );
-    io.observe(v);
+    // Start playing as soon as a meaningful portion is visible.
+    const playIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio >= 0.25) {
+            requestPlay(v);
+          } else if (e.intersectionRatio < 0.1) {
+            releasePlay(v);
+          }
+        });
+      },
+      { threshold: [0, 0.1, 0.25, 0.6], rootMargin: "200px 0px 200px 0px" },
+    );
+    preloadIo.observe(v);
+    playIo.observe(v);
     return () => {
-      io.disconnect();
-      activeVideos.delete(v);
-      if (currentVideo === v) currentVideo = null;
-      v.pause();
+      preloadIo.disconnect();
+      playIo.disconnect();
+      releasePlay(v);
       v.removeAttribute("src");
-      try {
-        v.load();
-      } catch {
-        /* noop */
-      }
+      try { v.load(); } catch { /* noop */ }
     };
   }, [src]);
   return (
@@ -176,7 +187,10 @@ const Inspiration = () => {
                   </Badge>
                 </div>
 
-                <div className="relative bg-muted aspect-square max-h-[70vh]">
+                <div
+                  className="relative bg-muted"
+                  style={{ aspectRatio: p.media_type === "video" ? "9 / 16" : "1 / 1" }}
+                >
                   {p.media_type === "video" && p.media_url ? (
                     <>
                       <ReelVideo
