@@ -195,7 +195,7 @@
     }
   },
   "inspiration": {
-    "empty": "No inspiration yet. Posts will appear here automatically once this creator connects their social accounts.",
+    "empty": "No inspiration yet. Posts will appear here automatically once creators connect their social accounts.",
     "from": "From",
     "viewOn": "View on {{platform}}",
     "viewRecipe": "View recipe",
@@ -203,6 +203,8 @@
     "readLess": "less",
     "seenAt": "Seen on @{{handle}}'s {{platform}}",
     "cookingNow": "What are creators cooking?",
-    "cookingNowSub": "The latest posts from creators you follow"
+    "cookingNowSub": "The latest posts from creators you follow",
+    "pageTitle": "Inspiration",
+    "pageSub": "What are creators cooking now? The latest from Instagram and TikTok."
   }
 }

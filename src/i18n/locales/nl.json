@@ -195,7 +195,7 @@
     }
   },
   "inspiration": {
-    "empty": "Nog geen inspiratie. Zodra deze creator zijn/haar social accounts koppelt, verschijnen hier automatisch posts.",
+    "empty": "Nog geen inspiratie. Zodra creators hun social accounts koppelen, verschijnen hier automatisch posts.",
     "from": "Van",
     "viewOn": "Bekijk op {{platform}}",
     "viewRecipe": "Bekijk recept",
@@ -203,6 +203,8 @@
     "readLess": "minder",
     "seenAt": "Gezien bij @{{handle}} op {{platform}}",
     "cookingNow": "Wat koken creators nu?",
-    "cookingNowSub": "De nieuwste posts van creators die je volgt"
+    "cookingNowSub": "De nieuwste posts van creators die je volgt",
+    "pageTitle": "Inspiratie",
+    "pageSub": "Wat koken creators nu? De nieuwste posts uit Instagram en TikTok."
   }
 }

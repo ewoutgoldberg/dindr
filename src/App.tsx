@@ -34,6 +34,7 @@ import AdminRecipeForm from "./pages/admin/AdminRecipeForm";
 import AdminImportCreators from "./pages/admin/AdminImportCreators";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
+import Inspiration from "./pages/Inspiration";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/creator/:id" element={<RequireAuth><Creator /></RequireAuth>} />
               <Route path="/favorites" element={<RequireAuth><Favorites /></RequireAuth>} />
+              <Route path="/inspiration" element={<RequireAuth><Inspiration /></RequireAuth>} />
               <Route path="/swipe-favorites" element={<RequireAuth><SwipeFavorites /></RequireAuth>} />
               <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
               <Route path="/claim/:token" element={<Claim />} />
