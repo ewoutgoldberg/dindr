@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, PanInfo, useMotionValue, useTransform, animate } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Signal, Wifi, BatteryFull } from "lucide-react";
+import { ChevronLeft, SlidersHorizontal, Flame, Heart, CalendarDays, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
